@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi presupuesto</title>
+<meta name="description" content="Mi presupuesto personal conectado a mi hoja de Google.">
+<meta name="theme-color" content="#F7F5F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Presupuesto">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Paleta Kaffa Studio sin rojo: Coffee Bean, Lemon Chiffon, Botticelli */
+  :root {
+    --coffee:#2D120D; --lemon:#FFF8CA; --blue:#CDE3E8;
+    --bg:#F7F5F0; --card:#FFFFFF; --tx:#2D120D; --sub:#7B6A63; --line:#E8E1D6;
+    --blue-d:#4E7F8B; --blue-s:#E6F1F3; --yellow-d:#D9B63C; --yellow-s:#FFFBE3;
+    --btn:#2D120D; --btn-tx:#FFF8CA; --r:20px;
+    --sans:"Be Vietnam Pro", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    --serif:var(--sans); --script:var(--sans);
+    /* Finanzas: verde positivo, rojo negativo */
+    --pos:#1F8A5B; --neg:#D2382C; --pos-s:#E3F4EA; --neg-s:#FCE6E3;
+    /* Cristal */
+    --glass:rgba(255,255,255,.52); --glass-b:rgba(255,255,255,.78); --glass-hi:rgba(255,255,255,.9);
+    --shadow:0 10px 30px rgba(45,18,13,.08), 0 1px 2px rgba(45,18,13,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1B0E0A; --card:#26140F; --tx:#FFF8CA; --sub:#C9B9A8; --line:#3A231C;
+      --blue-d:#9CC8D2; --blue-s:rgba(205,227,232,.12); --yellow-d:#EBCF62; --yellow-s:rgba(255,248,202,.12); --btn:#FFF8CA; --btn-tx:#2D120D;
+      --pos:#4CC38A; --neg:#FF6B5E; --pos-s:rgba(76,195,138,.15); --neg-s:rgba(255,107,94,.15);
+      --glass:rgba(48,28,22,.5); --glass-b:rgba(255,248,202,.14); --glass-hi:rgba(255,248,202,.18); --shadow:0 10px 30px rgba(0,0,0,.35); }
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--bg); color:var(--tx); font-family:var(--sans); font-size:15px; letter-spacing:-.005em; }
+  body::before { content:""; position:fixed; inset:-20%; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(38% 32% at 12% 8%, rgba(255,240,150,.85), transparent 70%),
+      radial-gradient(42% 36% at 92% 18%, rgba(160,205,215,.85), transparent 70%),
+      radial-gradient(40% 34% at 70% 72%, rgba(255,246,190,.7), transparent 70%),
+      radial-gradient(36% 30% at 8% 88%, rgba(175,214,222,.75), transparent 70%),
+      var(--bg); }
+  @media (prefers-color-scheme: dark) { body::before { opacity:.28; } }
+  body { padding-bottom:calc(110px + env(safe-area-inset-bottom)); background:transparent; }
+  .wrap { max-width:560px; margin:0 auto; padding:18px 16px 8px; padding-top:calc(18px + env(safe-area-inset-top)); }
+  .script { font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--blue-d); margin-bottom:4px; }
+  h1 { font-weight:800; font-size:32px; letter-spacing:-.03em; margin:0 0 2px; line-height:1.05; }
+  h2 { font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--sub); margin:26px 0 10px; }
+  .sub { color:var(--sub); font-size:13px; }
+  .num { font-variant-numeric:tabular-nums; }
+  .card { background:var(--glass); border-radius:var(--r); padding:16px; border:1px solid var(--glass-b);
+    -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%);
+    box-shadow:var(--shadow), inset 0 1px 0 var(--glass-hi); }
+  .hero { background:linear-gradient(135deg, rgba(255,248,202,.82), rgba(205,227,232,.62)); color:#2D120D; padding:20px;
+    border:1px solid rgba(255,255,255,.85); }
+  .hero .lbl { font-size:12px; letter-spacing:.12em; text-transform:uppercase; opacity:.7; }
+  .hero .big { font-size:42px; font-weight:800; letter-spacing:-.035em; margin:6px 0 14px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mini { background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.75); border-radius:14px; padding:10px 12px; }
+  .hero .sub { color:#2D120D; opacity:.65; }
+  .card:not(.hero) .mini { background:var(--glass); border-color:var(--glass-b); }
+  .mini .v { font-weight:600; font-size:16px; margin-top:2px; }
+  .up, .pos { color:var(--pos); }
+  .down, .neg { color:var(--neg); }
+  .chip { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--lemon); color:#2D120D; }
+  .chip.neg { background:var(--neg-s); color:var(--neg); }
+  .chip.pos { background:var(--pos-s); color:var(--pos); }
+  .chip.blue { background:var(--blue); }
+  .banner { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; background:rgba(205,227,232,.7); color:#2D120D; border:1px solid rgba(255,255,255,.8); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+    border-radius:16px; padding:13px 16px; cursor:pointer; }
+  .banner b { font-weight:600; }
+  .pill { background:#2D120D; color:var(--lemon); border-radius:999px; padding:4px 12px; font-size:12px; font-weight:600; }
+  .seg { display:flex; background:var(--glass); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); border:1px solid var(--glass-b); border-radius:14px; padding:3px; gap:3px; overflow-x:auto; }
+  .seg button { flex:1; white-space:nowrap; border:0; background:none; color:var(--sub); padding:8px 10px; border-radius:11px; font:inherit; font-size:13px; cursor:pointer; }
+  .seg button.on { background:var(--btn); color:var(--btn-tx); font-weight:600; }
+  /* gráfica */
+  .chart svg { display:block; width:100%; height:auto; overflow:visible; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--sub); margin-top:8px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .stack { display:flex; height:12px; border-radius:6px; overflow:hidden; background:rgba(45,18,13,.07); margin:12px 0 10px; }
+  .stack i { display:block; height:100%; }
+  .cat { padding:11px 0; border-bottom:1px solid var(--line); }
+  .cat:last-child { border-bottom:0; }
+  .cat .top { display:flex; justify-content:space-between; gap:8px; font-size:14px; }
+  .cat .amt { color:var(--sub); white-space:nowrap; }
+  .cat .amt b { color:var(--tx); font-weight:600; }
+  .bar { height:7px; background:rgba(45,18,13,.07); border-radius:4px; margin-top:8px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--blue-d); border-radius:4px; }
+  .bar i.warn { background:var(--yellow-d); }
+  .bar i.over { background:var(--neg); }
+  .left { font-size:12px; color:var(--sub); margin-top:5px; }
+  .mov { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .mov:last-child { border-bottom:0; }
+  .ico { width:40px; height:40px; border-radius:13px; background:linear-gradient(135deg, rgba(255,248,202,.9), rgba(205,227,232,.9)); border:1px solid rgba(255,255,255,.8); display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 40px; }
+  .mov .mid { flex:1; min-width:0; }
+  .mov .t { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mov .m { font-size:12px; color:var(--sub); margin-top:1px; }
+  .mov .r { text-align:right; font-weight:600; font-size:14px; white-space:nowrap; }
+  .mov .r small { display:block; font-weight:400; color:var(--sub); font-size:11px; }
+  .tag { font-size:10px; border-radius:6px; padding:1px 6px; background:var(--lemon); color:#2D120D; margin-left:4px; vertical-align:1px; }
+  label { display:block; font-size:12px; color:var(--sub); margin:14px 0 6px; }
+  input, select { width:100%; padding:12px 13px; border:1px solid var(--glass-b); border-radius:13px; font:inherit; font-size:16px; background:var(--glass); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); color:var(--tx); -webkit-appearance:none; appearance:none; }
+  input:focus, select:focus { outline:2px solid var(--blue); border-color:var(--blue-d); }
+  input[type=checkbox] { -webkit-appearance:checkbox; appearance:auto; width:20px; height:20px; padding:0; flex:0 0 20px; accent-color:#2D120D; }
+  .amount { font-size:46px; font-weight:800; letter-spacing:-.03em; text-align:center; border:0; background:none; padding:4px 0; }
+  .amount:focus { outline:none; }
+  .row { display:flex; gap:10px; } .row > * { flex:1; min-width:0; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .cchip { border:1px solid var(--glass-b); background:var(--glass); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); color:var(--tx); border-radius:999px; padding:8px 12px; font:inherit; font-size:13px; cursor:pointer; }
+  .cchip.on { background:var(--blue); border-color:var(--blue-d); color:#2D120D; font-weight:600; }
+  .hint { background:var(--yellow-s); border-radius:13px; padding:11px 13px; font-size:13px; color:var(--tx); margin-top:12px; }
+  .btn { display:block; width:100%; border:0; border-radius:15px; padding:15px; font:inherit; font-size:16px; font-weight:600; background:var(--btn); color:var(--btn-tx); margin-top:18px; cursor:pointer; }
+  .btn.sec { background:var(--glass); color:var(--tx); border:1px solid var(--glass-b); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); box-shadow:var(--shadow); }
+  .btn:disabled { opacity:.5; }
+  .pcard { margin-bottom:10px; }
+  .pcard .t { font-weight:600; }
+  .pcard .m { font-size:12px; color:var(--sub); margin:3px 0 10px; }
+  .pcard .acts { display:flex; gap:8px; margin-top:10px; }
+  .pcard .acts button { flex:1; border-radius:13px; padding:11px; font:inherit; font-weight:600; cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--tx); }
+  .pcard .acts .yes { background:var(--blue); border-color:var(--blue); color:#2D120D; }
+  .line { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--line); gap:10px; cursor:pointer; }
+  .line-wrap:last-child .line { border-bottom:0; }
+  .line .v { font-weight:600; }
+  .edit { display:none; gap:8px; margin:4px 0 10px; }
+  .edit.on { display:flex; }
+  .edit button { border:0; border-radius:13px; background:var(--btn); color:var(--btn-tx); padding:0 16px; font:inherit; font-weight:600; }
+  .empty { text-align:center; color:var(--sub); padding:34px 0; }
+  .hcard { margin-bottom:10px; cursor:pointer; }
+  .hcard .top { display:flex; justify-content:space-between; align-items:baseline; }
+  .hcard .mes { font-size:17px; font-weight:700; }
+  .hbar { display:flex; height:8px; border-radius:4px; overflow:hidden; background:rgba(45,18,13,.07); margin:10px 0 6px; }
+  .hbar i { display:block; height:100%; }
+  .arrow { color:var(--sub); font-size:18px; }
+  /* barra inferior */
+  nav.tabs { position:fixed; left:12px; right:12px; bottom:calc(10px + env(safe-area-inset-bottom)); max-width:536px; margin:0 auto; border-radius:26px; background:var(--glass); backdrop-filter:blur(28px) saturate(180%); -webkit-backdrop-filter:blur(28px) saturate(180%);
+    border:1px solid var(--glass-b); box-shadow:var(--shadow), inset 0 1px 0 var(--glass-hi); display:flex; justify-content:space-around; padding:7px 6px 8px; z-index:10; }
+  nav.tabs button { flex:1; border:0; background:none; color:var(--sub); font:inherit; font-size:11px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 0; cursor:pointer; position:relative; }
+  nav.tabs svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  nav.tabs button.on { color:var(--tx); font-weight:600; }
+  nav.tabs .plus .p { background:var(--btn); color:var(--btn-tx); width:50px; height:50px; border-radius:17px; display:flex; align-items:center; justify-content:center; margin-top:-18px; box-shadow:0 6px 16px rgba(45,18,13,.22); }
+  nav.tabs .plus svg { width:24px; height:24px; stroke-width:2.2; }
+  nav.tabs .badge { position:absolute; top:0; left:calc(50% + 6px); background:var(--yellow-d); color:#2D120D; border-radius:999px; font-size:10px; font-weight:700; padding:0 5px; line-height:16px; min-width:16px; }
+  .view { display:none; } .view.on { display:block; }
+  /* hoja de detalle */
+  .sheet { position:fixed; inset:0; background:rgba(45,18,13,.35); z-index:40; display:none; align-items:flex-end; justify-content:center; }
+  .sheet.on { display:flex; }
+  .sheet .panel { background:rgba(247,245,240,.82); -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%); width:100%; max-width:560px; max-height:92vh; overflow:auto; border-radius:24px 24px 0 0; padding:18px 16px calc(24px + env(safe-area-inset-bottom)); }
+  .sheet .grab { width:42px; height:5px; border-radius:3px; background:var(--line); margin:0 auto 12px; }
+  .close { float:right; background:var(--glass); border:1px solid var(--glass-b); color:var(--tx); width:34px; height:34px; border-radius:50%; font-size:16px; cursor:pointer; }
+  .toast { position:fixed; left:50%; bottom:calc(100px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px); opacity:0; transition:.25s;
+    background:var(--btn); color:var(--btn-tx); padding:11px 16px; border-radius:13px; font-size:14px; z-index:60; max-width:calc(100% - 32px); text-align:center; pointer-events:none; }
+  .toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.err { background:var(--lemon); color:#2D120D; border:1px solid var(--yellow-d); }
+  .loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:var(--bg); z-index:70; flex-direction:column; gap:12px; color:var(--sub); }
+  .loading .script { font-size:13px; }
+  .spin { width:28px; height:28px; border:3px solid var(--blue); border-top-color:var(--tx); border-radius:50%; animation:s .8s linear infinite; }
+  @keyframes s { to { transform:rotate(360deg); } }
+  .refresh.girando { animation:s .9s linear infinite; }
+  .refresh { float:right; border:1px solid var(--glass-b); background:var(--glass); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); color:var(--tx); border-radius:12px; padding:7px 11px; font:inherit; font-size:14px; cursor:pointer; margin-top:4px; }
+  /* ── Añadidos para la app instalable ── */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .back { border:0; background:none; color:var(--blue-d); font:inherit; font-size:15px; font-weight:600; padding:4px 0; cursor:pointer; }
+  .menu-grp { margin-top:18px; }
+  .menu-item { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--line); cursor:pointer; }
+  .menu-item:last-child { border-bottom:0; }
+  .menu-item .mi-ico { width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,248,202,.95), rgba(205,227,232,.95)); border:1px solid rgba(255,255,255,.85); flex:0 0 38px; }
+  .menu-item .mi-ico svg { width:20px; height:20px; stroke:#2D120D; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .menu-item .mi-t { flex:1; font-weight:600; }
+  .menu-item .mi-s { font-size:12px; color:var(--sub); font-weight:400; margin-top:1px; }
+  .menu-item .mi-b { background:var(--neg); color:#fff; border-radius:999px; font-size:11px; font-weight:700; padding:1px 7px; }
+  .day-h { display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--sub); text-transform:uppercase; letter-spacing:.06em; margin:18px 4px 6px; }
+  .grp-h { display:flex; align-items:center; gap:10px; padding:4px 0 8px; border-bottom:1px solid var(--line); margin-bottom:2px; }
+  .grp-h .t { flex:1; font-weight:700; }
+  .grp-h .n { font-size:12px; color:var(--sub); }
+  .mov { cursor:pointer; }
+  .search { margin-top:12px; }
+  .filters { display:flex; gap:8px; overflow-x:auto; padding:10px 0 2px; -webkit-overflow-scrolling:touch; }
+  .filters .cchip { white-space:nowrap; flex:0 0 auto; }
+  .resumen-f { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--sub); margin:10px 2px 0; }
+  .resumen-f b { color:var(--tx); }
+  .stepper { display:flex; align-items:center; gap:14px; }
+  .stepper button { width:42px; height:42px; border-radius:14px; border:1px solid var(--glass-b); background:var(--glass); color:var(--tx); font-size:22px; font-weight:600; cursor:pointer; }
+  .stepper .val { font-size:28px; font-weight:800; min-width:32px; text-align:center; }
+  .hrow { padding:12px 0; border-bottom:1px solid var(--line); }
+  .hrow:last-child { border-bottom:0; }
+  .hrow .top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .hrow input { max-width:140px; text-align:right; }
+  .danger { background:var(--neg-s) !important; color:var(--neg) !important; border:1px solid transparent !important; }
+  .setup { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px; }
+  .setup .card { max-width:420px; width:100%; }
+  .big-input { font-size:34px; font-weight:800; text-align:center; letter-spacing:-.03em; }
+  .estado-seg button { font-size:12px; }
+  .acc-actions { display:flex; gap:8px; }
+  .acc-actions .btn { margin-top:12px; }
+  .offline { display:none; font-size:12px; color:var(--sub); text-align:center; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="spin"></div><div class="script">mi presupuesto</div></div>
+
+<!-- PRIMERA VEZ: pegar la clave -->
+<div class="setup" id="setup" style="display:none">
+  <div class="card">
+    <div class="script">bienvenida</div>
+    <h1>Mi presupuesto</h1>
+    <p class="sub">Pega tu clave para conectar la app con tu hoja de Google. La encuentras en la hoja, en <b>💰 Presupuesto → 📱 Clave de la app del móvil</b>.</p>
+    <label>Clave</label>
+    <input id="claveInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu clave">
+    <button class="btn" id="claveGuardar">Conectar</button>
+    <div class="sub" id="claveMsg" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- INICIO -->
+<div class="view" id="v-inicio"><div class="wrap">
+  <button class="refresh" onclick="cargar()" aria-label="Actualizar">↻</button>
+  <div class="script">mi presupuesto</div>
+  <h1 id="cicloNombre">–</h1>
+  <div class="sub" id="cicloFechas"></div>
+  <div class="card hero" style="margin-top:16px">
+    <div class="lbl">Neto personal del ciclo</div>
+    <div class="big num" id="neto">–</div>
+    <div class="grid2">
+      <div class="mini"><div class="sub">Ingresos</div><div class="v num" id="kIng">–</div></div>
+      <div class="mini"><div class="sub">Gastos</div><div class="v num" id="kGas">–</div></div>
+      <div class="mini"><div class="sub">Ahorro / inversión</div><div class="v num" id="kAho">–</div></div>
+      <div class="mini"><div class="sub">Plan restante</div><div class="v num" id="kRes">–</div></div>
+    </div>
+  </div>
+  <div class="banner" id="bannerPend" style="display:none" onclick="ir('pend')">
+    <span><b id="bannerN"></b> por confirmar</span><span class="pill">Revisar</span>
+  </div>
+
+  <h2>Gasto del ciclo</h2>
+  <div class="card chart">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div><div class="sub">Gastado hasta hoy</div><div style="font-size:26px;font-weight:800;letter-spacing:-.03em" class="num" id="gHoy">–</div></div>
+      <div style="text-align:right"><div class="sub">Plan del mes</div><div class="num" style="font-weight:600" id="gPlan">–</div></div>
+    </div>
+    <div id="grafica" style="margin-top:10px"></div>
+    <div class="legend"><span><i style="background:var(--blue-d)"></i>Gasto acumulado</span><span><i style="background:var(--yellow-d)"></i>Ritmo del plan</span></div>
+    <div class="sub" id="gRitmo" style="margin-top:8px"></div>
+  </div>
+
+  <h2>En qué se va</h2>
+  <div class="card">
+    <div class="stack" id="stack"></div>
+    <div class="legend" id="stackLeg"></div>
+  </div>
+
+  <h2>Presupuesto por categoría</h2>
+  <div class="seg" id="segCat">
+    <button class="on" data-g="fijo">Fijos</button><button data-g="var">Variables</button><button data-g="aho">Ahorro</button>
+  </div>
+  <div class="card" style="margin-top:10px" id="cats"></div>
+
+  <h2 style="display:flex;justify-content:space-between">Últimos movimientos <span style="cursor:pointer;color:var(--blue-d);letter-spacing:0;text-transform:none;font-size:13px" onclick="ir('movs')">Ver todos ›</span></h2>
+  <div class="card" id="recientes"></div>
+  <div class="sub" style="text-align:center;margin:16px 0" id="cierreTxt"></div>
+  <div class="offline" id="offline">Mostrando los últimos datos guardados</div>
+</div></div>
+
+<!-- MOVIMIENTOS -->
+<div class="view" id="v-movs"><div class="wrap">
+  <div class="script">todo lo anotado</div>
+  <h1>Movimientos</h1>
+  <input class="search" id="mBuscar" placeholder="Buscar concepto, nota o cuenta" autocomplete="off">
+  <div class="seg" id="mVista" style="margin-top:10px">
+    <button class="on" data-v="fecha">Por fecha</button><button data-v="cat">Por categoría</button>
+  </div>
+  <div class="filters" id="mTipos"></div>
+  <select id="mCat" style="margin-top:8px"></select>
+  <div class="resumen-f" id="mResumen"></div>
+  <div id="mLista" style="margin-top:6px"></div>
+</div></div>
+
+<!-- PENDIENTES -->
+<div class="view" id="v-pend"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">por revisar</div>
+  <h1>Pendientes</h1>
+  <div class="sub">Lo de los próximos 8 días y lo que ya venció sin confirmar.</div>
+  <div id="listaPend" style="margin-top:16px"></div>
+</div></div>
+
+<!-- AÑADIR -->
+<div class="view" id="v-add"><div class="wrap">
+  <div class="script">nuevo</div>
+  <h1>Movimiento</h1>
+  <div class="seg" id="segTipo" style="margin-top:14px"></div>
+  <div class="card" style="margin-top:12px;text-align:center">
+    <input class="amount num" id="imp" type="text" inputmode="decimal" placeholder="0,00 €" autocomplete="off">
+  </div>
+  <label>Categoría</label>
+  <div class="chips" id="cats-add"></div>
+  <label>Concepto</label>
+  <input id="conc" placeholder="p. ej. Mercadona · compra semanal" autocomplete="off">
+  <div class="row">
+    <div><label>Fecha</label><input type="date" id="fecha"></div>
+    <div><label>Cuenta</label><select id="cuenta"></select></div>
+  </div>
+  <label>Estado</label>
+  <div class="seg" id="segEstado"></div>
+  <label>Notas (opcional)</label>
+  <input id="notas" autocomplete="off">
+  <div class="hint" id="parte" style="display:none"></div>
+  <button class="btn" id="guardar">Guardar</button>
+</div></div>
+
+<!-- CUENTAS -->
+<div class="view" id="v-cuentas"><div class="wrap">
+  <div class="script">mi dinero</div>
+  <h1>Cuentas</h1>
+  <div class="card hero" style="margin-top:16px">
+    <div class="lbl">Patrimonio</div>
+    <div class="big num" id="patrimonio">–</div>
+    <div class="grid2">
+      <div class="mini"><div class="sub">Cuentas</div><div class="v num" id="totCuentas">–</div></div>
+      <div class="mini"><div class="sub">Metales</div><div class="v num" id="totMetales">–</div></div>
+    </div>
+  </div>
+  <h2>Saldos <span style="text-transform:none;letter-spacing:0;font-weight:400">· toca para actualizar</span></h2>
+  <div class="card" id="listaCuentas"></div>
+  <button class="btn sec" id="abrirCuenta">＋ Añadir cuenta</button>
+
+  <h2>Inversiones en metales</h2>
+  <div class="grid2" style="margin-bottom:10px">
+    <div class="card" style="padding:12px 14px"><div class="sub">Invertido</div><div class="num" style="font-weight:600;font-size:17px;margin-top:2px" id="totInvertido">–</div></div>
+    <div class="card" style="padding:12px 14px"><div class="sub">Beneficio total</div><div class="num" style="font-weight:800;font-size:17px;margin-top:2px" id="totGanancia">–</div></div>
+  </div>
+  <div class="card" id="listaActivos"></div>
+  <button class="btn sec" id="abrirCompra">＋ Compra de metal</button>
+</div></div>
+
+<!-- MENÚ -->
+<div class="view" id="v-menu"><div class="wrap">
+  <div class="script">todo en un sitio</div>
+  <h1>Menú</h1>
+  <div class="menu-grp"><h2 style="margin-top:6px">Día a día</h2>
+    <div class="card" style="padding:4px 16px">
+      <div class="menu-item" onclick="ir('pend')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></div><div class="mi-t">Pendientes<div class="mi-s">Confirmar recurrentes y previstos</div></div><span class="mi-b" id="menuBadge" style="display:none"></span><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('movs')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg></div><div class="mi-t">Movimientos<div class="mi-s">Por fecha y por categoría</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('add')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="mi-t">Añadir movimiento<div class="mi-s">Gasto, ingreso, ahorro…</div></div><span class="arrow">›</span></div>
+    </div>
+  </div>
+  <div class="menu-grp"><h2>Análisis</h2>
+    <div class="card" style="padding:4px 16px">
+      <div class="menu-item" onclick="ir('hist')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg></div><div class="mi-t">Histórico<div class="mi-s">Meses cerrados y su detalle</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('cuentas')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg></div><div class="mi-t">Cuentas e inversiones<div class="mi-s">Saldos, metales y patrimonio</div></div><span class="arrow">›</span></div>
+    </div>
+  </div>
+  <div class="menu-grp"><h2>Configuración</h2>
+    <div class="card" style="padding:4px 16px">
+      <div class="menu-item" onclick="ir('hogar')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></div><div class="mi-t">Gastos compartidos<div class="mi-s" id="menuHogar">Personas y gastos del hogar</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('ajustes')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.1-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2.1 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9c.6.5 1.3.9 2.1 1.2L10 21h4l.5-2.6c.8-.3 1.5-.7 2.1-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></div><div class="mi-t">Ajustes<div class="mi-s">Clave y datos guardados</div></div><span class="arrow">›</span></div>
+      <a class="menu-item" style="text-decoration:none;color:inherit" href="https://docs.google.com/spreadsheets/d/10pya4cxplHIqnUFn31EUIrHDgf1JQeJM7eH5T5dg77I/edit" target="_blank" rel="noopener"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div class="mi-t">Abrir mi hoja de Google<div class="mi-s">Planner financiero</div></div><span class="arrow">›</span></a>
+    </div>
+  </div>
+</div></div>
+
+<!-- HISTÓRICO -->
+<div class="view" id="v-hist"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">meses cerrados</div>
+  <h1>Histórico</h1>
+  <div class="sub">Se añade un mes cada día 28. Toca un mes para ver el detalle.</div>
+  <div class="card chart" style="margin-top:16px" id="histChartCard">
+    <div id="histChart"></div>
+    <div class="legend"><span><i style="background:#CDE3E8"></i>Ingresos</span><span><i style="background:var(--tx)"></i>Gastos</span><span><i style="background:var(--yellow-d)"></i>Ahorro</span></div>
+  </div>
+  <div id="listaHist" style="margin-top:12px"></div>
+</div></div>
+
+<!-- GASTOS COMPARTIDOS -->
+<div class="view" id="v-hogar"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">configuración</div>
+  <h1>Gastos compartidos</h1>
+  <div class="sub">Lo que pagáis entre todos. Tu parte se calcula sola y es la que cuenta en tu presupuesto.</div>
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>Personas en casa</b><div class="sub">Se divide entre todas</div></div>
+      <div class="stepper"><button id="hMenos">−</button><span class="val" id="hPersonas">2</span><button id="hMas">+</button></div>
+    </div>
+  </div>
+  <h2>Total del hogar al mes</h2>
+  <div class="card" id="hLista"></div>
+  <div class="card" style="margin-top:10px;display:flex;justify-content:space-between"><span>Tu parte total</span><b class="num" id="hTotal">–</b></div>
+  <button class="btn" id="hGuardar">Guardar</button>
+</div></div>
+
+<!-- AJUSTES -->
+<div class="view" id="v-ajustes"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">configuración</div>
+  <h1>Ajustes</h1>
+  <h2>Clave de conexión</h2>
+  <div class="card">
+    <div class="sub">La clave conecta la app con tu hoja. Si la cambias en la hoja, pégala aquí de nuevo.</div>
+    <input id="ajClave" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:10px">
+    <button class="btn" id="ajGuardar">Guardar clave</button>
+  </div>
+  <h2>Datos guardados en el móvil</h2>
+  <div class="card">
+    <div class="sub" id="ajInfo">–</div>
+    <button class="btn sec" id="ajBorrar">Borrar y volver a cargar</button>
+  </div>
+</div></div>
+
+<!-- HOJA INFERIOR (detalle de mes, editar movimiento, cuentas, metales) -->
+<div class="sheet" id="sheet" onclick="if(event.target===this)cerrarHoja()">
+  <div class="panel">
+    <div class="grab"></div>
+    <button class="close" onclick="cerrarHoja()" aria-label="Cerrar">✕</button>
+    <div class="script" id="hojaEtiqueta">detalle</div>
+    <h1 id="hojaTitulo" style="font-size:26px">–</h1>
+    <div id="hojaCuerpo" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<nav class="tabs" id="tabs" style="display:none">
+  <button data-v="inicio" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</button>
+  <button data-v="movs"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Movimientos</button>
+  <button data-v="add" class="plus"><span class="p"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Añadir</button>
+  <button data-v="cuentas"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg>Cuentas</button>
+  <button data-v="menu"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>Menú<span class="badge" id="badge" style="display:none"></span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ───────── Conexión con el script de Google ───────── */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzsg0JlVqnhdFoz7FG0gFl2R7JKIBhKep-lpLARXKl6CSpkyGQG4PA3mKEH1TRlC_TH/exec';
+const CLAVE_KEY = 'mp-clave', CACHE_KEY = 'mp-datos-v2';
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+             set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+             del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+const clave = () => ls.get(CLAVE_KEY) || '';
+
+async function apiGet(params) {
+  const u = API_URL + '?' + new URLSearchParams(Object.assign({}, params, { key: clave() }));
+  const r = await fetch(u, { redirect: 'follow' });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Error');
+  return j.datos;
+}
+/** Escrituras: devuelven los datos ya actualizados, así no hace falta recargar. */
+async function apiPost(accion, ...args) {
+  const r = await fetch(API_URL, { method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ key: clave(), accion, args }) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Error');
+  if (j.datos) { S = j.datos; ls.set(CACHE_KEY, JSON.stringify(S)); pintarTodo(); }
+  return j.mensaje;
+}
+
+/* ───────── Utilidades ───────── */
+const $ = (id) => document.getElementById(id);
+const eur = (n) => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const emoji = (cat) => { const m = String(cat || '').match(/^\p{Extended_Pictographic}️?/u); return m ? m[0] : '•'; };
+const sinEmoji = (cat) => String(cat || '').replace(/^\p{Extended_Pictographic}️?\s*/u, '');
+const fechaCorta = (ymd) => { if (!ymd) return ''; const [y, m, d] = ymd.split('-'); return `${d}/${m}`; };
+const num = (s) => { let t = String(s).replace(/\s|€/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); return Number(t); };
+const aTexto = (n) => String(Math.round((Number(n) || 0) * 100) / 100).replace('.', ',');
+const hoyLocal = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const mayus = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const signoEur = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + eur(Math.abs(n));
+const clsSigno = (n) => n > 0.004 ? 'pos' : n < -0.004 ? 'neg' : '';
+const PALETA = ['#4E7F8B', '#D9B63C', '#2D120D', '#9CC8D2', '#F2DE8A', '#7B6A63', '#CDE3E8', '#B08F2A'];
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MESES_C = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+function fechaLarga(ymd) {
+  if (!ymd) return 'Sin fecha';
+  const hoy = hoyLocal(), d = new Date(ymd + 'T12:00:00');
+  const ayer = new Date(hoy + 'T12:00:00'); ayer.setDate(ayer.getDate() - 1);
+  if (ymd === hoy) return 'Hoy';
+  if (ymd === ayer.toISOString().slice(0, 10)) return 'Ayer';
+  return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES_C[d.getMonth()]}`;
+}
+
+let S = null, tipo = 'Gasto', estado = 'Confirmado', cat = '🛒 Comida', grupo = 'fijo', vistaActual = 'inicio';
+let tt;
+function toast(t, err) {
+  const el = $('toast'); el.textContent = t; el.className = 'toast on' + (err ? ' err' : '');
+  clearTimeout(tt); tt = setTimeout(() => el.className = 'toast', 2800);
+}
+function ir(v) {
+  vistaActual = v;
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  const tab = ['inicio', 'movs', 'add', 'cuentas'].includes(v) ? v : 'menu';
+  document.querySelectorAll('nav.tabs button').forEach((x) => x.classList.toggle('on', x.dataset.v === tab));
+  $('v-' + v).classList.add('on');
+  window.scrollTo(0, 0);
+  if (v === 'add') setTimeout(() => $('imp').focus(), 150);
+  if (v === 'hogar') pintarHogar();
+  if (v === 'ajustes') pintarAjustes();
+}
+document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => ir(b.dataset.v));
+
+/* ───────── Carga: primero lo guardado, luego lo nuevo ───────── */
+function actualizando(si) { const b = document.querySelector('.refresh'); if (b) b.classList.toggle('girando', si); }
+let cargando = null;
+function cargar() {
+  if (!clave()) { mostrarSetup(); return Promise.resolve(); }
+  if (cargando) return cargando;
+  if (!S) {
+    try { const c = JSON.parse(ls.get(CACHE_KEY)); if (c && c.resumen) { S = c; arrancar(); } } catch (e) {}
+  }
+  actualizando(true);
+  cargando = apiGet({ api: 'datos' })
+    .then((d) => { S = d; ls.set(CACHE_KEY, JSON.stringify(d)); ls.set('mp-hora', new Date().toISOString()); arrancar(); $('offline').style.display = 'none'; })
+    .catch((e) => {
+      if (/Clave no válida/.test(e.message)) { mostrarSetup(e.message); return; }
+      if (S) { $('offline').style.display = 'block'; toast('Sin conexión: datos guardados', true); }
+      else toast(e.message || 'No se pudo cargar', true);
+    })
+    .finally(() => { $('loading').style.display = 'none'; actualizando(false); cargando = null; });
+  return cargando;
+}
+let arrancada = false;
+function arrancar() {
+  $('loading').style.display = 'none'; $('setup').style.display = 'none'; $('tabs').style.display = 'flex';
+  if (!arrancada) { arrancada = true; ir('inicio'); }
+  pintarTodo();
+}
+function mostrarSetup(msg) {
+  $('loading').style.display = 'none'; $('tabs').style.display = 'none';
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  $('setup').style.display = 'flex'; $('claveMsg').textContent = msg || '';
+}
+async function probarYGuardarClave(k, msgEl) {
+  k = String(k || '').trim();
+  if (k.length < 32) { msgEl.textContent = 'La clave no parece completa.'; return false; }
+  const anterior = clave(); ls.set(CLAVE_KEY, k);
+  msgEl.textContent = 'Comprobando…';
+  try { await apiGet({ api: 'ping' }); msgEl.textContent = '✓ Conectada'; return true; }
+  catch (e) { if (anterior) ls.set(CLAVE_KEY, anterior); else ls.del(CLAVE_KEY); msgEl.textContent = e.message; return false; }
+}
+$('claveGuardar').onclick = async () => { if (await probarYGuardarClave($('claveInput').value, $('claveMsg'))) { $('loading').style.display = 'flex'; S = null; cargar(); } };
+
+function pintarTodo() {
+  if (!S) return;
+  pintarInicio(); pintarMovs(); pintarPend(); pintarFormulario(); pintarCuentas(); pintarHist();
+  if (vistaActual === 'hogar' && !hogarEditando) pintarHogar();
+}
+
+/* ───────── INICIO ───────── */
+function pintarInicio() {
+  const r = S.resumen;
+  $('cicloNombre').textContent = mayus(r.ciclo);
+  $('cicloFechas').textContent = `${r.inicio} – ${r.fin}`;
+  $('neto').textContent = signoEur(r.neto); $('neto').className = 'big num ' + clsSigno(r.neto);
+  $('kIng').textContent = eur(r.ingresos); $('kGas').textContent = eur(r.gastos); $('kAho').textContent = eur(r.ahorro);
+  const restante = r.categorias.filter((c) => c.tipo === 'Gasto').reduce((s, c) => s + Math.max(0, c.plan - c.real), 0);
+  $('kRes').textContent = eur(restante);
+  const n = S.pendientes.length;
+  $('bannerPend').style.display = n ? 'flex' : 'none';
+  $('bannerN').textContent = n === 1 ? '1 movimiento' : `${n} movimientos`;
+  ['badge', 'menuBadge'].forEach((id) => { $(id).style.display = n ? 'inline-block' : 'none'; $(id).textContent = n; });
+  $('cierreTxt').textContent = `Este ciclo se archiva automáticamente el ${r.cierre}`;
+  pintarGrafica(); pintarStack(); pintarCats();
+  const rec = movsOrdenados().slice(0, 8);
+  $('recientes').innerHTML = rec.length ? rec.map(movHtml).join('') : '<div class="empty">Aún no hay movimientos</div>';
+  enlazarMovs($('recientes'));
+}
+function diasEntre(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+function sumarDia(ymd, n) { const d = new Date(ymd + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+function pintarGrafica() {
+  const s = S.serie, total = diasEntre(s.inicio, s.fin) + 1;
+  const hoyIdx = Math.max(0, Math.min(total - 1, diasEntre(s.inicio, hoyLocal())));
+  const acum = []; let a = 0;
+  for (let i = 0; i <= hoyIdx; i++) { a += s.dias[sumarDia(s.inicio, i)] || 0; acum.push(a); }
+  const W = 340, H = 170, L = 6, R = 6, T = 14, B = 22;
+  const maxY = Math.max(s.plan, a, 1) * 1.08;
+  const x = (i) => L + (W - L - R) * (total > 1 ? i / (total - 1) : 0);
+  const y = (v) => T + (H - T - B) * (1 - v / maxY);
+  const pts = acum.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const area = `M${x(0)},${y(0)} L${pts.join(' L')} L${x(hoyIdx)},${y(0)} Z`;
+  const grid = [0.25, 0.5, 0.75, 1].map((f) => `<line x1="${L}" x2="${W - R}" y1="${y(maxY * f)}" y2="${y(maxY * f)}" stroke="var(--line)" stroke-width="1"/>`).join('');
+  const ritmoHoy = s.plan * (hoyIdx + 1) / total;
+  $('grafica').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gasto acumulado del ciclo">
+    <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CDE3E8" stop-opacity=".95"/><stop offset="1" stop-color="#CDE3E8" stop-opacity=".15"/></linearGradient></defs>
+    ${grid}
+    <line x1="${x(0)}" y1="${y(0)}" x2="${x(total - 1)}" y2="${y(s.plan)}" stroke="var(--yellow-d)" stroke-width="2" stroke-dasharray="5 5"/>
+    <path d="${area}" fill="url(#ga)"/>
+    <path d="M${pts.join(' L')}" fill="none" stroke="var(--blue-d)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${x(hoyIdx)}" cy="${y(a)}" r="5" fill="var(--card)" stroke="var(--blue-d)" stroke-width="2.6"/>
+    <text x="${L}" y="${H - 4}" font-size="10" fill="var(--sub)" font-family="Be Vietnam Pro">${fechaCorta(s.inicio)}</text>
+    <text x="${W - R}" y="${H - 4}" font-size="10" fill="var(--sub)" text-anchor="end" font-family="Be Vietnam Pro">${fechaCorta(s.fin)}</text>
+  </svg>`;
+  $('gHoy').textContent = eur(a); $('gPlan').textContent = eur(s.plan);
+  const dif = ritmoHoy - a;
+  $('gRitmo').innerHTML = dif >= 0 ? `Vas <b class="pos">${eur(dif)}</b> por debajo del ritmo del plan.` : `Vas <b class="neg">${eur(-dif)}</b> por encima del ritmo del plan.`;
+}
+function pintarStack() {
+  const g = S.resumen.categorias.filter((c) => c.tipo === 'Gasto' && c.real > 0).sort((p, q) => q.real - p.real);
+  const tot = g.reduce((s, c) => s + c.real, 0);
+  if (!tot) { $('stack').innerHTML = ''; $('stackLeg').innerHTML = '<span>Sin gastos confirmados todavía</span>'; return; }
+  $('stack').innerHTML = g.map((c, i) => `<i style="width:${c.real / tot * 100}%;background:${PALETA[i % PALETA.length]}"></i>`).join('');
+  $('stackLeg').innerHTML = g.map((c, i) => `<span><i style="background:${PALETA[i % PALETA.length]}"></i>${esc(sinEmoji(c.cat))} · ${Math.round(c.real / tot * 100)}%</span>`).join('');
+}
+function catHtml(c) {
+  const pct = c.plan > 0 ? Math.min(100, c.real / c.plan * 100) : (c.real > 0 ? 100 : 0);
+  const over = c.real > c.plan + 0.005, completo = !over && c.plan > 0 && Math.abs(c.plan - c.real) < 0.005;
+  const warn = !over && !completo && pct >= 85, resto = c.plan - c.real;
+  const pie = over ? `<span class="chip neg">Te has pasado ${eur(-resto)}</span>` : completo ? '<span class="chip blue">Completado</span>' : 'Quedan ' + eur(resto);
+  return `<div class="cat"><div class="top"><span>${esc(c.cat)}</span><span class="amt num"><b>${eur(c.real)}</b> / ${eur(c.plan)}</span></div>
+    <div class="bar"><i style="width:${pct}%" class="${over ? 'over' : warn ? 'warn' : ''}"></i></div><div class="left">${pie}</div></div>`;
+}
+function pintarCats() {
+  const g = S.resumen.categorias.filter((c) => grupo === 'aho' ? c.tipo !== 'Gasto' : c.tipo === 'Gasto' && (grupo === 'fijo' ? c.fijo : !c.fijo));
+  $('cats').innerHTML = g.length ? g.map(catHtml).join('') : '<div class="empty">Nada en este grupo</div>';
+}
+document.querySelectorAll('#segCat button').forEach((b) => b.onclick = () => {
+  grupo = b.dataset.g; document.querySelectorAll('#segCat button').forEach((x) => x.classList.toggle('on', x === b)); pintarCats();
+});
+
+/* ───────── MOVIMIENTOS ───────── */
+const movsOrdenados = () => (S.movimientos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : b.fila - a.fila);
+const esEntrada = (m) => m.tipo === 'Ingreso' || m.tipo === 'Reintegro';
+function movHtml(m) {
+  const entra = esEntrada(m), sg = entra ? '+' : m.tipo === 'Transferencia' ? '' : '−';
+  const parte = m.tipo === 'Gasto' && Math.abs(m.parte - m.imp) > 0.005 ? `<small>tu parte ${eur(m.parte)}</small>` : '';
+  const tag = m.estado && m.estado !== 'Confirmado' ? `<span class="tag">${esc(m.estado)}</span>` : '';
+  const anulado = m.estado === 'Anulado' ? ' style="opacity:.5;text-decoration:line-through"' : '';
+  return `<div class="mov" data-fila="${m.fila}"><div class="ico">${emoji(m.cat)}</div>
+    <div class="mid"><div class="t"${anulado}>${esc(m.conc)}</div><div class="m">${fechaCorta(m.fecha)} · ${esc(sinEmoji(m.cat))} · ${esc(m.cuenta)}${tag}</div></div>
+    <div class="r num ${entra ? 'pos' : sg === '−' ? 'neg' : ''}">${sg}${eur(m.imp)}${parte}</div></div>`;
+}
+function enlazarMovs(cont) {
+  cont.querySelectorAll('.mov[data-fila]').forEach((el) => el.onclick = () => {
+    const m = (S.movimientos || []).find((x) => String(x.fila) === el.dataset.fila);
+    if (m) editarMov(m);
+  });
+}
+let mVista = 'fecha', mTipo = 'Todos';
+const TIPOS_F = ['Todos', 'Gastos', 'Ingresos', 'Ahorro', 'Previstos'];
+function pasaFiltros(m) {
+  const q = $('mBuscar').value.trim().toLowerCase(), c = $('mCat').value;
+  if (q && !(`${m.conc} ${m.notas} ${m.cuenta} ${m.cat}`.toLowerCase().includes(q))) return false;
+  if (c && m.cat !== c) return false;
+  if (mTipo === 'Gastos' && m.tipo !== 'Gasto') return false;
+  if (mTipo === 'Ingresos' && !esEntrada(m)) return false;
+  if (mTipo === 'Ahorro' && m.tipo !== 'Ahorro / inversión') return false;
+  if (mTipo === 'Previstos' && !['Previsto', 'Por confirmar'].includes(m.estado)) return false;
+  return true;
+}
+function pintarMovs() {
+  $('mTipos').innerHTML = TIPOS_F.map((t) => `<button class="cchip ${t === mTipo ? 'on' : ''}" data-t="${t}">${t}</button>`).join('');
+  $('mTipos').querySelectorAll('button').forEach((b) => b.onclick = () => { mTipo = b.dataset.t; pintarMovs(); });
+  const catSel = $('mCat').value;
+  const cats = [...new Set((S.movimientos || []).map((m) => m.cat).filter(Boolean))].sort((a, b) => sinEmoji(a).localeCompare(sinEmoji(b)));
+  $('mCat').innerHTML = '<option value="">Todas las categorías</option>' + cats.map((c) => `<option ${c === catSel ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  const lista = movsOrdenados().filter(pasaFiltros);
+  const valido = (m) => m.estado !== 'Anulado';
+  const gas = lista.filter((m) => valido(m) && m.tipo === 'Gasto').reduce((s, m) => s + m.parte, 0);
+  const ing = lista.filter((m) => valido(m) && esEntrada(m) && m.tipo === 'Ingreso').reduce((s, m) => s + m.imp, 0);
+  $('mResumen').innerHTML = `<span><b>${lista.length}</b> movimientos</span><span>Tu gasto <b class="neg">${eur(gas)}</b></span><span>Ingresos <b class="pos">${eur(ing)}</b></span>`;
+  if (!lista.length) { $('mLista').innerHTML = '<div class="card empty">No hay movimientos con estos filtros</div>'; return; }
+  const grupos = new Map();
+  lista.forEach((m) => { const k = mVista === 'fecha' ? m.fecha : m.cat; if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(m); });
+  let claves = [...grupos.keys()];
+  if (mVista === 'cat') claves.sort((a, b) => sum(grupos.get(b)) - sum(grupos.get(a)));
+  function sum(arr) { return arr.filter(valido).reduce((s, m) => s + (m.tipo === 'Gasto' ? m.parte : 0), 0); }
+  $('mLista').innerHTML = claves.map((k) => {
+    const arr = grupos.get(k), tot = sum(arr);
+    if (mVista === 'fecha') {
+      return `<div class="day-h"><span>${esc(fechaLarga(k))}</span><span>${tot ? '−' + eur(tot) : ''}</span></div><div class="card" style="padding:4px 16px">${arr.map(movHtml).join('')}</div>`;
+    }
+    return `<div class="card" style="margin-top:12px"><div class="grp-h"><div class="ico">${emoji(k)}</div><span class="t">${esc(sinEmoji(k))}</span><span class="n">${arr.length} · <b class="${tot ? 'neg' : ''}">${tot ? '−' + eur(tot) : ''}</b></span></div>${arr.map(movHtml).join('')}</div>`;
+  }).join('');
+  enlazarMovs($('mLista'));
+}
+$('mBuscar').addEventListener('input', pintarMovs);
+$('mCat').onchange = pintarMovs;
+document.querySelectorAll('#mVista button').forEach((b) => b.onclick = () => {
+  mVista = b.dataset.v; document.querySelectorAll('#mVista button').forEach((x) => x.classList.toggle('on', x === b)); pintarMovs();
+});
+
+/* Editar un movimiento (al tocarlo) */
+function opciones(lista, sel) { return lista.map((v) => `<option ${v === sel ? 'selected' : ''}>${esc(v)}</option>`).join(''); }
+function editarMov(m) {
+  const d = S.datos;
+  const cats = d.categorias.includes(m.cat) ? d.categorias : [m.cat].concat(d.categorias);
+  const cuentas = d.cuentas.includes(m.cuenta) ? d.cuentas : [m.cuenta].concat(d.cuentas);
+  abrirHoja(m.recurrente ? 'movimiento recurrente' : 'editar movimiento', m.conc, `
+    <div class="card" style="text-align:center"><input class="amount num" id="eImp" type="text" inputmode="decimal" value="${aTexto(m.imp)}"></div>
+    <label>Tipo</label><select id="eTipo">${opciones(d.tipos, m.tipo)}</select>
+    <label>Categoría</label><select id="eCat">${opciones(cats, m.cat)}</select>
+    <label>Concepto</label><input id="eConc" value="${esc(m.conc)}" autocomplete="off">
+    <div class="row"><div><label>Fecha</label><input type="date" id="eFecha" value="${esc(m.fecha)}"></div>
+      <div><label>Cuenta</label><select id="eCuenta">${opciones(cuentas, m.cuenta)}</select></div></div>
+    <label>Estado</label><select id="eEstado">${opciones(d.estados, m.estado)}</select>
+    <label>Notas</label><input id="eNotas" value="${esc(m.notas || '')}" autocomplete="off">
+    ${m.tipo === 'Gasto' && Math.abs(m.parte - m.imp) > 0.005 ? `<div class="hint">Gasto del hogar: tu parte es ${eur(m.parte)}.</div>` : ''}
+    <button class="btn" id="eGuardar">Guardar cambios</button>
+    <button class="btn sec danger" id="eBorrar" style="margin-top:8px">Eliminar movimiento</button>`);
+  $('eGuardar').onclick = async () => {
+    const datos = { fecha: $('eFecha').value, tipo: $('eTipo').value, cat: $('eCat').value, conc: $('eConc').value,
+      imp: num($('eImp').value), cuenta: $('eCuenta').value, estado: $('eEstado').value, notas: $('eNotas').value };
+    if (!(datos.imp > 0)) { toast('Importe no válido', true); return; }
+    await conBoton($('eGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('editarMovimiento', m.fila, m.conc, datos)); cerrarHoja(); });
+  };
+  $('eBorrar').onclick = async () => {
+    if (!confirm(`¿Eliminar "${m.conc}"? No se puede deshacer.`)) return;
+    await conBoton($('eBorrar'), 'Eliminando…', async () => { toast(await apiPost('eliminarMovimiento', m.fila, m.conc)); cerrarHoja(); });
+  };
+}
+async function conBoton(b, texto, fn) {
+  const antes = b.textContent; b.disabled = true; b.textContent = texto;
+  try { await fn(); } catch (e) { toast(e.message, true); }
+  b.disabled = false; b.textContent = antes;
+}
+
+/* ───────── PENDIENTES ───────── */
+function pintarPend() {
+  const l = S.pendientes;
+  if (!l.length) { $('listaPend').innerHTML = '<div class="card empty">Todo confirmado ✨</div>'; return; }
+  const hoy = hoyLocal();
+  $('listaPend').innerHTML = l.map((p, i) => `
+    <div class="card pcard">
+      <div class="t">${emoji(p.cat)} ${esc(p.conc)}</div>
+      <div class="m">${esc(p.tipo)} · ${esc(p.cuenta)} · ${p.fecha && p.fecha < hoy ? '<span class="chip neg">Vencido</span>' : esc(fechaLarga(p.fecha))}</div>
+      <div class="row"><input type="date" value="${esc(p.fecha)}" id="pf${i}"><input type="text" inputmode="decimal" value="${aTexto(p.imp)}" id="pi${i}"></div>
+      <div class="acts"><button class="no" data-i="${i}">Anular</button><button class="yes" data-i="${i}">Confirmar</button></div>
+    </div>`).join('');
+  $('listaPend').querySelectorAll('.yes').forEach((b) => b.onclick = () => accionPend(b, 'confirmar'));
+  $('listaPend').querySelectorAll('.no').forEach((b) => b.onclick = () => accionPend(b, 'anular'));
+}
+async function accionPend(b, que) {
+  const p = S.pendientes[b.dataset.i];
+  if (que === 'anular' && !confirm(`¿Anular "${p.conc}"?`)) return;
+  const fecha = $('pf' + b.dataset.i).value, imp = num($('pi' + b.dataset.i).value);
+  // La tarjeta desaparece al momento; el servidor confirma en segundo plano
+  S.pendientes = S.pendientes.filter((x) => x !== p); pintarPend(); pintarInicio();
+  try {
+    toast(que === 'confirmar' ? await apiPost('confirmarMovimiento', p.fila, p.conc, fecha, imp) : await apiPost('anularMovimiento', p.fila, p.conc));
+  } catch (e) { toast(e.message, true); cargar(); }
+}
+
+/* ───────── AÑADIR ───────── */
+const SUG = { 'Ingreso': '💼 Nómina', 'Ahorro / inversión': '📈 Inversión y emergencia', 'Transferencia': '🛍️ Gastos personales', 'Gasto': '🛒 Comida' };
+let formListo = false;
+function pintarFormulario() {
+  const d = S.datos;
+  if (!formListo) { $('fecha').value = hoyLocal(); ['imp', 'fecha'].forEach((i) => $(i).addEventListener('input', calcParte)); formListo = true; }
+  const cuentaSel = $('cuenta').value || 'Banco';
+  $('cuenta').innerHTML = opciones(d.cuentas, cuentaSel);
+  $('segTipo').innerHTML = d.tipos.map((t) => `<button class="${t === tipo ? 'on' : ''}" data-v="${esc(t)}">${esc(t === 'Ahorro / inversión' ? 'Ahorro' : t)}</button>`).join('');
+  $('segTipo').querySelectorAll('button').forEach((b) => b.onclick = () => { tipo = b.dataset.v; if (SUG[tipo]) cat = SUG[tipo]; pintarFormulario(); });
+  $('segEstado').innerHTML = ['Confirmado', 'Previsto', 'Por confirmar'].filter((e) => d.estados.includes(e)).map((e) => `<button class="${e === estado ? 'on' : ''}" data-v="${esc(e)}">${esc(e)}</button>`).join('');
+  $('segEstado').querySelectorAll('button').forEach((b) => b.onclick = () => { estado = b.dataset.v; pintarFormulario(); });
+  $('cats-add').innerHTML = d.categorias.map((c) => `<button class="cchip ${c === cat ? 'on' : ''}" data-v="${esc(c)}">${esc(c)}</button>`).join('');
+  $('cats-add').querySelectorAll('.cchip').forEach((b) => b.onclick = () => { cat = b.dataset.v; pintarFormulario(); });
+  calcParte();
+}
+function calcParte() {
+  const d = S.datos, imp = num($('imp').value) || 0, el = $('parte');
+  if (tipo === 'Gasto' && d.hogar.includes(cat) && imp > 0) {
+    const n = (S.hogar && S.hogar.personas) || d.personas;
+    el.style.display = 'block'; el.textContent = `Gasto del hogar: tu parte es ${eur(imp / n)} (entre ${n}).`;
+  } else if (tipo === 'Reintegro') { el.style.display = 'block'; el.textContent = 'Reintegro: dinero que te devuelven. No cuenta como gasto tuyo.'; }
+  else if (tipo === 'Transferencia') { el.style.display = 'block'; el.textContent = 'Transferencia entre tus cuentas: no es gasto.'; }
+  else el.style.display = 'none';
+}
+$('guardar').onclick = async () => {
+  const imp = num($('imp').value);
+  if (!(imp > 0)) { toast('Escribe un importe', true); $('imp').focus(); return; }
+  const datos = { fecha: $('fecha').value, tipo, cat, conc: $('conc').value.trim() || sinEmoji(cat), imp, cuenta: $('cuenta').value, estado, notas: $('notas').value };
+  await conBoton($('guardar'), 'Guardando…', async () => {
+    toast('✓ ' + await apiPost('agregarMovimiento', datos));
+    $('imp').value = ''; $('conc').value = ''; $('notas').value = ''; ir('inicio');
+  });
+};
+
+/* ───────── CUENTAS ───────── */
+function pintarCuentas() {
+  const v = S.inversiones;
+  $('patrimonio').textContent = eur(v.patrimonio); $('totCuentas').textContent = eur(v.totalCuentas); $('totMetales').textContent = eur(v.totalMetales);
+  $('totInvertido').textContent = eur(v.totalInvertido);
+  $('totGanancia').textContent = signoEur(v.totalGanancia); $('totGanancia').className = 'num ' + clsSigno(v.totalGanancia);
+  $('listaCuentas').innerHTML = v.cuentas.map((c, i) => `<div class="line-wrap"><div class="line" data-c="${i}"><div><div>${esc(c.nombre)}</div><div class="sub">Revisado el ${esc(c.fecha)}</div></div><div class="v num">${eur(c.saldo)} <span class="arrow">›</span></div></div></div>`).join('');
+  $('listaCuentas').querySelectorAll('.line').forEach((l) => l.onclick = () => editarCuenta(v.cuentas[l.dataset.c]));
+  $('listaActivos').innerHTML = v.activos.length ? v.activos.map((a, i) => `<div class="line-wrap"><div class="line" data-a="${i}"><div><div>${esc(a.nombre)}</div>
+      <div class="sub">${aTexto(a.unidades)} uds · coste medio ${eur(a.coste)} · invertido ${eur(a.invertido)}</div><div class="sub">Precio actual ${eur(a.precio)} · ${esc(a.fecha)}</div></div>
+      <div style="text-align:right"><div class="v num">${eur(a.valor)}</div><div class="sub num ${clsSigno(a.ganancia)}">${signoEur(a.ganancia)}</div></div></div></div>`).join('') : '<div class="empty">Aún no tienes metales</div>';
+  $('listaActivos').querySelectorAll('.line').forEach((l) => l.onclick = () => editarActivo(v.activos[l.dataset.a]));
+}
+function editarCuenta(c) {
+  abrirHoja('actualizar saldo', c.nombre, `
+    <div class="sub">Saldo anotado: <b>${eur(c.saldo)}</b> · revisado el ${esc(c.fecha)}</div>
+    <div class="card" style="margin-top:12px;text-align:center"><input class="big-input num" id="sSaldo" type="text" inputmode="decimal" value="${aTexto(c.saldo)}"></div>
+    <div class="hint" id="sDif" style="display:none"></div>
+    <button class="btn" id="sGuardar">Guardar saldo</button>`);
+  const inp = $('sSaldo');
+  setTimeout(() => { inp.focus(); inp.select(); }, 250);
+  inp.addEventListener('input', () => {
+    const n = num(inp.value), dif = n - c.saldo, el = $('sDif');
+    if (!isFinite(n) || Math.abs(dif) < 0.005) { el.style.display = 'none'; return; }
+    el.style.display = 'block'; el.innerHTML = `Diferencia: <b class="${clsSigno(dif)}">${signoEur(dif)}</b>`;
+  });
+  $('sGuardar').onclick = async () => {
+    const n = num(inp.value);
+    if (!(n >= 0)) { toast('Saldo no válido', true); return; }
+    await conBoton($('sGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('actualizarSaldo', c.fila, n)); cerrarHoja(); });
+  };
+}
+function editarActivo(a) {
+  abrirHoja('precio actual', a.nombre, `
+    <div class="sub">${aTexto(a.unidades)} uds · coste medio ${eur(a.coste)} · precio del ${esc(a.fecha)}</div>
+    <label>Precio actual por unidad</label>
+    <div class="card" style="text-align:center"><input class="big-input num" id="aPrecio" type="text" inputmode="decimal" value="${aTexto(a.precio)}"></div>
+    <div class="hint" id="aRes"></div>
+    <button class="btn" id="aGuardar">Guardar precio</button>`);
+  const inp = $('aPrecio');
+  const res = () => { const p = num(inp.value) || 0, val = p * a.unidades, g = val - a.invertido; $('aRes').innerHTML = `Valor ${eur(val)} · beneficio <b class="${clsSigno(g)}">${signoEur(g)}</b>`; };
+  inp.addEventListener('input', res); res();
+  setTimeout(() => { inp.focus(); inp.select(); }, 250);
+  $('aGuardar').onclick = async () => {
+    const p = num(inp.value); if (!(p > 0)) { toast('Precio no válido', true); return; }
+    await conBoton($('aGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('actualizarPrecio', a.fila, p)); cerrarHoja(); });
+  };
+}
+$('abrirCuenta').onclick = () => {
+  abrirHoja('nueva cuenta', 'Añadir cuenta', `
+    <label>Nombre</label><input id="nNombre" placeholder="p. ej. ING, Hucha, Bizum…" autocomplete="off">
+    <label>Saldo actual</label><input id="nSaldo" type="text" inputmode="decimal" placeholder="0,00 €">
+    <label>Para qué es (opcional)</label><input id="nNota" placeholder="p. ej. Fondo de emergencia" autocomplete="off">
+    <button class="btn" id="nGuardar">Guardar cuenta</button>`);
+  $('nGuardar').onclick = async () => {
+    const nombre = $('nNombre').value.trim(); if (!nombre) { toast('Escribe el nombre', true); return; }
+    const saldo = $('nSaldo').value === '' ? 0 : num($('nSaldo').value); if (!(saldo >= 0)) { toast('Saldo no válido', true); return; }
+    await conBoton($('nGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('agregarCuenta', { nombre, saldo, nota: $('nNota').value })); cerrarHoja(); });
+  };
+};
+$('abrirCompra').onclick = () => {
+  const v = S.inversiones;
+  abrirHoja('nueva compra', 'Compra de metal', `
+    <label>Metal</label><select id="cMetal">${v.activos.map((a) => `<option value="${a.fila}">${esc(a.nombre)}</option>`).join('')}<option value="nuevo">＋ Metal nuevo…</option></select>
+    <div id="cNuevoWrap" style="display:none"><label>Nombre del metal nuevo</label><input id="cNombre" placeholder="p. ej. Oro · moneda 1 oz" autocomplete="off"></div>
+    <div class="row"><div><label>Unidades</label><input id="cUds" type="text" inputmode="decimal" placeholder="1"></div>
+      <div><label>Precio de compra / ud.</label><input id="cPrecio" type="text" inputmode="decimal" placeholder="0,00 €"></div></div>
+    <label>Fecha</label><input type="date" id="cFecha" value="${hoyLocal()}">
+    <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px"><input type="checkbox" id="cRegistrar" checked> Anotar en Movimientos como ahorro / inversión</label>
+    <div id="cCuentaWrap"><label>Pagado desde</label><select id="cCuenta">${opciones(S.datos.cuentas, 'Banco')}</select></div>
+    <div class="hint" id="cResumen" style="display:none"></div>
+    <button class="btn" id="cGuardar">Guardar compra</button>`);
+  if (!v.activos.length) { $('cMetal').value = 'nuevo'; $('cNuevoWrap').style.display = 'block'; }
+  const resumen = () => {
+    const uds = num($('cUds').value) || 0, precio = num($('cPrecio').value) || 0, el = $('cResumen');
+    if (!(uds > 0 && precio > 0)) { el.style.display = 'none'; return; }
+    let t = `Total de la compra: ${eur(uds * precio)}.`;
+    const a = v.activos.find((x) => String(x.fila) === $('cMetal').value);
+    if (a) { const u1 = a.unidades + uds, cm1 = (a.unidades * a.coste + uds * precio) / u1, inv1 = u1 * cm1;
+      t += ` Quedarás con ${aTexto(u1)} uds a un coste medio de ${eur(cm1)} (invertido ${eur(inv1)}, beneficio al precio actual ${signoEur(u1 * a.precio - inv1)}).`; }
+    el.style.display = 'block'; el.textContent = t;
+  };
+  $('cMetal').onchange = () => { $('cNuevoWrap').style.display = $('cMetal').value === 'nuevo' ? 'block' : 'none'; resumen(); };
+  $('cRegistrar').onchange = () => { $('cCuentaWrap').style.display = $('cRegistrar').checked ? 'block' : 'none'; };
+  ['cUds', 'cPrecio'].forEach((i) => $(i).addEventListener('input', resumen));
+  $('cGuardar').onclick = async () => {
+    const nuevo = $('cMetal').value === 'nuevo';
+    const datos = { fila: nuevo ? null : $('cMetal').value, nombre: nuevo ? $('cNombre').value : '', unidades: num($('cUds').value), precio: num($('cPrecio').value),
+      fecha: $('cFecha').value, registrar: $('cRegistrar').checked, cuenta: $('cCuenta').value };
+    if (!(datos.unidades > 0)) { toast('Indica las unidades', true); return; }
+    if (!(datos.precio > 0)) { toast('Indica el precio de compra', true); return; }
+    if (nuevo && !datos.nombre.trim()) { toast('Escribe el nombre del metal', true); return; }
+    await conBoton($('cGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('comprarMetal', datos)); cerrarHoja(); });
+  };
+};
+
+/* ───────── GASTOS COMPARTIDOS ───────── */
+let hogarEdit = null, hogarEditando = false;
+function pintarHogar() {
+  if (!S || !S.hogar) return;
+  hogarEdit = JSON.parse(JSON.stringify(S.hogar)); hogarEditando = false;
+  $('menuHogar').textContent = `Entre ${hogarEdit.personas} · ${hogarEdit.conceptos.length} gastos`;
+  dibujarHogar();
+}
+function dibujarHogar() {
+  const h = hogarEdit;
+  $('hPersonas').textContent = h.personas;
+  $('hLista').innerHTML = h.conceptos.map((c, i) => `<div class="hrow"><div class="top"><span>${esc(c.nombre)}</span>
+    <input type="text" inputmode="decimal" data-i="${i}" value="${aTexto(c.total)}"></div>
+    <div class="sub" id="hParte${i}">Tu parte: ${eur(c.total / h.personas)}</div></div>`).join('');
+  $('hLista').querySelectorAll('input').forEach((inp) => inp.addEventListener('input', () => {
+    hogarEditando = true; const c = h.conceptos[inp.dataset.i]; c.total = num(inp.value) || 0;
+    $('hParte' + inp.dataset.i).textContent = `Tu parte: ${eur(c.total / h.personas)}`; totalHogar();
+  }));
+  totalHogar();
+}
+function totalHogar() { $('hTotal').textContent = eur(hogarEdit.conceptos.reduce((s, c) => s + c.total / hogarEdit.personas, 0)); }
+$('hMenos').onclick = () => { if (hogarEdit.personas > 1) { hogarEdit.personas--; hogarEditando = true; dibujarHogar(); } };
+$('hMas').onclick = () => { if (hogarEdit.personas < 20) { hogarEdit.personas++; hogarEditando = true; dibujarHogar(); } };
+$('hGuardar').onclick = async () => {
+  await conBoton($('hGuardar'), 'Guardando…', async () => {
+    toast('✓ ' + await apiPost('guardarHogar', { personas: hogarEdit.personas, conceptos: hogarEdit.conceptos.map((c) => ({ fila: c.fila, total: c.total })) }));
+    hogarEditando = false; pintarHogar();
+  });
+};
+
+/* ───────── AJUSTES ───────── */
+function pintarAjustes() {
+  $('ajClave').value = clave();
+  const h = ls.get('mp-hora');
+  $('ajInfo').textContent = h ? `Última actualización: ${new Date(h).toLocaleString('es-ES')}` : 'Aún no hay datos guardados.';
+}
+$('ajGuardar').onclick = async () => {
+  const msg = { textContent: '' };
+  if (await probarYGuardarClave($('ajClave').value, msg)) { toast('✓ Clave guardada'); cargar(); } else toast(msg.textContent, true);
+};
+$('ajBorrar').onclick = () => { ls.del(CACHE_KEY); ls.del('mp-hora'); S = null; arrancada = false; $('loading').style.display = 'flex'; cargar(); };
+
+/* ───────── HISTÓRICO ───────── */
+function pintarHist() {
+  const h = S.historico;
+  if (!h.length) { $('histChartCard').style.display = 'none'; $('listaHist').innerHTML = '<div class="card empty">Aún no hay meses cerrados</div>'; return; }
+  $('histChartCard').style.display = 'block';
+  const ult = h.slice(-6), W = 340, H = 150, B = 22, T = 8;
+  const max = Math.max(...ult.map((m) => Math.max(m.ingresos, m.gastos, m.ahorro)), 1) * 1.1;
+  const grupoW = (W - 10) / ult.length, bw = Math.min(16, grupoW / 4), yv = (v) => (H - B - T) * v / max;
+  const barras = ult.map((m, i) => {
+    const cx = 5 + grupoW * i + grupoW / 2;
+    return [[m.ingresos, '#CDE3E8'], [m.gastos, 'var(--tx)'], [m.ahorro, 'var(--yellow-d)']].map(([v, col], k) =>
+      `<rect x="${(cx + (k - 1.5) * (bw + 3)).toFixed(1)}" y="${(H - B - yv(v)).toFixed(1)}" width="${bw}" height="${Math.max(0, yv(v)).toFixed(1)}" rx="4" fill="${col}"/>`).join('') +
+      `<text x="${cx}" y="${H - 6}" font-size="10" fill="var(--sub)" text-anchor="middle" font-family="Be Vietnam Pro">${esc(m.mes.slice(0, 3))}</text>`;
+  }).join('');
+  $('histChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ingresos, gastos y ahorro por mes"><line x1="0" x2="${W}" y1="${H - B}" y2="${H - B}" stroke="var(--line)"/>${barras}</svg>`;
+  $('listaHist').innerHTML = h.slice().reverse().map((m, i) => {
+    const tot = Math.max(m.ingresos, m.gastos + m.ahorro, 1);
+    return `<div class="card hcard" data-i="${h.length - 1 - i}"><div class="top"><span class="mes">${esc(m.mes)}</span><span class="num ${clsSigno(m.margen)}" style="font-weight:700">${signoEur(m.margen)} <span class="arrow">›</span></span></div>
+      <div class="hbar"><i style="width:${m.gastos / tot * 100}%;background:var(--tx)"></i><i style="width:${m.ahorro / tot * 100}%;background:var(--yellow-d)"></i></div>
+      <div class="sub num">Ingresos ${eur(m.ingresos)} · Gastos ${eur(m.gastos)} · Ahorro ${eur(m.ahorro)}</div></div>`;
+  }).join('');
+  $('listaHist').querySelectorAll('.hcard').forEach((c) => c.onclick = () => abrirDetalle(S.historico[c.dataset.i]));
+}
+async function abrirDetalle(m) {
+  const k = (t, v) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${v}</div></div>`;
+  const cab = `<div class="card hero" style="padding:16px"><div class="lbl">Margen tras ahorro</div><div class="big num ${clsSigno(m.margen)}" style="font-size:34px;margin:4px 0 12px">${signoEur(m.margen)}</div>
+    <div class="grid2">${k('Ingresos', eur(m.ingresos))}${k('Gastos', eur(m.gastos))}${k('Ahorro / inversión', eur(m.ahorro))}${k('Banco al cierre', eur(m.banco))}</div></div>
+    ${m.patrimonio != null ? `<div class="sub" style="margin-top:10px">Patrimonio al cierre: <b>${eur(m.patrimonio)}</b></div>` : ''}<div class="sub" style="margin-top:4px">${esc(m.estado)}</div>`;
+  abrirHoja('detalle', m.mes, cab + '<div class="empty">Cargando detalle…</div>');
+  try {
+    const d = await apiGet({ api: 'detalleMes', mes: m.mes });
+    let html = cab;
+    if (d.sinHoja) html += '<div class="card empty" style="margin-top:14px">No encuentro la pestaña de cierre de este mes.</div>';
+    const g = d.cats.filter((c) => c.tipo === 'Gasto'), a = d.cats.filter((c) => c.tipo !== 'Gasto');
+    if (g.length) html += `<h2>Gastos por categoría</h2><div class="card">${g.map(catHtml).join('')}</div>`;
+    if (a.length) html += `<h2>Ahorro e inversión</h2><div class="card">${a.map(catHtml).join('')}</div>`;
+    if (d.movs.length) html += `<h2>Movimientos (${d.movs.length})</h2><div class="card">${d.movs.slice().sort((x, y) => x.fecha < y.fecha ? 1 : -1).map(movHtml).join('')}</div>`;
+    else if (!d.sinHoja) html += '<div class="sub" style="margin-top:14px">Este mes se cerró antes de tener la app, así que no guarda la lista de movimientos.</div>';
+    $('hojaCuerpo').innerHTML = html;
+  } catch (e) { toast(e.message, true); }
+}
+
+/* ───────── Hoja inferior ───────── */
+function abrirHoja(etiqueta, titulo, html) {
+  $('hojaEtiqueta').textContent = etiqueta; $('hojaTitulo').textContent = titulo; $('hojaCuerpo').innerHTML = html;
+  $('sheet').classList.add('on'); document.body.style.overflow = 'hidden';
+}
+function cerrarHoja() { $('sheet').classList.remove('on'); document.body.style.overflow = ''; }
+
+/* ───────── Arranque ───────── */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S) cargar(); });
+cargar();
+</script>
+</body>
+</html>

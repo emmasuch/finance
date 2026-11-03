@@ -1,6 +1,6 @@
 // Guarda la app en el móvil para que abra al instante, incluso sin conexión.
 // Al cambiar cualquier archivo de la app, sube el número de VERSION.
-const VERSION = 'mi-presupuesto-v1';
+const VERSION = 'mi-presupuesto-v5';
 const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
@@ -9,7 +9,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys()
-    .then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
+    .then((ks) => Promise.all(ks.filter((k) => k !== VERSION && k !== 'mp-ajustes').map((k) => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

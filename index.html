@@ -296,7 +296,7 @@
     <button onclick="nuevoCon({tipo:'Gasto'})"><span class="qi g"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span>Gasto</button>
     <button onclick="nuevoCon({tipo:'Ingreso'})"><span class="qi i"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Ingreso</button>
     <button onclick="ahorrarAhora()"><span class="qi a"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></span>Ahorrar</button>
-    <button onclick="ir('pct')"><span class="qi p"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M18 6L6 18"/></svg></span>Reparto</button>
+    <button onclick="ir('cats')"><span class="qi p"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M18 6L6 18"/></svg></span>Presupuesto</button>
   </div>
   <div class="banner" id="bannerPend" style="display:none" onclick="ir('pend')">
     <span><b id="bannerN"></b> por confirmar</span><span class="pill">Revisar</span>
@@ -441,8 +441,7 @@
   </div>
   <div class="menu-grp"><h2>Planificar y ahorrar</h2>
     <div class="card" style="padding:4px 16px">
-      <div class="menu-item" onclick="ir('cats')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M13 16.5h7M16.5 13v7"/></svg></div><div class="mi-t">Categorías y presupuesto<div class="mi-s" id="menuCats">Importe, fijo/variable/ahorro y compartidas</div></div><span class="arrow">›</span></div>
-      <div class="menu-item" onclick="ir('pct')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M18 6L6 18"/></svg></div><div class="mi-t">Gestor de porcentajes<div class="mi-s" id="menuPct">Reparte tu nómina en fijos, variables y ahorro</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('cats')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M13 16.5h7M16.5 13v7"/></svg></div><div class="mi-t">Categorías y presupuesto<div class="mi-s" id="menuCats">Nómina, reparto automático e importe de cada categoría</div></div><span class="arrow">›</span></div>
       <div class="menu-item" onclick="ir('metas')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/></svg></div><div class="mi-t">Metas de ahorro<div class="mi-s" id="menuMetas">Fondo de emergencia, viajes, inversión…</div></div><span class="arrow">›</span></div>
       <div class="menu-item" onclick="ir('subs')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></div><div class="mi-t">Suscripciones y fijos<div class="mi-s" id="menuSubs">Todo lo que pagas cada mes</div></div><span class="arrow">›</span></div>
     </div>
@@ -480,40 +479,6 @@
   <div id="listaHist" style="margin-top:12px"></div>
 </div></div>
 
-<!-- GESTOR DE PORCENTAJES -->
-<div class="view" id="v-pct"><div class="wrap">
-  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
-  <div class="script">planificar</div>
-  <h1>Gestor de porcentajes</h1>
-  <div class="sub">Decide qué parte de tu nómina va a gastos fijos, a gastos variables y a ahorro, y compáralo con lo que llevas este ciclo.</div>
-
-  <h2>Tu nómina del mes</h2>
-  <div class="card">
-    <input class="big-input num" id="pBase" type="text" inputmode="decimal" autocomplete="off">
-    <div class="sub" id="pBaseSub" style="text-align:center;margin-top:6px"></div>
-  </div>
-
-  <div class="card" style="margin-top:10px" id="pRecom"></div>
-  <h2>Reparto</h2>
-  <div class="chips" id="pPresets"></div>
-  <div class="card" style="margin-top:10px">
-    <div class="donut-wrap"><div id="pDonut"></div><div style="flex:1" id="pDonutLeg"></div></div>
-  </div>
-  <div class="card" style="margin-top:10px;padding:4px 16px" id="pSliders"></div>
-
-  <h2>Este ciclo: objetivo y real</h2>
-  <div class="card" style="padding:4px 16px" id="pCmp"></div>
-
-  <h2>Cómo repartir el ahorro</h2>
-  <div class="card" style="padding:4px 16px" id="pBolsas"></div>
-  <button class="linkbtn" id="pBolsaAdd" style="margin-top:6px">＋ Añadir destino</button>
-
-  <h2>Consejos</h2>
-  <div class="card" style="padding:4px 16px" id="pConsejos"></div>
-
-  <button class="btn" id="pGuardar">Guardar reparto</button>
-</div></div>
-
 <!-- METAS DE AHORRO -->
 <div class="view" id="v-metas"><div class="wrap">
   <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
@@ -538,16 +503,27 @@
   <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
   <div class="script">planificar</div>
   <h1>Categorías y presupuesto</h1>
-  <div class="sub">Lo que reservas cada mes para cada categoría, si es un gasto fijo, variable o ahorro, y si lo compartes con el hogar.</div>
-  <div class="card hero" style="margin-top:16px">
-    <div class="lbl">Tu presupuesto del mes</div>
+  <div class="sub">Escribe tu nómina y te propongo el mejor reparto según tus gastos fijos y variables. Después ajusta cada categoría y guarda.</div>
+
+  <h2>Tu nómina del mes</h2>
+  <div class="card">
+    <input class="big-input num" id="ctNomina" type="text" inputmode="decimal" autocomplete="off" aria-label="Tu nómina del mes">
+    <div class="sub" id="ctNominaSub" style="text-align:center;margin-top:6px"></div>
+  </div>
+
+  <div class="card hero" style="margin-top:10px">
+    <div class="lbl">Asignado al mes</div>
     <div class="big num" id="ctTotal">–</div>
     <div class="grid2">
       <div class="mini"><div class="sub">Tu nómina</div><div class="v num" id="ctBase">–</div></div>
       <div class="mini"><div class="sub" id="ctRestoLbl">Sin asignar</div><div class="v num" id="ctResto">–</div></div>
     </div>
     <div class="stack" id="ctStack" style="margin:14px 0 4px"></div>
+    <div class="dist" id="ctLeyenda"></div>
   </div>
+
+  <div class="card" style="margin-top:10px" id="ctRecom"></div>
+
   <div id="ctGrupos"></div>
   <button class="btn sec" id="ctNueva">＋ Nueva categoría</button>
   <div class="hint">Compartida = se divide entre las personas del hogar. En ese caso escribe el <b>total del hogar</b> y tu parte se calcula sola.</div>
@@ -804,10 +780,9 @@ function ir(v) {
   if (v === 'add') setTimeout(() => $('imp').focus(), 150);
   if (v === 'hogar') pintarHogar();
   if (v === 'ajustes') pintarAjustes();
-  if (v === 'pct') pintarPct();
   if (v === 'metas') pintarMetas();
   if (v === 'comp') pintarComp();
-  if (v === 'cats') pintarCatsPres(true);
+  if (v === 'cats') pintarCatsPres(!CE || !hayCambios());
   if (v === 'subs') pintarSubs();
   if (v === 'import') pintarImportCuentas();
   if (v === 'siri') pintarSiri();
@@ -864,7 +839,7 @@ function pintarTodo() {
   refrescarAjustes();
   pintarInicio(); pintarMovs(); pintarPend(); pintarFormulario(); pintarCuentas(); pintarHist();
   pintarMetas(); pintarComp(); pintarSubs();
-  const pa = ajustes().pct; $('menuPct').textContent = `${pa.fijos} / ${pa.variables} / ${pa.ahorro} · fijos, variables y ahorro`;
+  if (vistaActual === 'cats' && (!CE || !hayCambios())) pintarCatsPres(true);
   if (vistaActual === 'hogar' && !hogarEditando) pintarHogar();
 }
 
@@ -1498,120 +1473,6 @@ function pintarRapidos() {
   });
 }
 
-/* ───────── GESTOR DE PORCENTAJES ───────── */
-const PRESETS = [
-  { n: '50 / 30 / 20', s: 'Clásico', v: [50, 30, 20] },
-  { n: '60 / 20 / 20', s: 'Fijos altos', v: [60, 20, 20] },
-  { n: '70 / 20 / 10', s: 'Mes justo', v: [70, 20, 10] },
-  { n: '40 / 30 / 30', s: 'Ahorro fuerte', v: [40, 30, 30] },
-];
-const PK = ['fijos', 'variables', 'ahorro'], PG = { fijos: 'fijo', variables: 'var', ahorro: 'aho' };
-let P = null; // copia que se edita
-function pintarPct() {
-  if (!S) return;
-  P = copia({ pct: ajustes().pct, base: ajustes().base, bolsas: ajustes().bolsas });
-  const g = agregados();
-  $('pBase').value = P.base > 0 ? aTexto(P.base) : '';
-  $('pBase').placeholder = aTexto(g.ingTot) + ' €';
-  $('pBaseSub').textContent = `Este ciclo has anotado ${eur(g.ingTot)} de ingresos. Escribe otra cantidad y te propongo el mejor reparto.`;
-  dibujarPct();
-}
-function rebalancear(k, val) {
-  const otros = PK.filter((x) => x !== k), resto = 100 - val;
-  const sumO = P.pct[otros[0]] + P.pct[otros[1]];
-  const a0 = sumO > 0 ? Math.round(resto * P.pct[otros[0]] / sumO) : Math.round(resto / 2);
-  P.pct[k] = val; P.pct[otros[0]] = a0; P.pct[otros[1]] = resto - a0;
-}
-function dibujarPct() {
-  const g = agregados(), base = P.base > 0 ? P.base : g.ingTot;
-  pintarRecom(base, P.auto); P.auto = false;
-  $('pPresets').innerHTML = PRESETS.map((p, i) => { const on = PK.every((k, j) => P.pct[k] === p.v[j]);
-    return `<button class="cchip ${on ? 'on' : ''}" data-i="${i}">${p.n} <span style="opacity:.65">· ${p.s}</span></button>`; }).join('');
-  $('pPresets').querySelectorAll('button').forEach((b) => b.onclick = () => { PRESETS[b.dataset.i].v.forEach((v, j) => P.pct[PK[j]] = v); dibujarPct(); });
-  // Donut del reparto
-  const R = 52, CIRC = 2 * Math.PI * R; let off = 0;
-  const arcos = PK.map((k, j) => { const f = P.pct[k] / 100, len = Math.max(0, CIRC * f - 3);
-    const el = f > 0 ? `<circle r="${R}" cx="66" cy="66" fill="none" stroke="${GRUPOS[j].col}" stroke-width="18" stroke-dasharray="${len.toFixed(2)} ${CIRC}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 66 66)"><title>${GRUPOS[j].n}: ${P.pct[k]}%</title></circle>` : '';
-    off += CIRC * f; return el; }).join('');
-  $('pDonut').innerHTML = `<svg viewBox="0 0 132 132" role="img" aria-label="Reparto de la nómina"><circle r="${R}" cx="66" cy="66" fill="none" stroke="var(--c-libre)" stroke-width="18"/>${arcos}
-    <text x="66" y="64" text-anchor="middle" font-size="22" font-weight="800" fill="var(--tx)" font-family="Be Vietnam Pro">${P.pct.ahorro}%</text>
-    <text x="66" y="81" text-anchor="middle" font-size="10" fill="var(--sub)" font-family="Be Vietnam Pro">ahorro</text></svg>`;
-  $('pDonutLeg').innerHTML = PK.map((k, j) => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span class="dot" style="background:${GRUPOS[j].col}"></span><span style="flex:1;font-size:14px">${GRUPOS[j].n.replace('Gastos ', '').replace(/^./, (c) => c.toUpperCase())}</span><b class="num">${eur(base * P.pct[k] / 100)}</b></div>`).join('');
-  // Deslizadores
-  const nombres = { fijos: 'Gastos fijos', variables: 'Gastos variables', ahorro: 'Ahorro e inversión' };
-  const ayuda = { fijos: 'Alquiler, luz, internet, suscripciones…', variables: 'Comida, ocio, compras, transporte…', ahorro: 'Lo que apartas para ti y tu futuro' };
-  $('pSliders').innerHTML = PK.map((k, j) => `<div class="sl"><div class="top"><span><span class="dot" style="display:inline-block;background:${GRUPOS[j].col};margin-right:6px"></span>${nombres[k]}</span><b class="num" id="pv-${k}">${P.pct[k]}%</b></div>
-    <input type="range" min="0" max="100" step="1" value="${P.pct[k]}" data-k="${k}" style="accent-color:${['#0F80A8', '#B88A00', '#7556B0'][j]}" aria-label="${nombres[k]}">
-    <div class="sub" style="display:flex;justify-content:space-between"><span>${ayuda[k]}</span><span class="num" id="pe-${k}">${eur(base * P.pct[k] / 100)}</span></div></div>`).join('');
-  $('pSliders').querySelectorAll('input[type=range]').forEach((r) => {
-    r.oninput = () => { rebalancear(r.dataset.k, Number(r.value));
-      PK.forEach((k) => { $('pv-' + k).textContent = P.pct[k] + '%'; $('pe-' + k).textContent = eur(base * P.pct[k] / 100);
-        const o = $('pSliders').querySelector(`[data-k="${k}"]`); if (o !== r) o.value = P.pct[k]; });
-    };
-    r.onchange = () => dibujarPct();
-  });
-  // Objetivo frente a real
-  $('pCmp').innerHTML = PK.map((k, j) => {
-    const x = g[PG[k]], obj = base * P.pct[k] / 100, real = x.c + x.p, aho = k === 'ahorro';
-    const pct = obj > 0 ? Math.min(100, real / obj * 100) : (real > 0 ? 100 : 0);
-    const dif = obj - real;
-    const estadoTxt = aho ? (dif > 0.5 ? `<span class="chip">Te faltan ${eur(dif)}</span>` : '<span class="chip pos">Cubierto</span>')
-      : (dif < -0.5 ? `<span class="chip neg">Te pasas ${eur(-dif)}</span>` : `<span class="chip pos">Margen ${eur(dif)}</span>`);
-    return `<div class="cmp"><div class="top"><span>${GRUPOS[j].n}</span><span class="amt num" style="color:var(--sub)"><b style="color:var(--tx)">${eur(real)}</b> / ${eur(obj)}</span></div>
-      <div class="bar"><i style="width:${pct}%;background:${!aho && dif < -0.5 ? 'var(--neg)' : GRUPOS[j].col}"></i></div>
-      <div class="left" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>Real ${pctTxt(real, base)} · plan en tu hoja ${eur(x.plan)} (${pctTxt(x.plan, base)})</span>${estadoTxt}</div></div>`;
-  }).join('');
-  dibujarBolsas(base);
-  dibujarConsejos(g, base);
-}
-function dibujarBolsas(base) {
-  const ahorroMes = base * P.pct.ahorro / 100, suma = P.bolsas.reduce((s, b) => s + (Number(b.pct) || 0), 0);
-  const cuentas = cuentasPropias();
-  $('pBolsas').innerHTML = P.bolsas.map((b, i) => `<div class="bolsa">
-      <input value="${esc(b.nombre)}" data-i="${i}" data-f="nombre" placeholder="Nombre" autocomplete="off">
-      <input value="${b.pct}" data-i="${i}" data-f="pct" type="text" inputmode="numeric" style="text-align:right" aria-label="Porcentaje">
-      <div class="bs"><span class="num" id="pbE${i}">${eur(ahorroMes * (Number(b.pct) || 0) / 100)} al mes</span>
-        <select data-i="${i}" data-f="cuenta">${opcionesAhorro(b.cuenta, 'Sin cuenta')}</select>
-        <button class="linkbtn" data-ahorrar="${i}">Ahorrar</button><button class="linkbtn" data-quitar="${i}" style="color:var(--neg)" aria-label="Quitar">✕</button></div></div>`).join('') +
-    `<div class="sub" style="padding:10px 0" id="pbSuma">${Math.round(suma) === 100 ? `Repartes el 100% de tu ahorro (${eur(ahorroMes)} al mes).` : `<span class="neg">Los destinos suman ${Math.round(suma)}%: ajústalos hasta llegar al 100%.</span>`}</div>`;
-  $('pBolsas').querySelectorAll('[data-f]').forEach((el) => el.oninput = el.onchange = () => {
-    const b = P.bolsas[el.dataset.i]; b[el.dataset.f] = el.dataset.f === 'pct' ? (Number(String(el.value).replace(',', '.')) || 0) : el.value;
-    if (el.dataset.f === 'pct') { $('pbE' + el.dataset.i).textContent = eur(ahorroMes * b.pct / 100) + ' al mes';
-      const s = P.bolsas.reduce((t, x) => t + (Number(x.pct) || 0), 0);
-      $('pbSuma').innerHTML = Math.round(s) === 100 ? `Repartes el 100% de tu ahorro (${eur(ahorroMes)} al mes).` : `<span class="neg">Los destinos suman ${Math.round(s)}%: ajústalos hasta llegar al 100%.</span>`; }
-  });
-  $('pBolsas').querySelectorAll('[data-quitar]').forEach((el) => el.onclick = () => { P.bolsas.splice(el.dataset.quitar, 1); dibujarBolsas(base); });
-  $('pBolsas').querySelectorAll('[data-ahorrar]').forEach((el) => el.onclick = () => {
-    const b = P.bolsas[el.dataset.ahorrar];
-    nuevoCon({ tipo: 'Ahorro / inversión', imp: Math.round(ahorroMes * b.pct) / 100, cuenta: 'Banco', hacia: b.cuenta || '', conc: 'Ahorro · ' + b.nombre });
-  });
-}
-$('pBolsaAdd').onclick = () => { P.bolsas.push({ nombre: '', pct: 0, cuenta: '' }); dibujarPct(); const ins = $('pBolsas').querySelectorAll('[data-f="nombre"]'); ins[ins.length - 1].focus(); };
-$('pBase').addEventListener('input', () => { const n = num($('pBase').value); P.base = n > 0 ? n : null; P.auto = true; dibujarPct(); });
-$('pGuardar').onclick = async () => {
-  const s = P.bolsas.reduce((t, b) => t + (Number(b.pct) || 0), 0);
-  if (P.bolsas.length && Math.round(s) !== 100) { toast('Los destinos del ahorro deben sumar 100%', true); return; }
-  P.bolsas = P.bolsas.filter((b) => b.nombre.trim());
-  const a = ajustes(); a.pct = copia(P.pct); a.base = P.base; a.bolsas = copia(P.bolsas);
-  await conBoton($('pGuardar'), 'Guardando…', async () => { await guardarAjustes('Reparto guardado'); pintarPct(); });
-};
-function dibujarConsejos(g, base) {
-  const c = [], fijosPct = base > 0 ? g.fijo.plan / base * 100 : 0;
-  const saldo = (n) => { const x = S.inversiones.cuentas.find((q) => q.nombre === n); return x ? x.saldo : 0; };
-  if (base <= 0) c.push(['warn', 'Anota tu nómina', 'Sin ingresos del ciclo no puedo calcular el reparto. Escribe tu nómina arriba.']);
-  if (fijosPct > P.pct.fijos + 1) c.push(['warn', `Tus fijos son el ${Math.round(fijosPct)}% de la nómina`, `Tu objetivo es ${P.pct.fijos}%. Revisa suscripciones, seguros y tarifas: es donde un cambio ahorra todos los meses.`]);
-  else if (base > 0) c.push(['pos', `Fijos bajo control (${Math.round(fijosPct)}%)`, `Están dentro de tu ${P.pct.fijos}%. Lo que sobre de fijos puede ir a ahorro.`]);
-  if (g.aho.plan + 0.5 < base * P.pct.ahorro / 100) c.push(['warn', 'Tu hoja planea ahorrar menos', `En el presupuesto tienes ${eur(g.aho.plan)} de ahorro; tu reparto pide ${eur(base * P.pct.ahorro / 100)}.`]);
-  const fijosMes = g.fijo.plan || g.fijo.c, emer = P.bolsas.find((b) => /emergencia/i.test(b.nombre));
-  if (fijosMes > 0) {
-    const tiene = emer && emer.cuenta ? saldo(emer.cuenta) : 0, meses = tiene / fijosMes;
-    c.push([meses >= 3 ? 'pos' : 'warn', `Fondo de emergencia: ${meses.toFixed(1).replace('.', ',')} meses de fijos`,
-      `Lo recomendable es tener de 3 a 6 meses (${eur(fijosMes * 3)} – ${eur(fijosMes * 6)}). ${emer && emer.cuenta ? '' : 'Enlaza el destino «Fondo de emergencia» a una cuenta para medirlo.'}`]);
-  }
-  c.push(['pos', 'Págate primero', 'Cuando cobres el día 28, aparta el ahorro ese mismo día con el botón «Ahorrar» de Inicio. Así gastas solo lo que queda.']);
-  $('pConsejos').innerHTML = c.map(([cls, t, s]) => `<div class="aviso"><span class="ai ${cls}">${cls === 'pos' ? '✓' : '!'}</span><div class="ab">${esc(t)}<div class="sub">${esc(s)}</div></div></div>`).join('');
-}
-
 /* ───────── METAS DE AHORRO ───────── */
 function repartoMetas() {
   const saldo = {}, out = new Map(), comp = {};
@@ -2029,65 +1890,177 @@ $('ajEmail').onchange = async () => { ajustes().email = $('ajEmail').checked; aw
 $('ajEmailPrueba').onclick = () => conBoton($('ajEmailPrueba'), 'Enviando…', async () => toast('✓ ' + await apiPost('enviarResumenPrueba')));
 
 
-/* ───────── CATEGORÍAS Y PRESUPUESTO ───────── */
+/* ───────── CATEGORÍAS Y PRESUPUESTO (incluye el reparto automático de la nómina) ───────── */
 const GRUPO_N = { fijo: 'Gastos fijos', variable: 'Gastos variables', ahorro: 'Ahorro e inversión' };
 const GRUPO_COL = { fijo: 'var(--c-fijo)', variable: 'var(--c-var)', ahorro: 'var(--c-aho)' };
-let CE = null; // copia que se edita
+const GKS = ['fijo', 'variable', 'ahorro'];
+let CE = null;            // copia de las categorías que se edita
+let CN = null;            // nómina que se edita { v, orig }
 const personasHogar = () => (S.categoriasPres && S.categoriasPres.personas) || (S.hogar && S.hogar.personas) || 1;
+const esComp = (c) => c.compartida && c.grupo !== 'ahorro';
+const r2 = (n) => Math.round(n * 100) / 100;
+const huella = (c) => JSON.stringify([r2(c.plan), c.grupo, esComp(c)]);
+const cambiadas = () => (CE || []).filter((c) => huella(c) !== c.orig);
+const nominaCambiada = () => CN && CN.v !== CN.orig;
+const hayCambios = () => cambiadas().length > 0 || nominaCambiada();
+const baseCats = () => CN && CN.v > 0 ? CN.v : baseNomina(agregados());
+
 function pintarCatsPres(forzar) {
-  if (!S || !S.categoriasPres) { $('ctGrupos').innerHTML = '<div class="card empty">Actualiza la hoja para ver tus categorías.</div>'; return; }
-  if (!CE || forzar) CE = copia(S.categoriasPres.lista).map((c) => Object.assign(c, { orig: JSON.stringify([c.plan, c.grupo, c.compartida]) }));
+  if (!S || !S.categoriasPres) {
+    $('ctGrupos').innerHTML = `<div class="card empty">${S ? 'No he podido leer las categorías del presupuesto. Pulsa ↻ para recargar.' : 'Cargando…'}</div>`;
+    $('ctRecom').style.display = 'none'; return;
+  }
+  if (!CE || forzar) {
+    CE = copia(S.categoriasPres.lista).map((c) => Object.assign(c, { plan0: c.plan, orig: huella(c) }));
+    const b = ajustes().base > 0 ? ajustes().base : null;
+    CN = { v: b, orig: b };
+    const g = agregados();
+    $('ctNomina').value = b ? aTexto(b) : '';
+    $('ctNomina').placeholder = aTexto(g.ingTot) + ' €';
+    $('ctNominaSub').textContent = b ? 'Cámbiala y repartiré tus categorías automáticamente.'
+      : `Uso lo que has cobrado este ciclo (${eur(g.ingTot)}). Escribe tu nómina y repartiré tus categorías automáticamente.`;
+  }
   dibujarCatsPres();
 }
-const cambiadas = () => CE.filter((c) => JSON.stringify([c.plan, c.grupo, c.compartida]) !== c.orig);
+
+/* Reparto recomendado: fijos como están, variables hasta su plan dejando al menos un 10% de ahorro, y el resto a ahorro */
+function repartoRecomendado(base) {
+  const suma = (g, k) => CE.filter((c) => c.grupo === g).reduce((t, c) => t + c[k], 0);
+  const F = suma('fijo', 'plan'), V = suma('variable', 'plan0'), Ap = suma('ahorro', 'plan0');
+  const r = { base, F, V, Ap, ok: base > 0 };
+  if (!r.ok) return r;
+  const resto = base - F;
+  const minAho = Math.min(Math.max(resto, 0), base * 0.10);
+  r.var = Math.max(0, Math.min(V, resto - minAho));
+  r.aho = Math.max(0, resto - r.var);
+  r.deficit = resto < 0 ? -resto : 0;
+  r.recorte = V - r.var;
+  const ahorros = CE.filter((c) => c.grupo === 'ahorro'), fv = V > 0 ? r.var / V : 0;
+  r.cats = CE.map((c) => {
+    let nuevo = c.plan;
+    if (c.grupo === 'variable') nuevo = r2(c.plan0 * fv);
+    if (c.grupo === 'ahorro') nuevo = r2(Ap > 0 ? r.aho * c.plan0 / Ap : r.aho / ahorros.length);
+    return { c, nuevo };
+  });
+  // Los céntimos del redondeo van a la categoría más grande de cada grupo
+  [['variable', r.var], ['ahorro', r.aho]].forEach(([g, obj]) => {
+    const xs = r.cats.filter((x) => x.c.grupo === g); if (!xs.length) return;
+    const dif = r2(obj - xs.reduce((t, x) => t + x.nuevo, 0));
+    if (dif) { const m = xs.reduce((a, b) => (b.nuevo > a.nuevo ? b : a)); m.nuevo = r2(m.nuevo + dif); }
+  });
+  r.sinDestino = ahorros.length ? 0 : r.aho;
+  r.difiere = r.cats.some((x) => Math.abs(x.nuevo - x.c.plan) > 0.005);
+  return r;
+}
+function aplicarRecom(r) { r.cats.forEach((x) => { x.c.plan = x.nuevo; }); }
+
+function totalesCats() {
+  const t = { fijo: 0, variable: 0, ahorro: 0 };
+  CE.forEach((c) => { t[c.grupo] += c.plan; });
+  t.total = t.fijo + t.variable + t.ahorro;
+  return t;
+}
+/* Solo números y barras: no vuelve a dibujar los campos, así el teclado no se cierra */
+function resumenCats() {
+  const base = baseCats(), t = totalesCats(), resto = base - t.total, n = personasHogar();
+  $('ctTotal').textContent = eur(t.total); $('ctBase').textContent = eur(base);
+  $('ctRestoLbl').textContent = resto >= -0.005 ? 'Sin asignar' : 'Te pasas de la nómina';
+  $('ctResto').textContent = eur(Math.abs(resto)); $('ctResto').className = 'v num ' + (resto >= -0.005 ? 'pos' : 'neg');
+  const sum = Math.max(t.total, base, 1);
+  $('ctStack').innerHTML = GKS.map((g) => `<i style="width:${t[g] / sum * 100}%;background:${GRUPO_COL[g]}"></i>`).join('');
+  $('ctLeyenda').innerHTML = GKS.map((g) => `<div class="dr"><span class="dot" style="background:${GRUPO_COL[g]}"></span><span class="dn">${GRUPO_N[g]}</span><b class="num">${eur(t[g])}</b><span class="dp num">${pctTxt(t[g], base)}</span></div>`).join('');
+  GKS.forEach((g) => { const el = $('ctG-' + g); if (el) el.textContent = `${eur(t[g])} · ${pctTxt(t[g], base)}`; });
+  CE.forEach((c, i) => {
+    const tg = $('ctT-' + i); if (tg) tg.style.display = huella(c) !== c.orig ? 'inline' : 'none';
+    const pe = $('ctP-' + i); if (pe && esComp(c)) pe.textContent = eur(c.plan);
+  });
+  pintarRecomCats();
+  const nc = cambiadas().length, nn = nominaCambiada();
+  $('ctBarra').style.display = nc || nn ? 'block' : 'none';
+  $('ctGuardar').textContent = nc ? `Guardar ${nc} ${nc === 1 ? 'cambio' : 'cambios'}` : 'Guardar nómina';
+  $('menuCats').textContent = `${CE.length} categorías · ${eur(t.total)} al mes`;
+}
+function pintarRecomCats() {
+  const el = $('ctRecom'), r = repartoRecomendado(baseCats());
+  if (!r.ok) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const pf = Math.round(r.F / r.base * 100), pv = Math.round(r.var / r.base * 100), pa = Math.max(0, 100 - pf - pv);
+  const fila = (col, t, v, s, pc) => `<div class="dr"><span class="dot" style="background:${col}"></span><span class="dn">${t}${s ? `<div class="sub" style="font-size:12px">${s}</div>` : ''}</span><b class="num">${eur(v)}</b><span class="dp num">${pc}%</span></div>`;
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>Reparto recomendado</b><span class="sub">para ${eur(r.base)}</span></div>
+    <div class="dist">${fila('var(--c-fijo)', 'Fijos', r.F, 'Lo que ya tienes comprometido', pf)}
+      ${fila('var(--c-var)', 'Variables', r.var, r.recorte > 0.5 ? `Recorto ${eur(r.recorte)} de tu plan (${eur(r.V)}) para ahorrar al menos un 10%` : `Cubre todo tu plan de variables (${eur(r.V)})`, pv)}
+      ${fila('var(--c-aho)', 'Ahorro', r.aho, r.sinDestino ? 'Crea una categoría de ahorro para asignarlo' : r.aho > r.Ap + 0.5 ? `${eur(r.aho - r.Ap)} más de lo planeado` : r.aho + 0.5 < r.Ap ? `${eur(r.Ap - r.aho)} menos de lo planeado` : 'Igual que tu plan', pa)}</div>
+    ${r.deficit ? `<div class="hint" style="background:var(--neg-s)">Tus fijos superan la nómina en <b>${eur(r.deficit)}</b>. Revisa fijos o suscripciones.</div>` : ''}
+    ${r.difiere ? `<button class="btn sec" style="margin-top:12px" id="ctAplicar">Aplicar a mis categorías</button>` : `<div class="sub" style="margin-top:10px">✓ Tus categorías ya siguen este reparto.</div>`}`;
+  if ($('ctAplicar')) $('ctAplicar').onclick = () => { aplicarRecom(r); dibujarCatsPres(); toast('Reparto aplicado · pulsa «Guardar»'); };
+}
+
 function dibujarCatsPres() {
-  const n = personasHogar(), base = baseNomina(agregados());
-  const tot = { fijo: 0, variable: 0, ahorro: 0 };
-  CE.forEach((c) => { tot[c.grupo] += c.plan; });
-  const total = tot.fijo + tot.variable + tot.ahorro, resto = base - total;
-  $('ctTotal').textContent = eur(total); $('ctBase').textContent = eur(base);
-  $('ctRestoLbl').textContent = resto >= 0 ? 'Sin asignar' : 'Te pasas de la nómina';
-  $('ctResto').textContent = eur(Math.abs(resto)); $('ctResto').className = 'v num ' + (resto >= 0 ? 'pos' : 'neg');
-  const sum = Math.max(total, base, 1);
-  $('ctStack').innerHTML = ['fijo', 'variable', 'ahorro'].map((g) => `<i style="width:${tot[g] / sum * 100}%;background:${GRUPO_COL[g]}"></i>`).join('');
-  $('ctGrupos').innerHTML = ['fijo', 'variable', 'ahorro'].map((g) => {
+  const n = personasHogar();
+  $('ctGrupos').innerHTML = GKS.map((g) => {
     const l = CE.filter((c) => c.grupo === g);
-    return `<h2 style="display:flex;justify-content:space-between"><span><span class="dot" style="display:inline-block;background:${GRUPO_COL[g]};margin-right:6px"></span>${GRUPO_N[g]}</span><span style="letter-spacing:0;text-transform:none">${eur(tot[g])} · ${pctTxt(tot[g], base)}</span></h2>
+    return `<h2 style="display:flex;justify-content:space-between"><span><span class="dot" style="display:inline-block;background:${GRUPO_COL[g]};margin-right:6px"></span>${GRUPO_N[g]}</span><span style="letter-spacing:0;text-transform:none" id="ctG-${g}"></span></h2>
       <div class="card" style="padding:4px 16px">${l.length ? l.map((c) => {
-        const i = CE.indexOf(c), comp = c.compartida && g !== 'ahorro';
+        const i = CE.indexOf(c), comp = esComp(c);
+        const aviso = comp && c.totalHogar != null && !c.ligadaHogar && Math.abs(c.totalHogar - c.plan * n) > 0.5
+          ? `<div class="hint" style="margin:8px 0 0">En Gastos compartidos el total es ${eur(c.totalHogar)}. <button class="linkbtn" data-hogar="${i}">Usar ${eur(c.totalHogar)}</button></div>` : '';
         return `<div class="cmp">
-          <div class="top"><span>${esc(c.cat)}${cambiadas().includes(c) ? ' <span class="tag">cambiado</span>' : ''}</span><span class="sub num">real ${eur(c.real)}</span></div>
+          <div class="top"><span>${esc(c.cat)} <span class="tag" id="ctT-${i}" style="display:none">cambiado</span></span><span class="sub num">real ${eur(c.real)}</span></div>
           <div class="row" style="align-items:center;margin-top:8px;gap:8px">
-            <input type="text" inputmode="decimal" data-plan="${i}" value="${aTexto(comp ? c.plan * n : c.plan)}" style="padding:9px 10px;font-size:15px;max-width:120px;text-align:right">
-            <div class="seg" style="flex:1;padding:2px">${['fijo', 'variable', 'ahorro'].map((x) => `<button data-g="${i}" data-v="${x}" class="${x === c.grupo ? 'on' : ''}" style="padding:6px 4px;font-size:12px">${x === 'fijo' ? 'Fijo' : x === 'variable' ? 'Variable' : 'Ahorro'}</button>`).join('')}</div>
+            <input type="text" inputmode="decimal" data-plan="${i}" value="${aTexto(comp ? c.plan * n : c.plan)}" style="padding:9px 10px;font-size:15px;max-width:120px;text-align:right" aria-label="Importe de ${esc(c.cat)}">
+            <div class="seg" style="flex:1;padding:2px">${GKS.map((x) => `<button data-g="${i}" data-v="${x}" class="${x === c.grupo ? 'on' : ''}" style="padding:6px 4px;font-size:12px">${x === 'fijo' ? 'Fijo' : x === 'variable' ? 'Variable' : 'Ahorro'}</button>`).join('')}</div>
           </div>
           <div class="left" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-            <span>${comp ? `Total del hogar · tu parte <b class="num" style="color:var(--tx)">${eur(c.plan)}</b> (entre ${n})` : g === 'ahorro' ? `Va a ${esc(c.cuenta || 'tu cuenta de ahorro')}` : 'Tu importe al mes'}</span>
+            <span>${comp ? `Total del hogar · tu parte <b class="num" style="color:var(--tx)" id="ctP-${i}">${eur(c.plan)}</b> (entre ${n})` : g === 'ahorro' ? `Va a ${esc(c.cuenta || 'tu cuenta de ahorro')}` : 'Tu importe al mes'}</span>
             ${g === 'ahorro' ? '' : `<label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--tx)"><input type="checkbox" data-comp="${i}" ${c.compartida ? 'checked' : ''} style="width:18px;height:18px;flex:0 0 18px"> Compartida</label>`}
-          </div></div>`;
+          </div>${aviso}</div>`;
       }).join('') : '<div class="empty" style="padding:18px 0">Ninguna categoría aquí</div>'}</div>`;
   }).join('');
-  $('ctGrupos').querySelectorAll('[data-plan]').forEach((el) => el.onchange = () => {
-    const c = CE[el.dataset.plan], v = num(el.value);
-    if (!(v >= 0)) { toast('Importe no válido', true); el.value = aTexto(c.plan); return; }
-    c.plan = Math.round((c.compartida && c.grupo !== 'ahorro' ? v / n : v) * 100) / 100; dibujarCatsPres();
+  const leer = (el) => { const v = num(el.value); return el.value.trim() === '' ? 0 : v; };
+  $('ctGrupos').querySelectorAll('[data-plan]').forEach((el) => {
+    el.oninput = () => { const c = CE[el.dataset.plan], v = leer(el);
+      if (!(v >= 0)) return; c.plan = r2(esComp(c) ? v / n : v); resumenCats(); };
+    el.onchange = () => { const c = CE[el.dataset.plan]; if (!(leer(el) >= 0)) toast('Importe no válido', true); el.value = aTexto(esComp(c) ? c.plan * n : c.plan); };
   });
-  $('ctGrupos').querySelectorAll('[data-g]').forEach((b) => b.onclick = () => { const c = CE[b.dataset.g]; c.grupo = b.dataset.v; if (c.grupo === 'ahorro') c.compartida = false; dibujarCatsPres(); });
-  $('ctGrupos').querySelectorAll('[data-comp]').forEach((el) => el.onchange = () => { CE[el.dataset.comp].compartida = el.checked; dibujarCatsPres(); });
-  const nc = cambiadas().length;
-  $('ctBarra').style.display = nc ? 'block' : 'none';
-  $('ctGuardar').textContent = `Guardar ${nc} ${nc === 1 ? 'cambio' : 'cambios'}`;
-  $('menuCats').textContent = `${CE.length} categorías · ${eur(total)} al mes`;
+  $('ctGrupos').querySelectorAll('[data-g]').forEach((b) => b.onclick = () => {
+    const c = CE[b.dataset.g], visto = esComp(c) ? c.plan * n : c.plan;
+    c.grupo = b.dataset.v; if (c.grupo === 'ahorro') c.compartida = false;
+    c.plan = r2(esComp(c) ? visto / n : visto); dibujarCatsPres();
+  });
+  // Al marcar o quitar "Compartida" se mantiene el número escrito; cambia lo que significa (total del hogar o tu importe)
+  $('ctGrupos').querySelectorAll('[data-comp]').forEach((el) => el.onchange = () => {
+    const c = CE[el.dataset.comp], campo = $('ctGrupos').querySelector(`[data-plan="${el.dataset.comp}"]`), visto = Math.max(0, leer(campo) || 0);
+    c.compartida = el.checked; c.plan = r2(esComp(c) ? visto / n : visto); dibujarCatsPres();
+  });
+  $('ctGrupos').querySelectorAll('[data-hogar]').forEach((b) => b.onclick = () => { const c = CE[b.dataset.hogar]; c.plan = r2(c.totalHogar / n); c.orig = ''; dibujarCatsPres(); });
+  resumenCats();
 }
-const cambioDe = (c) => ({ fila: c.fila, cat: c.cat, plan: c.plan, total: c.compartida && c.grupo !== 'ahorro' ? Math.round(c.plan * personasHogar() * 100) / 100 : null, grupo: c.grupo, compartida: c.compartida && c.grupo !== 'ahorro' });
+
+$('ctNomina').addEventListener('input', () => {
+  const v = num($('ctNomina').value);
+  CN.v = $('ctNomina').value.trim() && v > 0 ? r2(v) : null;
+  $('ctNominaSub').textContent = CN.v ? 'Reparto tus categorías con esta cantidad.' : `Uso lo que has cobrado este ciclo (${eur(agregados().ingTot)}).`;
+  const r = repartoRecomendado(baseCats());
+  if (r.ok && CN.v) { aplicarRecom(r); dibujarCatsPres(); } else resumenCats();
+});
+const cambioDe = (c) => ({ fila: c.fila, cat: c.cat, plan: r2(c.plan), total: esComp(c) ? r2(c.plan * personasHogar()) : null, grupo: c.grupo, compartida: esComp(c) });
 $('ctGuardar').onclick = () => conBoton($('ctGuardar'), 'Guardando…', async () => {
-  toast('✓ ' + await apiPost('guardarCategorias', { cambios: cambiadas().map(cambioDe) })); pintarCatsPres(true);
+  const d = { cambios: cambiadas().map(cambioDe) };
+  const base = baseCats(), t = totalesCats(), a = ajustes();
+  a.base = CN.v;
+  if (base > 0) { const pf = Math.min(100, Math.round(t.fijo / base * 100)), pv = Math.min(100 - pf, Math.round(t.variable / base * 100));
+    a.pct = { fijos: pf, variables: pv, ahorro: Math.min(100 - pf - pv, Math.round(t.ahorro / base * 100)) }; }
+  a.t = Date.now(); ls.set(AJ_KEY, JSON.stringify(a));
+  d.ajustes = a;
+  toast('✓ ' + await apiPost('guardarCategorias', d));
+  pintarCatsPres(true);
 });
 $('ctNueva').onclick = () => {
+  if (hayCambios() && !confirm('Tienes cambios sin guardar. Si creas una categoría ahora se perderán. ¿Continuar?')) return;
   let g = 'variable';
   abrirHoja('nueva categoría', 'Nueva categoría', `
     <label>Nombre (empieza con un emoji si quieres)</label><input id="ncNombre" placeholder="p. ej. 🐶 Mascota" autocomplete="off">
-    <label>Tipo</label><div class="seg" id="ncGrupo">${['fijo', 'variable', 'ahorro'].map((x) => `<button data-v="${x}" class="${x === g ? 'on' : ''}">${GRUPO_N[x]}</button>`).join('')}</div>
+    <label>Tipo</label><div class="seg" id="ncGrupo">${GKS.map((x) => `<button data-v="${x}" class="${x === g ? 'on' : ''}">${GRUPO_N[x]}</button>`).join('')}</div>
     <label>Importe al mes</label><input id="ncPlan" type="text" inputmode="decimal" placeholder="0,00 €">
     <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px" id="ncCompWrap"><input type="checkbox" id="ncComp"> Compartida con el hogar (el importe es el total del hogar)</label>
     <div class="hint" id="ncInfo" style="display:none"></div>
@@ -2096,78 +2069,19 @@ $('ctNueva').onclick = () => {
     $('ncCompWrap').style.display = g === 'ahorro' ? 'none' : 'flex';
     $('ncInfo').style.display = comp && v ? 'block' : 'none'; $('ncInfo').textContent = `Tu parte: ${eur(v / personasHogar())} al mes (entre ${personasHogar()}).`; };
   $('ncGrupo').querySelectorAll('button').forEach((b) => b.onclick = () => { g = b.dataset.v; $('ncGrupo').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); info(); });
-  ['ncPlan', 'ncComp'].forEach((id) => $(id).addEventListener('input', info)); $('ncComp').onchange = info;
+  $('ncPlan').addEventListener('input', info); $('ncComp').onchange = info;
   $('ncGuardar').onclick = async () => {
-    const nombre = $('ncNombre').value.trim(), v = num($('ncPlan').value || '0'), comp = $('ncComp').checked && g !== 'ahorro';
+    const nombre = $('ncNombre').value.trim(), v = $('ncPlan').value.trim() ? num($('ncPlan').value) : 0, comp = $('ncComp').checked && g !== 'ahorro';
     if (!nombre) { toast('Escribe el nombre', true); return; }
     if (!(v >= 0)) { toast('Importe no válido', true); return; }
     const n = personasHogar();
     await conBoton($('ncGuardar'), 'Creando…', async () => {
-      toast('✓ ' + await apiPost('guardarCategorias', { nueva: { cat: nombre, grupo: g, compartida: comp, plan: comp ? Math.round(v / n * 100) / 100 : v, total: comp ? v : null } }));
+      toast('✓ ' + await apiPost('guardarCategorias', { nueva: { cat: nombre, grupo: g, compartida: comp, plan: comp ? r2(v / n) : v, total: comp ? v : null } }));
       cerrarHoja(); pintarCatsPres(true);
     });
   };
 };
 
-/* ───────── REPARTO AUTOMÁTICO según tu presupuesto ───────── */
-function repartoRecomendado(base) {
-  const lista = (S.categoriasPres && S.categoriasPres.lista) || [];
-  const suma = (g) => lista.filter((c) => c.grupo === g).reduce((t, c) => t + c.plan, 0);
-  const F = suma('fijo'), V = suma('variable'), Ap = suma('ahorro');
-  const r = { base, F, V, Ap, ok: base > 0 };
-  if (!(base > 0)) return r;
-  const resto = base - F;
-  const minAho = Math.min(Math.max(resto, 0), base * 0.10);       // al menos un 10% de ahorro si se puede
-  r.var = Math.max(0, Math.min(V, resto - minAho));
-  r.aho = Math.max(0, resto - r.var);                                // todo lo que sobra, a ahorro
-  r.deficit = resto < 0 ? -resto : 0;
-  r.recorte = V - r.var;
-  const pf = Math.min(100, Math.round(F / base * 100)), pv = Math.min(100 - pf, Math.round(r.var / base * 100));
-  r.pct = { fijos: pf, variables: pv, ahorro: Math.max(0, 100 - pf - pv) };
-  // Importe por categoría: fijos igual; variables recortadas en proporción; el ahorro se reparte según su plan
-  const fv = V > 0 ? r.var / V : 0;
-  r.cats = lista.map((c) => {
-    let nuevo = c.plan;
-    if (c.grupo === 'variable') nuevo = Math.round(c.plan * fv * 100) / 100;
-    if (c.grupo === 'ahorro') { const nA = lista.filter((x) => x.grupo === 'ahorro').length; nuevo = Math.round((Ap > 0 ? r.aho * c.plan / Ap : r.aho / Math.max(1, nA)) * 100) / 100; }
-    return { c, nuevo };
-  });
-  return r;
-}
-function pintarRecom(base, aplicar) {
-  const r = repartoRecomendado(base), el = $('pRecom');
-  if (!r.ok || !S.categoriasPres) { el.style.display = 'none'; return r; }
-  el.style.display = 'block';
-  const fila = (col, t, v, s, pc) => `<div class="dr"><span class="dot" style="background:${col}"></span><span class="dn">${t}${s ? `<div class="sub" style="font-size:12px">${s}</div>` : ''}</span><b class="num">${eur(v)}</b><span class="dp num">${pc}%</span></div>`;
-  const cambios = r.cats.filter((x) => Math.abs(x.nuevo - x.c.plan) > 0.005);
-  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>Reparto recomendado</b><span class="sub">según tu presupuesto</span></div>
-    <div class="dist">${fila('var(--c-fijo)', 'Fijos', r.F, 'Lo que ya tienes comprometido', r.pct.fijos)}
-      ${fila('var(--c-var)', 'Variables', r.var, r.recorte > 0.5 ? `Recorto ${eur(r.recorte)} de tu plan (${eur(r.V)}) para ahorrar al menos un 10%` : `Cubre todo tu plan de variables (${eur(r.V)})`, r.pct.variables)}
-      ${fila('var(--c-aho)', 'Ahorro', r.aho, r.aho > r.Ap + 0.5 ? `${eur(r.aho - r.Ap)} más de lo que tienes planeado` : r.aho + 0.5 < r.Ap ? `${eur(r.Ap - r.aho)} menos de lo planeado` : 'Igual que tu plan', r.pct.ahorro)}</div>
-    ${r.deficit ? `<div class="hint" style="background:var(--neg-s)">Tus fijos superan la nómina en <b>${eur(r.deficit)}</b>. Revisa fijos o suscripciones.</div>` : ''}
-    <div class="acc-actions"><button class="btn sec" style="margin-top:12px" id="pUsarRecom">Usar ${r.pct.fijos}/${r.pct.variables}/${r.pct.ahorro}</button>
-      ${cambios.length ? `<button class="btn" style="margin-top:12px" id="pVerCats">Ver por categoría</button>` : ''}</div>`;
-  $('pUsarRecom').onclick = () => { P.pct = copia(r.pct); dibujarPct(); toast('Reparto aplicado · pulsa «Guardar reparto»'); };
-  if ($('pVerCats')) $('pVerCats').onclick = () => verRepartoCats(r);
-  if (aplicar) P.pct = copia(r.pct);
-  return r;
-}
-function verRepartoCats(r) {
-  const n = personasHogar();
-  abrirHoja('reparto automático', 'Importe por categoría', `
-    <div class="sub">Con ${eur(r.base)} de nómina. Los fijos no cambian; las variables se ajustan en proporción y el ahorro se reparte según tu plan.</div>
-    <div class="card" style="margin-top:12px;padding:4px 16px">${r.cats.map((x) => {
-      const d = x.nuevo - x.c.plan;
-      return `<div class="line" style="cursor:default"><div><div>${esc(x.c.cat)}</div><div class="sub">${GRUPO_N[x.c.grupo]}${x.c.compartida ? ` · compartida (total ${eur(x.nuevo * n)})` : ''}</div></div>
-        <div style="text-align:right"><div class="v num">${eur(x.nuevo)}</div>${Math.abs(d) > 0.005 ? `<div class="sub num ${d > 0 ? 'pos' : 'neg'}">${d > 0 ? '+' : '−'}${eur(Math.abs(d))}</div>` : '<div class="sub">igual</div>'}</div></div>`;
-    }).join('')}</div>
-    <button class="btn" id="rcGuardar">Guardar estos importes en mi presupuesto</button>
-    <div class="sub" style="margin-top:8px;text-align:center">Se cambian los importes del presupuesto de este ciclo. Puedes ajustarlos en «Categorías y presupuesto».</div>`);
-  $('rcGuardar').onclick = () => conBoton($('rcGuardar'), 'Guardando…', async () => {
-    const cambios = r.cats.filter((x) => Math.abs(x.nuevo - x.c.plan) > 0.005).map((x) => cambioDe(Object.assign({}, x.c, { plan: x.nuevo })));
-    toast('✓ ' + await apiPost('guardarCategorias', { cambios })); cerrarHoja(); CE = null; pintarPct();
-  });
-}
 /* ───────── Hoja inferior ───────── */
 function abrirHoja(etiqueta, titulo, html) {
   $('hojaEtiqueta').textContent = etiqueta; $('hojaTitulo').textContent = titulo; $('hojaCuerpo').innerHTML = html;

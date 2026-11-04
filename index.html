@@ -1044,6 +1044,21 @@ function pintarPend() {
     </div>`).join('');
   $('listaPend').querySelectorAll('.yes').forEach((b) => b.onclick = () => accionPend(b, 'confirmar'));
   $('listaPend').querySelectorAll('.no').forEach((b) => b.onclick = () => accionPend(b, 'anular'));
+  // Cambiar la fecha o el importe se guarda solo (sigue como previsto)
+  l.forEach((p, i) => ['pf', 'pi'].forEach((pre) => { const el = $(pre + i); if (el) el.onchange = () => guardarPend(i); }));
+}
+async function guardarPend(i) {
+  const p = S.pendientes[i], m = (S.movimientos || []).find((x) => x.fila === p.fila);
+  const fecha = $('pf' + i).value, imp = num($('pi' + i).value);
+  if (!m || !fecha) return;
+  if (!(imp > 0)) { toast('Importe no válido', true); return; }
+  if (fecha === p.fecha && Math.abs(imp - p.imp) < 0.005) return;
+  const datos = { fecha, tipo: m.tipo, cat: m.cat, conc: m.conc, imp, cuenta: m.cuenta, hacia: m.hacia || '', estado: m.estado, notas: m.notas || '' };
+  try {
+    await apiPost('editarMovimiento', m.fila, m.conc, datos);
+    const fuera = diasEntre(hoyLocal(), fecha) > 8;
+    toast(fuera ? `✓ Movido al ${fechaCorta(fecha)} · saldrá aquí 8 días antes` : `✓ Guardado para el ${fechaCorta(fecha)}`);
+  } catch (e) { toast(e.message, true); cargar(); }
 }
 async function accionPend(b, que) {
   const p = S.pendientes[b.dataset.i];

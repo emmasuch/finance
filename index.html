@@ -1131,7 +1131,9 @@ function pintarCuentas() {
   $('patrimonio').textContent = eur(v.patrimonio); $('totCuentas').textContent = eur(v.totalCuentas); $('totMetales').textContent = eur(v.totalMetales);
   $('totInvertido').textContent = eur(v.totalInvertido);
   $('totGanancia').textContent = signoEur(v.totalGanancia); $('totGanancia').className = 'num ' + clsSigno(v.totalGanancia);
-  $('listaCuentas').innerHTML = v.cuentas.map((c, i) => `<div class="line-wrap"><div class="line" data-c="${i}"><div><div>${esc(c.nombre)}</div><div class="sub">${c.calculado ? 'Al día con tus movimientos · revisado el ' : 'Revisado el '}${esc(c.fecha)}</div></div><div class="v num">${eur(c.saldo)} <span class="arrow">›</span></div></div></div>`).join('');
+  const filaC = (c) => { const i = v.cuentas.indexOf(c); return `<div class="line-wrap"><div class="line" data-c="${i}"><div><div>${esc(c.nombre)}${USO_CUENTAS[c.nombre] && !DIARIO.includes(c.nombre) ? ` <span class="tag">${esc(USO_CUENTAS[c.nombre])}</span>` : ''}</div><div class="sub">${c.calculado ? 'Al día con tus movimientos · revisado el ' : 'Revisado el '}${esc(c.fecha)}</div></div><div class="v num">${eur(c.saldo)} <span class="arrow">›</span></div></div></div>`; };
+  const gruposC = [['Día a día', v.cuentas.filter((c) => DIARIO.includes(c.nombre))], ['Ahorro e inversión', v.cuentas.filter((c) => !DIARIO.includes(c.nombre))]].filter((g) => g[1].length);
+  $('listaCuentas').innerHTML = gruposC.map(([t, l], k) => `<div class="day-h" style="margin:${k ? '14px' : '2px'} 0 2px"><span>${t}</span><span class="num">${eur(l.reduce((s, c) => s + c.saldo, 0))}</span></div>${l.map(filaC).join('')}`).join('');
   $('listaCuentas').querySelectorAll('.line').forEach((l) => l.onclick = () => editarCuenta(v.cuentas[l.dataset.c]));
   $('listaActivos').innerHTML = v.activos.length ? v.activos.map((a, i) => `<div class="line-wrap"><div class="line" data-a="${i}"><div><div>${esc(a.nombre)}</div>
       <div class="sub">${aTexto(a.unidades)} uds · coste medio ${eur(a.coste)} · invertido ${eur(a.invertido)}</div><div class="sub">Precio actual ${eur(a.precio)} · ${esc(a.fecha)}</div></div>
@@ -1310,7 +1312,7 @@ async function abrirDetalle(m) {
    Se guardan en el móvil y en la hoja (para que no se pierdan); gana la versión más reciente. */
 const AJ_KEY = 'mp-ajustes-app';
 const AJ_DEF = { pct: { fijos: 50, variables: 30, ahorro: 20 }, base: null,
-  bolsas: [{ nombre: 'Fondo de emergencia', pct: 50, cuenta: 'Cuenta ahorro' }, { nombre: 'Inversión', pct: 30, cuenta: '' }, { nombre: 'Metales', pct: 20, cuenta: '' }],
+  bolsas: [{ nombre: 'Fondo de emergencia', pct: 40, cuenta: 'Revolut' }, { nombre: 'Inversión', pct: 30, cuenta: 'Trade Republic' }, { nombre: 'Ahorros', pct: 30, cuenta: 'Cuenta ahorro' }],
   metas: [], t: 0 };
 let A = null;
 const copia = (o) => JSON.parse(JSON.stringify(o));
@@ -1320,8 +1322,20 @@ function ajustes() {
   const srv = S && S.ajustesApp;
   const mejor = [loc, srv].filter((x) => x && typeof x === 'object').sort((a, b) => (b.t || 0) - (a.t || 0))[0];
   A = Object.assign(copia(AJ_DEF), mejor || {});
+  if (!A.cuentasV2) { // cada meta y destino se mide con su cuenta
+    A.bolsas.forEach((b) => { const c = cuentaParaMeta(b.nombre); if (c && (!b.cuenta || (/emergencia/i.test(b.nombre) && b.cuenta === 'Cuenta ahorro'))) b.cuenta = c; });
+    A.metas.forEach((m) => { const c = cuentaParaMeta(m.nombre); if (c && (!m.cuenta || (/emergencia/i.test(m.nombre) && m.cuenta === 'Cuenta ahorro'))) m.cuenta = c; });
+    A.cuentasV2 = 1;
+  }
   return A;
 }
+/* Para qué es cada cuenta */
+const USO_CUENTAS = { 'Revolut': 'Fondo de emergencia', 'Trade Republic': 'Inversión', 'Cuenta ahorro': 'Ahorros', 'Banco': 'Día a día', 'Efectivo': 'Día a día' };
+const DIARIO = ['Banco', 'Efectivo'];
+const cuentaParaMeta = (n) => /emergencia|imprevist/i.test(n) ? 'Revolut' : /inversi|trade|bolsa|etf|indexad/i.test(n) ? 'Trade Republic' : /ahorro/i.test(n) ? 'Cuenta ahorro' : '';
+const cuentasAhorro = () => cuentasPropias().filter((c) => !DIARIO.includes(c));
+const opcionesAhorro = (sel, vacio) => `<option value="">${vacio}</option>` + cuentasAhorro().concat(sel && !cuentasAhorro().includes(sel) ? [sel] : [])
+  .map((c) => `<option value="${esc(c)}" ${c === sel ? 'selected' : ''}>${esc(c)}${USO_CUENTAS[c] ? ' · ' + USO_CUENTAS[c] : ''}</option>`).join('');
 function refrescarAjustes() {
   const srv = S && S.ajustesApp;
   if (srv && A && (srv.t || 0) > (A.t || 0)) A = null;
@@ -1437,7 +1451,7 @@ function nuevoCon(p) {
 function ahorrarAhora() {
   const g = agregados(), a = ajustes();
   const falta = baseNomina(g) * a.pct.ahorro / 100 - g.aho.c - g.aho.p;
-  const destino = (a.bolsas.find((b) => b.cuenta && cuentasPropias().includes(b.cuenta)) || {}).cuenta || (cuentasPropias().includes('Cuenta ahorro') ? 'Cuenta ahorro' : '');
+  const destino = (a.bolsas.find((b) => b.cuenta && cuentasPropias().includes(b.cuenta)) || {}).cuenta || (cuentasAhorro()[0] || '');
   nuevoCon({ tipo: 'Ahorro / inversión', imp: falta > 0 ? Math.round(falta * 100) / 100 : 0, cuenta: 'Banco', hacia: destino, conc: 'Ahorro del ciclo' });
 }
 function pintarRapidos() {
@@ -1529,7 +1543,7 @@ function dibujarBolsas(base) {
       <input value="${esc(b.nombre)}" data-i="${i}" data-f="nombre" placeholder="Nombre" autocomplete="off">
       <input value="${b.pct}" data-i="${i}" data-f="pct" type="text" inputmode="numeric" style="text-align:right" aria-label="Porcentaje">
       <div class="bs"><span class="num" id="pbE${i}">${eur(ahorroMes * (Number(b.pct) || 0) / 100)} al mes</span>
-        <select data-i="${i}" data-f="cuenta"><option value="">Sin cuenta</option>${cuentas.map((c) => `<option ${c === b.cuenta ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
+        <select data-i="${i}" data-f="cuenta">${opcionesAhorro(b.cuenta, 'Sin cuenta')}</select>
         <button class="linkbtn" data-ahorrar="${i}">Ahorrar</button><button class="linkbtn" data-quitar="${i}" style="color:var(--neg)" aria-label="Quitar">✕</button></div></div>`).join('') +
     `<div class="sub" style="padding:10px 0" id="pbSuma">${Math.round(suma) === 100 ? `Repartes el 100% de tu ahorro (${eur(ahorroMes)} al mes).` : `<span class="neg">Los destinos suman ${Math.round(suma)}%: ajústalos hasta llegar al 100%.</span>`}</div>`;
   $('pBolsas').querySelectorAll('[data-f]').forEach((el) => el.oninput = el.onchange = () => {
@@ -1571,8 +1585,21 @@ function dibujarConsejos(g, base) {
 }
 
 /* ───────── METAS DE AHORRO ───────── */
+function repartoMetas() {
+  const saldo = {}, out = new Map(), comp = {};
+  (S.inversiones.cuentas || []).forEach((c) => { saldo[c.nombre] = c.saldo; });
+  ajustes().metas.forEach((m) => {
+    if (!m.cuenta || !(m.cuenta in saldo)) return;
+    comp[m.cuenta] = (comp[m.cuenta] || 0) + 1;
+    const t = Math.max(0, Math.min(saldo[m.cuenta], m.objetivo)); out.set(m, t); saldo[m.cuenta] -= t;
+  });
+  return { out, comp };
+}
 function progresoMeta(m) {
-  if (m.cuenta) { const c = S.inversiones.cuentas.find((x) => x.nombre === m.cuenta); if (c) return c.saldo; }
+  if (m.cuenta) {
+    const r = repartoMetas(); if (r.out.has(m)) return r.out.get(m);
+    const c = S.inversiones.cuentas.find((x) => x.nombre === m.cuenta); if (c) return c.saldo;
+  }
   return Number(m.actual) || 0;
 }
 function mesesHasta(ymd) {
@@ -1593,7 +1620,7 @@ function pintarMetas() {
     const fechaTxt = m.fecha ? new Date(m.fecha + 'T12:00:00').toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : '';
     return `<div class="card meta-c"><div class="top"><span class="t">${esc(m.nombre)}</span><span class="num" style="font-weight:700">${Math.round(f)}%</span></div>
       <div class="bar" style="height:9px"><i style="width:${f}%;background:${hecho ? 'var(--pos)' : 'var(--c-aho)'}"></i></div>
-      <div class="sub num" style="margin-top:7px">${eur(p)} de ${eur(m.objetivo)}${m.cuenta ? ' · en ' + esc(m.cuenta) : ''}</div>
+      <div class="sub num" style="margin-top:7px">${eur(p)} de ${eur(m.objetivo)}${m.cuenta ? ' · en ' + esc(m.cuenta) + (repartoMetas().comp[m.cuenta] > 1 ? ' (compartida con otra meta)' : '') : ' · sin cuenta'}</div>
       <div class="sub" style="margin-top:2px">${hecho ? '<span class="chip pos">¡Meta conseguida!</span>' : m.fecha ? `Para ${esc(fechaTxt)}: <b class="num" style="color:var(--tx)">${eur(cuota)}</b> al mes durante ${n} ${n === 1 ? 'mes' : 'meses'}` : `Te faltan ${eur(m.objetivo - p)}`}</div>
       <div class="acts"><button data-editar="${i}">Editar</button>${hecho ? '' : `<button class="yes" data-aportar="${i}">Aportar</button>`}</div></div>`;
   }).join('') : '<div class="card empty">Aún no tienes metas. Crea la primera abajo.</div>';
@@ -1603,7 +1630,7 @@ function pintarMetas() {
   const fijosMes = agregados().fijo.plan;
   const tieneEmer = metas.some((m) => /emergencia/i.test(m.nombre));
   $('mtSugerencia').innerHTML = !tieneEmer && fijosMes > 0 ? `<div class="card" style="margin-top:2px"><div class="aviso" style="border:0;padding:0"><span class="ai warn">!</span><div class="ab">Te recomiendo un fondo de emergencia<div class="sub">3 meses de gastos fijos: ${eur(fijosMes * 3)}. Te cubre si falla un ingreso o surge un imprevisto.</div></div><button id="mtCrearEmer">Crear</button></div></div>` : '';
-  if ($('mtCrearEmer')) $('mtCrearEmer').onclick = () => editarMeta(-1, { nombre: 'Fondo de emergencia', objetivo: Math.round(fijosMes * 3), cuenta: cuentasPropias().includes('Cuenta ahorro') ? 'Cuenta ahorro' : '' });
+  if ($('mtCrearEmer')) $('mtCrearEmer').onclick = () => editarMeta(-1, { nombre: 'Fondo de emergencia', objetivo: Math.round(fijosMes * 3), cuenta: cuentasPropias().includes('Revolut') ? 'Revolut' : '' });
   $('menuMetas').textContent = metas.length ? `${metas.length} ${metas.length === 1 ? 'meta' : 'metas'} · ${obj > 0 ? Math.round(tot / obj * 100) : 0}% conseguido` : 'Fondo de emergencia, viajes, inversión…';
 }
 $('mtNueva').onclick = () => editarMeta(-1);
@@ -1613,7 +1640,7 @@ function editarMeta(i, pre) {
     <label>Nombre</label><input id="gNombre" value="${esc(m.nombre)}" placeholder="p. ej. Viaje a Japón" autocomplete="off">
     <label>Cuánto quieres ahorrar</label><input id="gObj" type="text" inputmode="decimal" value="${m.objetivo ? aTexto(m.objetivo) : ''}" placeholder="0,00 €">
     <label>Para cuándo (opcional)</label><input id="gFecha" type="date" value="${esc(m.fecha || '')}">
-    <label>Cuenta donde lo guardas</label><select id="gCuenta"><option value="">No está en una cuenta concreta</option>${cuentasPropias().map((c) => `<option ${c === m.cuenta ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
+    <label>Cuenta donde lo guardas</label><select id="gCuenta">${opcionesAhorro(m.cuenta || cuentaParaMeta(m.nombre), 'No está en una cuenta concreta')}</select>
     <div id="gActualWrap"><label>Lo que llevas ahorrado</label><input id="gActual" type="text" inputmode="decimal" value="${aTexto(m.actual || 0)}"></div>
     <div class="hint" id="gInfo" style="display:none"></div>
     <button class="btn" id="gGuardar">Guardar meta</button>

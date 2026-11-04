@@ -956,13 +956,17 @@ function pintarMovs() {
   const importeVisible = (m) => m.tipo === 'Gasto' ? m.parte : m.imp;
   const suma = (arr, f) => arr.filter((m) => valido(m) && f(m)).reduce((s, m) => s + importeVisible(m), 0);
   const tot = (arr) => ({ gas: suma(arr, (m) => m.tipo === 'Gasto'), ing: suma(arr, (m) => m.tipo === 'Ingreso'), aho: suma(arr, (m) => m.tipo === 'Ahorro / inversión') });
-  const c = tot(lista), p = tot(previstos);
+  // En Gastos, Ingresos y Ahorro solo se ve lo confirmado; los previstos tienen su propio filtro
+  const soloConf = ['Gastos', 'Ingresos', 'Ahorro'].includes(mTipo);
+  const c = tot(lista), p = soloConf ? tot([]) : tot(previstos);
   const linea = (t, v, cls, pv) => (v || pv) ? `<span>${t} <b class="${cls}">${eur(v)}</b>${pv ? ` <span style="opacity:.75">+ ${eur(pv)} previsto</span>` : ''}</span>` : '';
-  $('mResumen').innerHTML = `<span><b>${todos.length}</b> movimientos${previstos.length ? ` · ${previstos.length} previstos` : ''}</span>` +
+  $('mResumen').innerHTML = `<span><b>${soloConf ? lista.length : todos.length}</b> movimientos${previstos.length && !soloConf ? ` · ${previstos.length} previstos` : ''}</span>` +
     linea('Tu gasto', c.gas, 'neg', p.gas) + linea('Ingresos', c.ing, 'pos', p.ing) + linea('Ahorro', c.aho, '', p.aho);
-  if (!todos.length) { $('mLista').innerHTML = '<div class="card empty">No hay movimientos con estos filtros</div>'; return; }
+  if (!(soloConf ? lista : todos).length) { $('mLista').innerHTML = '<div class="card empty">No hay movimientos confirmados con estos filtros</div>' + (soloConf && previstos.length ? `<button class="linkbtn" style="margin-top:8px" onclick="mTipo='Previstos';pintarMovs()">Ver ${previstos.length} previstos ›</button>` : ''); return; }
   let htmlPrev = '';
-  if (previstos.length) {
+  if (soloConf && previstos.length) {
+    htmlPrev = `<button class="linkbtn" style="margin:4px 2px 0" onclick="mTipo='Previstos';pintarMovs()">${previstos.length} previstos sin confirmar · ver en Previstos ›</button>`;
+  } else if (previstos.length) {
     const tp = previstos.filter(valido).reduce((s, m) => s + (esEntrada(m) ? 1 : -1) * importeVisible(m), 0);
     htmlPrev = `<div class="day-h"><span>Previstos · por confirmar</span><span>${signoEur(tp)}</span></div>
       <div class="card" style="padding:4px 16px;border-style:dashed">${previstos.map(movHtml).join('')}</div>`;

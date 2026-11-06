@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mi presupuesto</title>
-<meta name="description" content="Mi presupuesto personal conectado a mi hoja de Google.">
+<meta name="description" content="Mi presupuesto personal: cuentas, categorías, ahorro y gastos compartidos.">
 <meta name="theme-color" content="#F7F5F0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -259,22 +259,76 @@
   .rapidos { display:flex; gap:8px; overflow-x:auto; padding:2px 0 4px; -webkit-overflow-scrolling:touch; }
   .rapidos .cchip { white-space:nowrap; flex:0 0 auto; }
   .rapidos .cchip small { color:var(--sub); margin-left:4px; }
+  /* v2: entrar, bienvenida y ajustes */
+  [data-card].oculta { display:none !important; }
+  .wz-prog { display:flex; gap:6px; margin:2px 0 16px; }
+  .wz-prog i { flex:1; height:4px; border-radius:4px; background:var(--line); }
+  .wz-prog i.on { background:var(--tx); }
+  .wz-item { display:flex; gap:8px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); }
+  .wz-item:last-child { border-bottom:0; }
+  .wz-item input, .wz-item select { padding:9px 10px; font-size:14px; }
+  .wz-item .wn { flex:1 1 auto; min-width:0; }
+  .wz-item .wi { flex:0 0 92px; text-align:right; }
+  .wz-item .ws { flex:0 0 130px; }
+  .wz-item input[type=checkbox] { padding:0; width:20px; height:20px; flex:0 0 20px; }
+  .wz-item.cta, .wz-item.wcat { flex-wrap:wrap; }
+  .wz-item.wcat .wn { flex:1 1 calc(100% - 40px); }
+  .wz-item.wcat .chk.mini { order:3; flex:1 1 auto; }
+  .wz-item.wcat .wi { order:4; flex:0 0 120px; margin-left:auto; }
+  .wz-item.cta .wn { order:1; flex:1 1 calc(100% - 44px); }
+  .wz-item.cta .xbtn { order:2; }
+  .wz-item.cta .ws { order:3; flex:1 1 0; }
+  .wz-item.cta .wi { order:4; flex:0 0 120px; }
+  .chk { display:flex !important; align-items:center; gap:10px; margin:12px 0 0 !important; color:var(--tx) !important; font-size:14px !important; }
+  .chk.mini { font-size:12px !important; margin:0 !important; gap:6px; white-space:nowrap; }
+  .chk.mini input { width:18px; height:18px; flex:0 0 18px; }
+  .xbtn { border:0; background:none; color:var(--sub); font:inherit; font-size:17px; cursor:pointer; padding:4px 6px; flex:0 0 auto; }
+  .wz-grupo { font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); margin:16px 0 0; }
+  .sug { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .sug .cchip { padding:6px 10px; font-size:12px; }
+  #bienvenida { align-items:flex-start; }
+  .faq details { border-bottom:1px solid var(--line); padding:12px 0; }
+  .faq details:last-child { border-bottom:0; }
+  .faq summary { cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:10px; }
+  .faq summary::-webkit-details-marker { display:none; }
+  .faq summary::after { content:'+'; color:var(--sub); font-weight:400; }
+  .faq details[open] summary::after { content:'−'; }
+  .faq p { margin:8px 0 0; color:var(--sub); font-size:14px; line-height:1.55; }
+  .faq a, #v-ayuda a { color:var(--blue-d); }
+  #bienvenida .card { max-width:540px; }
 </style>
 </head>
 <body>
 <div class="loading" id="loading"><div class="spin"></div><div class="script">mi presupuesto</div></div>
 
-<!-- PRIMERA VEZ: pegar la clave -->
+<!-- ENTRAR / CREAR CUENTA -->
 <div class="setup" id="setup" style="display:none">
   <div class="card">
     <div class="script">bienvenida</div>
     <h1>Mi presupuesto</h1>
-    <p class="sub">Pega tu clave para conectar la app con tu hoja de Google. La encuentras en la hoja, en <b>💰 Presupuesto → 📱 Clave de la app del móvil</b>.</p>
-    <label>Clave</label>
-    <input id="claveInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aquí tu clave">
-    <button class="btn" id="claveGuardar">Conectar</button>
-    <div class="sub" id="claveMsg" style="margin-top:10px"></div>
-    <div class="hint" id="claveAviso" style="display:none"></div>
+    <p class="sub" id="auSub">Tus cuentas, tu presupuesto y lo que compartes en casa. Tus datos son solo tuyos.</p>
+    <div class="seg" id="auModo" style="margin-top:14px"><button class="on" data-m="entrar">Entrar</button><button data-m="crear">Crear cuenta</button></div>
+    <div id="auEmailWrap"><label>Email</label><input id="auEmail" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" inputmode="email"></div>
+    <div id="auPassWrap"><label id="auPassLbl">Contraseña</label><input id="auPass" type="password" autocomplete="current-password"></div>
+    <div id="auLegal" style="display:none;margin-top:12px">
+      <label class="chk" style="align-items:flex-start !important;font-size:13px !important"><input type="checkbox" id="auAcepto" style="margin-top:2px"> <span>Tengo 14 años o más y acepto la <a href="privacidad.html" target="_blank" style="color:var(--blue-d)">política de privacidad</a> y el <a href="aviso-legal.html" target="_blank" style="color:var(--blue-d)">aviso legal</a>.</span></label>
+      <div class="sub" style="font-size:12px;margin-top:6px">Tus datos se guardan en la Unión Europea solo para que la app funcione. Puedes descargarlos o borrarlos cuando quieras desde Ajustes.</div>
+    </div>
+    <button class="btn" id="auBoton">Entrar</button>
+    <button class="linkbtn" id="auOlvido" style="margin-top:10px">¿Has olvidado la contraseña?</button>
+    <div class="sub" id="auMsg" style="margin-top:10px"></div>
+    <div class="sub" style="margin-top:16px;font-size:12px;text-align:center"><a href="privacidad.html" style="color:inherit">Privacidad</a> · <a href="aviso-legal.html" style="color:inherit">Aviso legal</a></div>
+  </div>
+</div>
+
+<!-- BIENVENIDA: primera configuración -->
+<div class="setup" id="bienvenida" style="display:none">
+  <div class="card">
+    <div class="wz-prog" id="wzProg"></div>
+    <div id="wzCuerpo"></div>
+    <div class="row" style="margin-top:4px"><button class="btn sec" id="wzAtras">Atrás</button><button class="btn" id="wzSig">Siguiente</button></div>
+    <div class="sub" id="wzMsg" style="margin-top:10px"></div>
+    <button class="linkbtn" id="wzSalir" style="margin-top:6px">Cerrar sesión</button>
   </div>
 </div>
 
@@ -294,17 +348,13 @@
       <div class="mini"><div class="sub">Plan restante</div><div class="v num" id="kRes">–</div></div>
     </div>
   </div>
-  <div class="quick">
-    <button onclick="nuevoCon({tipo:'Gasto'})"><span class="qi g"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span>Gasto</button>
-    <button onclick="nuevoCon({tipo:'Ingreso'})"><span class="qi i"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Ingreso</button>
-    <button onclick="ahorrarAhora()"><span class="qi a"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/></svg></span>Ahorrar</button>
-    <button onclick="ir('cats')"><span class="qi p"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M18 6L6 18"/></svg></span>Presupuesto</button>
-  </div>
+  <div class="quick" id="quick"></div>
+  <div id="primeros"></div>
   <div class="banner" id="bannerPend" style="display:none" onclick="ir('pend')">
     <span><b id="bannerN"></b> por confirmar</span><span class="pill">Revisar</span>
   </div>
 
-  <h2>Ingresos y gastos del ciclo</h2>
+  <div data-card="flujo"><h2>Ingresos y gastos del ciclo</h2>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
       <div><div class="sub" id="fLibreLbl">Te queda libre</div><div style="font-size:26px;font-weight:800;letter-spacing:-.03em" class="num" id="fLibre">–</div></div>
@@ -314,16 +364,16 @@
     <div class="flujo-row"><span class="fl">Sale</span><div class="flujo" id="fSale"></div></div>
     <div class="ftip" id="fTip">Toca una barra para ver el detalle. Lo rayado es lo previsto.</div>
     <div class="dist" id="fDist"></div>
-  </div>
+  </div></div>
 
-  <div class="grid2" style="margin-top:10px">
+  <div class="grid2" data-card="prevision" style="margin-top:10px">
     <div class="card" style="padding:14px"><div class="sub">Puedes gastar al día</div><div class="num" style="font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:2px" id="pDia">–</div><div class="sub" id="pDiaSub" style="font-size:12px;margin-top:2px"></div></div>
     <div class="card" style="padding:14px"><div class="sub">Neto previsto al cierre</div><div class="num" style="font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:2px" id="pProy">–</div><div class="sub" id="pProySub" style="font-size:12px;margin-top:2px"></div></div>
   </div>
 
-  <div id="avisosWrap" style="display:none"><h2>Avisos</h2><div class="card" style="padding:4px 16px" id="avisos"></div></div>
+  <div id="avisosWrap" data-card="avisos" style="display:none"><h2>Avisos</h2><div class="card" style="padding:4px 16px" id="avisos"></div></div>
 
-  <h2>Gasto del ciclo</h2>
+  <div data-card="grafica"><h2>Gasto del ciclo</h2>
   <div class="card chart">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
       <div><div class="sub">Gastado hasta hoy</div><div style="font-size:26px;font-weight:800;letter-spacing:-.03em" class="num" id="gHoy">–</div></div>
@@ -332,22 +382,22 @@
     <div id="grafica" style="margin-top:10px"></div>
     <div class="legend"><span><i style="background:var(--blue-d)"></i>Gasto acumulado</span><span><i style="background:var(--yellow-d)"></i>Ritmo del plan</span></div>
     <div class="sub" id="gRitmo" style="margin-top:8px"></div>
-  </div>
+  </div></div>
 
-  <h2>En qué se va</h2>
+  <div data-card="stack"><h2>En qué se va</h2>
   <div class="card">
     <div class="stack" id="stack"></div>
     <div class="legend" id="stackLeg"></div>
-  </div>
+  </div></div>
 
-  <h2>Presupuesto por categoría</h2>
+  <div data-card="categorias"><h2>Presupuesto por categoría</h2>
   <div class="seg" id="segCat">
     <button class="on" data-g="fijo">Fijos</button><button data-g="var">Variables</button><button data-g="aho">Ahorro</button>
   </div>
-  <div class="card" style="margin-top:10px" id="cats"></div>
+  <div class="card" style="margin-top:10px" id="cats"></div></div>
 
-  <h2 style="display:flex;justify-content:space-between">Últimos movimientos <span style="cursor:pointer;color:var(--blue-d);letter-spacing:0;text-transform:none;font-size:13px" onclick="ir('movs')">Ver todos ›</span></h2>
-  <div class="card" id="recientes"></div>
+  <div data-card="recientes"><h2 style="display:flex;justify-content:space-between">Últimos movimientos <span style="cursor:pointer;color:var(--blue-d);letter-spacing:0;text-transform:none;font-size:13px" onclick="ir('movs')">Ver todos ›</span></h2>
+  <div class="card" id="recientes"></div></div>
   <div class="sub" style="text-align:center;margin:16px 0" id="cierreTxt"></div>
   <div class="offline" id="offline">Mostrando los últimos datos guardados</div>
 </div></div>
@@ -413,20 +463,20 @@
     <div class="grid3">
       <div class="mini"><div class="sub">Cuentas</div><div class="v num" id="totCuentas">–</div></div>
       <div class="mini"><div class="sub">Ahorro e inversión</div><div class="v num" id="totAhorroInv">–</div></div>
-      <div class="mini"><div class="sub">Metales</div><div class="v num" id="totMetales">–</div></div>
+      <div class="mini" id="miniMetales"><div class="sub">Metales</div><div class="v num" id="totMetales">–</div></div>
     </div>
   </div>
   <h2>Saldos <span style="text-transform:none;letter-spacing:0;font-weight:400">· toca para actualizar</span></h2>
   <div class="card" id="listaCuentas"></div>
   <button class="btn sec" id="abrirCuenta">＋ Añadir cuenta</button>
 
-  <h2>Inversiones en metales</h2>
+  <div id="metalesWrap"><h2>Inversiones en metales</h2>
   <div class="grid2" style="margin-bottom:10px">
     <div class="card" style="padding:12px 14px"><div class="sub">Invertido</div><div class="num" style="font-weight:600;font-size:17px;margin-top:2px" id="totInvertido">–</div></div>
     <div class="card" style="padding:12px 14px"><div class="sub">Beneficio total</div><div class="num" style="font-weight:800;font-size:17px;margin-top:2px" id="totGanancia">–</div></div>
   </div>
   <div class="card" id="listaActivos"></div>
-  <button class="btn sec" id="abrirCompra">＋ Compra de metal</button>
+  <button class="btn sec" id="abrirCompra">＋ Compra de metal</button></div>
 </div></div>
 
 <!-- MENÚ -->
@@ -452,6 +502,7 @@
   <div class="menu-grp"><h2>Hogar</h2>
     <div class="card" style="padding:4px 16px">
       <div class="menu-item" onclick="ir('comp')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M13 15.2c.9-.5 1.9-.7 3-.7 2.2 0 4.2 1.5 5 4.5"/></svg></div><div class="mi-t">Cuentas compartidas<div class="mi-s" id="menuComp">Quién debe a quién</div></div><span class="arrow">›</span></div>
+      <div id="menuCasas"></div>
       <div class="menu-item" onclick="ir('hogar')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></div><div class="mi-t">Gastos del hogar<div class="mi-s" id="menuHogar">Personas y gastos del hogar</div></div><span class="arrow">›</span></div>
     </div>
   </div>
@@ -461,10 +512,16 @@
       <div class="menu-item" onclick="ir('cuentas')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg></div><div class="mi-t">Cuentas e inversiones<div class="mi-s">Saldos, metales y patrimonio</div></div><span class="arrow">›</span></div>
     </div>
   </div>
+  <div class="menu-grp"><h2>Ayuda</h2>
+    <div class="card" style="padding:4px 16px">
+      <div class="menu-item" onclick="ir('instalar')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M12 8v6M9.5 11.5L12 14l2.5-2.5"/></svg></div><div class="mi-t">Instalar la app<div class="mi-s">Tenla en la pantalla de inicio</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('ayuda')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4M12 16.8v.2"/></svg></div><div class="mi-t">Ayuda<div class="mi-s">Cómo funciona cada cosa</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="location.href='privacidad.html'"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></div><div class="mi-t">Privacidad<div class="mi-s">Qué datos se guardan y tus derechos</div></div><span class="arrow">›</span></div>
+    </div>
+  </div>
   <div class="menu-grp"><h2>Configuración</h2>
     <div class="card" style="padding:4px 16px">
-      <div class="menu-item" onclick="ir('ajustes')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.1-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2.1 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9c.6.5 1.3.9 2.1 1.2L10 21h4l.5-2.6c.8-.3 1.5-.7 2.1-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></div><div class="mi-t">Ajustes<div class="mi-s">Clave y datos guardados</div></div><span class="arrow">›</span></div>
-      <a class="menu-item" style="text-decoration:none;color:inherit" href="https://docs.google.com/spreadsheets/d/10pya4cxplHIqnUFn31EUIrHDgf1JQeJM7eH5T5dg77I/edit" target="_blank" rel="noopener"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div class="mi-t">Abrir mi hoja de Google<div class="mi-s">Planner financiero</div></div><span class="arrow">›</span></a>
+      <div class="menu-item" onclick="ir('ajustes')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.1-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2.1 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9c.6.5 1.3.9 2.1 1.2L10 21h4l.5-2.6c.8-.3 1.5-.7 2.1-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></div><div class="mi-t">Ajustes<div class="mi-s">Cuentas, categorías, hogar y mis datos</div></div><span class="arrow">›</span></div>
     </div>
   </div>
 </div></div>
@@ -542,7 +599,8 @@
   <div class="script">hogar</div>
   <h1>Cuentas compartidas</h1>
   <div class="sub" id="cpSub">Lo que pagáis entre todos este ciclo y quién debe a quién.</div>
-  <div id="cpGente" style="margin-top:16px"></div>
+  <div id="cpInvitar" style="margin-top:16px"></div>
+  <div id="cpGente"></div>
   <h2>Qué te han pasado este ciclo</h2>
   <div class="card" style="padding:4px 16px" id="cpCats"></div>
   <h2>Movimientos compartidos</h2>
@@ -570,7 +628,8 @@
   <button class="btn sec" id="sbNueva">＋ Añadir suscripción</button>
   <h2>Otros pagos fijos</h2>
   <div class="card" style="padding:4px 16px" id="sbFijos"></div>
-  <div class="sub" style="margin-top:8px">Los fijos se cambian en la pestaña «Recurrentes» de tu hoja. Los cambios se aplican desde el próximo ciclo.</div>
+  <button class="btn sec" id="sbFijoNuevo">＋ Añadir pago fijo</button>
+  <div class="sub" style="margin-top:8px">Toca un fijo para cambiarlo. Los recurrentes se crean como previstos al empezar cada ciclo.</div>
 </div></div>
 
 <!-- IMPORTAR EXTRACTO -->
@@ -607,12 +666,37 @@
     <input id="srTexto" placeholder="p. ej. 12,50 Mercadona" autocomplete="off">
     <button class="btn" id="srProbar">Anotar</button>
     <div class="sub" id="srRes" style="margin-top:10px"></div>
-    <div class="sub" style="margin-top:6px;font-size:12px">Empieza por + si es una entrada: «+310 James alquiler».</div>
+    <div class="sub" style="margin-top:6px;font-size:12px">Empieza por + si es una entrada: «+300 Bizum cena».</div>
   </div>
-  <h2>Crear el atajo · 5 minutos</h2>
-  <div class="card" style="padding:4px 16px" id="srPasos"></div>
-  <div class="row" style="margin-top:4px"><button class="btn sec" id="srCopiarUrl">Copiar dirección</button><button class="btn sec" id="srCopiarClave">Copiar clave</button></div>
-  <div class="hint">La clave solo va dentro del atajo de tu iPhone. Si algún día la cambias en la hoja, cámbiala también en el atajo.</div>
+  <h2>Atajo del iPhone</h2>
+  <div class="card">
+    <div class="sub" id="srEstado">Comprobando…</div>
+    <div id="srClaveBox" style="display:none;margin-top:12px">
+      <div class="sub" style="font-weight:600;color:var(--tx)">Tu clave del atajo</div>
+      <div id="srClave" style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:var(--yellow-s);border-radius:10px;padding:10px;margin-top:6px;user-select:all"></div>
+      <button class="btn" id="srCopiarClave" style="margin-top:8px">Copiar clave</button>
+      <div class="sub" style="margin-top:6px;font-size:12px">Solo se enseña ahora. Pégala en el atajo (paso 3) y no la compartas: quien la tenga puede anotar gastos en tu cuenta.</div>
+    </div>
+    <button class="btn sec" id="srCrear" style="margin-top:12px">Crear clave del atajo</button>
+    <button class="linkbtn" id="srQuitar" style="display:none;margin-top:6px">Desconectar el atajo</button>
+  </div>
+  <h2>Cómo crear el atajo</h2>
+  <div class="card sr-pasos">
+    <ol style="margin:0;padding-left:20px;line-height:1.55;font-size:14px">
+      <li>Abre la app <b>Atajos</b> del iPhone, pulsa <b>+</b> y llámalo <b>Anotar gasto</b>.</li>
+      <li>Añade la acción <b>Dictar texto</b> (idioma: Español).</li>
+      <li>Añade <b>Obtener contenido de URL</b>:
+        <ul style="padding-left:18px;margin:4px 0">
+          <li>URL: <span id="srUrl" style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all"></span> <button class="linkbtn" id="srCopiarUrl">Copiar</button></li>
+          <li>Pulsa la flechita: Método <b>POST</b> y Cuerpo de la solicitud <b>JSON</b>.</li>
+          <li>Añade un campo de texto <b>clave</b> y pega tu clave.</li>
+          <li>Añade un campo de texto <b>texto</b> y elige la variable <b>Texto dictado</b>.</li>
+        </ul></li>
+      <li>Añade <b>Obtener valor de diccionario</b> con la clave <b>mensaje</b>.</li>
+      <li>Añade <b>Mostrar notificación</b> con ese <b>Valor de diccionario</b>.</li>
+    </ol>
+    <div class="hint">Luego di <b>«Oye Siri, anotar gasto»</b> y dicta, por ejemplo, «12,50 Mercadona». Si ya tenías el atajo de la versión anterior, basta con cambiar la URL y poner la clave nueva en el campo <b>key</b>.</div>
+  </div>
 </div></div>
 
 <!-- GASTOS COMPARTIDOS -->
@@ -621,16 +705,56 @@
   <div class="script">configuración</div>
   <h1>Gastos compartidos</h1>
   <div class="sub">Lo que pagáis entre todos. Tu parte se calcula sola y es la que cuenta en tu presupuesto.</div>
-  <div class="card" style="margin-top:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div><b>Personas en casa</b><div class="sub">Se divide entre todas</div></div>
-      <div class="stepper"><button id="hMenos">−</button><span class="val" id="hPersonas">2</span><button id="hMas">+</button></div>
-    </div>
-  </div>
+  <div class="hint">Las personas del hogar y la parte de cada una se cambian en <button class="linkbtn" onclick="ir('ajustes')">Ajustes › Hogar</button>.</div>
   <h2>Total del hogar al mes</h2>
   <div class="card" id="hLista"></div>
   <div class="card" style="margin-top:10px;display:flex;justify-content:space-between"><span>Tu parte total</span><b class="num" id="hTotal">–</b></div>
   <button class="btn" id="hGuardar">Guardar</button>
+</div></div>
+
+<!-- HOGAR COMPARTIDO (cuando otra persona me ha invitado) -->
+<div class="view" id="v-casa"><div class="wrap">
+  <div class="topbar" id="csTop"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">hogar compartido</div>
+  <h1 id="csTitulo">Hogar</h1>
+  <div class="sub" id="csSub">Lo que pagáis entre todos y quién debe a quién.</div>
+  <div id="csCuerpo" style="margin-top:16px"></div>
+  <div id="csSolo" style="display:none">
+    <div class="card" style="margin-top:16px">
+      <div class="sub">¿Quieres llevar también tus propias cuentas y tu presupuesto? Nadie más los verá.</div>
+      <button class="btn sec" id="csUsarApp">Usar la app para mis finanzas</button>
+    </div>
+    <button class="linkbtn" id="csSalirSesion" style="margin-top:10px">Cerrar sesión</button>
+  </div>
+</div></div>
+
+<!-- INSTALAR LA APP -->
+<div class="view" id="v-instalar"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">en tu móvil</div>
+  <h1>Instalar la app</h1>
+  <div class="sub">Tenla en la pantalla de inicio como cualquier otra app: se abre a pantalla completa y más rápido. No ocupa casi nada y no pasa por ninguna tienda.</div>
+  <div id="insCuerpo" style="margin-top:16px"></div>
+</div></div>
+
+<!-- AYUDA -->
+<div class="view" id="v-ayuda"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">dudas</div>
+  <h1>Ayuda</h1>
+  <div class="card faq" style="margin-top:16px;padding:4px 16px">
+    <details><summary>¿Cómo funciona el «mes»?</summary><p>Tu mes va del día que cobras al día anterior del mes siguiente (lo eliges en Ajustes). Todo se cuenta por ese ciclo: ingresos, gastos y presupuesto. Al terminar, se cierra solo y lo ves en Histórico.</p></details>
+    <details><summary>¿Dónde veo el resumen de cada mes?</summary><p>En Menú › Histórico. Cuando termina tu mes, la app lo cierra sola y guarda cuánto entró, cuánto gastaste por categoría y cuánto ahorraste. Toca cualquier mes para ver el detalle. Los avisos (si te pasas en una categoría o falta por confirmar la nómina) aparecen en Inicio.</p></details>
+    <details><summary>¿Cómo se calculan los saldos de mis cuentas?</summary><p>Escribes el saldo que ves en tu banco un día y, desde ahí, la app suma y resta lo que anotas como confirmado. Si alguna vez no cuadra, ve a Cuentas, toca la cuenta y escribe el saldo real: se vuelve a contar desde ese momento.</p></details>
+    <details><summary>¿Qué diferencia hay entre previsto y confirmado?</summary><p>Lo previsto (recibos, nómina, suscripciones) aparece solo cada mes para que sepas lo que viene. Cuando lo ves en el banco, lo confirmas en Pendientes y entonces mueve el saldo.</p></details>
+    <details><summary>Gastos compartidos y «mi parte»</summary><p>Si compartes casa, marca qué categorías son de todos y la parte de cada persona. De cada gasto compartido solo cuenta tu parte en tu presupuesto, y la app lleva quién debe a quién. Si la otra persona te pasa su parte a principio de mes, márcalo en Cuentas compartidas.</p></details>
+    <details><summary>¿Cómo invito a alguien de mi casa?</summary><p>En Ajustes › Hogar, toca «Invitar a la app» junto a su nombre y mándale el enlace. Con su propia cuenta verá solo los gastos de las categorías compartidas, podrá anotar lo que pague y avisarte de cuándo te pasa dinero. No ve tus cuentas, tu nómina ni tus otros gastos.</p></details>
+    <details><summary>Anotar rápido sin abrir la app</summary><p>En el iPhone puedes crear un atajo y decir «Oye Siri, anotar gasto». Los pasos están en Menú › Anotar sin abrir la app. La categoría se pone sola según lo que has anotado antes.</p></details>
+    <details><summary>Importar el extracto del banco</summary><p>Descarga los movimientos de tu banco en Excel o CSV y súbelos en Menú › Importar extracto. La app no duplica lo que ya tienes y te deja revisar antes de guardar.</p></details>
+    <details><summary>Inversiones y metas de ahorro</summary><p>Lo que aportas a inversión o ahorro no cuenta como gasto: va a tus cuentas de ahorro e inversión y suma a tu patrimonio. En Metas de ahorro puedes poner un objetivo (por ejemplo un fondo de emergencia de 3 meses de gastos) y ver cuánto te falta.</p></details>
+    <details><summary>¿Quién puede ver mis datos?</summary><p>Solo tú. Se guardan cifrados en servidores de la Unión Europea y cada cuenta solo puede leer lo suyo. Puedes descargarlos o borrarlos cuando quieras en Ajustes › Mis datos. Más detalle en la <a href="privacidad.html">política de privacidad</a>.</p></details>
+  </div>
+  <div class="sub" style="text-align:center;margin-top:16px"><a href="privacidad.html">Privacidad</a> · <a href="aviso-legal.html">Aviso legal</a></div>
 </div></div>
 
 <!-- AJUSTES -->
@@ -638,21 +762,49 @@
   <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
   <div class="script">configuración</div>
   <h1>Ajustes</h1>
-  <h2>Clave de conexión</h2>
+  <h2>Mi cuenta</h2>
   <div class="card">
-    <div class="sub">La clave conecta la app con tu hoja. Si la cambias en la hoja, pégala aquí de nuevo.</div>
-    <input id="ajClave" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:10px">
-    <button class="btn" id="ajGuardar">Guardar clave</button>
+    <div class="sub">Has entrado como</div><div id="ajCorreo" style="font-weight:600;margin-top:2px;word-break:break-all">–</div>
+    <label>Tu nombre</label><input id="ajNombre" autocomplete="off" maxlength="30">
+    <button class="btn sec" id="ajSalir">Cerrar sesión</button>
   </div>
-  <h2>Resumen por email</h2>
+  <h2>Ciclo del mes</h2>
   <div class="card">
-    <label style="display:flex;align-items:center;gap:10px;margin:0;color:var(--tx);font-size:14px"><input type="checkbox" id="ajEmail"> El día 28 envíame el resumen del mes, y avísame si no llega la nómina o me paso en una categoría</label>
-    <button class="btn sec" id="ajEmailPrueba">Enviarme el resumen ahora</button>
+    <label style="margin-top:0">Día de cobro (empieza el ciclo)</label><input id="ajDia" type="number" inputmode="numeric" min="1" max="31">
+    <div class="sub" id="ajDiaInfo" style="margin-top:8px"></div>
   </div>
-  <h2>Datos guardados en el móvil</h2>
+  <h2>Cuentas</h2>
+  <div class="card" style="padding:4px 16px" id="ajCuentas"></div>
+  <button class="btn sec" id="ajCuentaNueva">＋ Añadir cuenta</button>
+  <h2>Categorías</h2>
+  <div class="card" style="padding:4px 16px" id="ajCats"></div>
+  <div class="row"><button class="btn sec" id="ajCatNueva">＋ Gasto o ahorro</button><button class="btn sec" id="ajCatIngreso">＋ Ingreso</button></div>
+  <button class="btn sec" onclick="ir('cats')">Importes y reparto de la nómina ›</button>
+  <h2>Hogar</h2>
+  <div class="card" style="padding:4px 16px" id="ajHogar"></div>
+  <button class="btn sec" id="ajPersona">＋ Añadir persona</button>
+  <div class="sub" style="margin-top:8px">No hace falta que tengan cuenta en la app. Si les invitas, verán desde su móvil solo los gastos compartidos y podrán anotar lo que paguen.</div>
+  <h2>Inicio</h2>
+  <div class="card">
+    <div class="sub">Tarjetas que se ven</div><div id="ajTarjetas"></div>
+    <div class="sub" style="margin-top:16px">Botones rápidos (hasta 4)</div><div id="ajAcciones"></div>
+  </div>
+  <h2>Extras</h2>
+  <div class="card"><label class="chk" style="margin-top:0 !important"><input type="checkbox" id="ajMetales"> Inversiones en metales (oro, plata…)</label></div>
+  <div id="ajEmailWrap"><h2>Resumen por email</h2>
+  <div class="card">
+    <label class="chk" style="margin-top:0 !important"><input type="checkbox" id="ajEmail"> Enviarme un resumen del mes</label>
+    <div id="ajEmailDiaWrap"><label>Día de envío</label><input id="ajEmailDia" type="number" inputmode="numeric" min="1" max="31"></div>
+    <label class="chk"><input type="checkbox" id="ajAvisos"> Avisarme si me paso en una categoría o no llega la nómina</label>
+    <div class="sub" style="margin-top:10px">El resumen trae lo que cerró el mes anterior: ingresos, gastos por categoría, lo que te debe cada persona y tus cuentas. Los avisos llegan por la mañana, una vez por cada cosa.</div>
+    <button class="btn sec" id="ajEmailPrueba" style="margin-top:10px">Mandarme un resumen de prueba</button>
+  </div></div>
+  <h2>Mis datos</h2>
   <div class="card">
     <div class="sub" id="ajInfo">–</div>
-    <button class="btn sec" id="ajBorrar">Borrar y volver a cargar</button>
+    <button class="btn sec" id="ajExportar">Descargar mis datos</button>
+    <button class="btn sec danger" id="ajBorrarTodo" style="margin-top:8px">Borrar todos mis datos y empezar de cero</button>
+    <button class="btn sec danger" id="ajEliminar" style="margin-top:8px">Eliminar mi cuenta</button>
   </div>
 </div></div>
 
@@ -676,79 +828,56 @@
 </nav>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="logica.js"></script>
+<script src="datos.js"></script>
 <script>
-/* ───────── Conexión con el script de Google ───────── */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzsg0JlVqnhdFoz7FG0gFl2R7JKIBhKep-lpLARXKl6CSpkyGQG4PA3mKEH1TRlC_TH/exec';
-const CLAVE_KEY = 'mp-clave', CACHE_KEY = 'mp-datos-v2';
+/* ───────── Conexión con Supabase ───────── */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
              set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
              del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
-/* La clave se guarda en tres sitios del móvil (almacenamiento local, IndexedDB y la caché de la app)
-   por si iOS borra alguno; al abrir se recupera del que la tenga. */
-let claveMem = '';
-const clave = () => claveMem || ls.get(CLAVE_KEY) || '';
-const almacen = {
-  async cacheGet() { try { const c = await caches.open('mp-ajustes'); const r = await c.match('clave'); return r ? (await r.text()) : ''; } catch (e) { return ''; } },
-  async cacheSet(v) { try { const c = await caches.open('mp-ajustes'); if (v) await c.put('clave', new Response(v)); else await c.delete('clave'); } catch (e) {} },
-  idb(modo, fn) {
-    return new Promise((ok) => {
-      try {
-        const r = indexedDB.open('mi-presupuesto', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('ajustes');
-        r.onsuccess = () => {
-          try { const tx = r.result.transaction('ajustes', modo); const req = fn(tx.objectStore('ajustes'));
-            tx.oncomplete = () => ok(req && req.result); tx.onerror = () => ok(''); } catch (e) { ok(''); }
-        };
-        r.onerror = () => ok('');
-      } catch (e) { ok(''); }
-    });
-  },
-  async idbGet() { return (await this.idb('readonly', (st) => st.get('clave'))) || ''; },
-  async idbSet(v) { await this.idb('readwrite', (st) => v ? st.put(v, 'clave') : st.delete('clave')); },
-};
-async function guardarClave(k) {
-  claveMem = k; ls.set(CLAVE_KEY, k);
-  await Promise.all([almacen.cacheSet(k), almacen.idbSet(k)]);
-  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
-}
-async function recuperarClave() {
-  let k = clave();
-  if (k) { claveMem = k; almacen.cacheSet(k); almacen.idbSet(k); return k; }
-  k = (await almacen.idbGet()) || (await almacen.cacheGet());
-  if (k) { claveMem = k; ls.set(CLAVE_KEY, k); }
-  return k || '';
-}
-function almacenamientoOk() {
-  try { localStorage.setItem('mp-prueba', '1'); const ok = localStorage.getItem('mp-prueba') === '1'; localStorage.removeItem('mp-prueba'); return ok; } catch (e) { return false; }
-}
+const CFG = window.MP_CONFIG || {};
+// Modo demo: solo en este ordenador (localhost) y con ?demo en la dirección. Datos de mentira en memoria.
+const DEMO = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]demo\b/.test(location.search);
+const CACHE_KEY = 'mp2-datos';
+let sb = null, Dt = null;
 const esApp = () => window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-
+function cargarScript(src) {
+  return new Promise((ok, ko) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => ko(new Error('No se pudo cargar ' + src)); document.head.appendChild(s); });
+}
+async function iniciarConexion() {
+  if (DEMO) { await cargarScript('demo-sb.js'); sb = crearSupabaseDemo({ email: 'demo@ejemplo.es' }); }
+  else {
+    if (!window.supabase || !CFG.supabaseUrl) throw new Error('No se pudo conectar. Revisa la conexión y vuelve a abrir la app.');
+    sb = supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  }
+  Dt = crearDatos(sb, Logica);
+  sb.auth.onAuthStateChange((ev) => {
+    if (ev === 'PASSWORD_RECOVERY') setTimeout(() => { mostrarAuth(); ponerModoAuth('nueva'); }, 0);
+    if (ev === 'SIGNED_OUT') setTimeout(() => { if ($('setup').style.display !== 'flex') mostrarAuth(); }, 0);
+  });
+}
+const cacheKey = () => CACHE_KEY + '-' + ((Dt && Dt.uid()) || '');
 async function apiGet(params) {
-  const u = API_URL + '?' + new URLSearchParams(Object.assign({}, params, { key: clave() }));
-  const r = await fetch(u, { redirect: 'follow' });
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'Error');
-  return j.datos;
+  if (params.api === 'detalleMes') return Dt.detalleMes(params.mes);
+  return Dt.cargar();
 }
 /** Escrituras: devuelven los datos ya actualizados, así no hace falta recargar. */
 async function apiPost(accion, ...args) {
-  const r = await fetch(API_URL, { method: 'POST', redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ key: clave(), accion, args }) });
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'Error');
-  if (j.datos) { S = j.datos; ls.set(CACHE_KEY, JSON.stringify(S)); pintarTodo(); }
-  return j.mensaje;
+  const r = await Dt.accion(accion, ...args);
+  S = r.datos; ls.set(cacheKey(), JSON.stringify(S)); pintarTodo();
+  return r.mensaje;
 }
 
 /* ───────── Utilidades ───────── */
 const $ = (id) => document.getElementById(id);
-const eur = (n) => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const eur = (n) => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', useGrouping: 'always' });
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const emoji = (cat) => { const m = String(cat || '').match(/^\p{Extended_Pictographic}️?/u); return m ? m[0] : '•'; };
 const sinEmoji = (cat) => String(cat || '').replace(/^\p{Extended_Pictographic}️?\s*/u, '');
 const fechaCorta = (ymd) => { if (!ymd) return ''; const [y, m, d] = ymd.split('-'); return `${d}/${m}`; };
-const num = (s) => { let t = String(s).replace(/\s|€/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); return Number(t); };
+const num = (s) => { let t = String(s).replace(/\s|€/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); else if (/^[+-]?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, ''); return Number(t); };
 const aTexto = (n) => String(Math.round((Number(n) || 0) * 100) / 100).replace('.', ',');
 const hoyLocal = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const mayus = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -766,7 +895,7 @@ function fechaLarga(ymd) {
   return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES_C[d.getMonth()]}`;
 }
 
-let S = null, tipo = 'Gasto', estado = 'Confirmado', cat = '🛒 Comida', grupo = 'fijo', vistaActual = 'inicio';
+let S = null, tipo = 'Gasto', estado = 'Confirmado', cat = '', grupo = 'fijo', vistaActual = 'inicio';
 let catManual = false, quienPago = 'yo';
 let tt;
 function toast(t, err) {
@@ -789,6 +918,10 @@ function ir(v) {
   if (v === 'subs') pintarSubs();
   if (v === 'import') pintarImportCuentas();
   if (v === 'siri') pintarSiri();
+  if (v === 'casa') pintarCasa();
+  if (v === 'instalar') pintarInstalar();
+  if (v === 'cuentas') marcarPaso('saldos');
+  if (v === 'cats') marcarPaso('presupuesto');
 }
 document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => ir(b.dataset.v));
 
@@ -796,54 +929,47 @@ document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => ir
 function actualizando(si) { const b = document.querySelector('.refresh'); if (b) b.classList.toggle('girando', si); }
 let cargando = null;
 function cargar() {
-  if (!clave()) { mostrarSetup(); return Promise.resolve(); }
   if (cargando) return cargando;
-  if (!S) {
-    try { const c = JSON.parse(ls.get(CACHE_KEY)); if (c && c.resumen) { S = c; arrancar(); } } catch (e) {}
-  }
-  actualizando(true);
-  cargando = apiGet({ api: 'datos' })
-    .then((d) => { S = d; ls.set(CACHE_KEY, JSON.stringify(d)); ls.set('mp-hora', new Date().toISOString()); arrancar(); $('offline').style.display = 'none'; })
-    .catch((e) => {
-      if (/Clave no válida/.test(e.message)) { mostrarSetup(e.message); return; }
+  cargando = (async () => {
+    const ses = (await sb.auth.getSession()).data.session;
+    if (!ses) { mostrarAuth(); return; }
+    const ck = CACHE_KEY + '-' + ses.user.id;
+    if (!S) { try { const c = JSON.parse(ls.get(ck)); if (c && c.v2 && c.resumen && !c.necesitaBienvenida) { S = c; arrancar(); } } catch (e) {} }
+    actualizando(true);
+    try {
+      const d = await Dt.cargar();
+      S = d; ls.set(ck, JSON.stringify(d)); ls.set('mp2-hora', new Date().toISOString());
+      HOGARES = await Dt.hogar.mios().catch(() => HOGARES);
+      if (S.necesitaBienvenida) { await decidirInicioNuevo(); return; }
+      arrancar(); $('offline').style.display = 'none';
+      if (ls.get('mp2-unirse')) revisarInvitacion().then((owner) => { if (owner) { pintarMenuCasas(); abrirCasa(owner); } });
+    } catch (e) {
+      if (/Sin sesión|sesión ha caducado/.test(e.message)) { mostrarAuth(/caducado/.test(e.message) ? e.message : ''); return; }
       if (S) { $('offline').style.display = 'block'; toast('Sin conexión: datos guardados', true); }
       else toast(e.message || 'No se pudo cargar', true);
-    })
-    .finally(() => { $('loading').style.display = 'none'; actualizando(false); cargando = null; });
+    }
+  })().finally(() => { $('loading').style.display = 'none'; actualizando(false); cargando = null; setTimeout(ofrecerInstalar, 600); });
   return cargando;
 }
 let arrancada = false;
+function quitarPantallas() { $('setup').style.display = 'none'; $('bienvenida').style.display = 'none'; }
 function arrancar() {
-  $('loading').style.display = 'none'; $('setup').style.display = 'none'; $('tabs').style.display = 'flex';
+  $('loading').style.display = 'none'; quitarPantallas(); $('tabs').style.display = 'flex';
   if (!arrancada) { arrancada = true; ir('inicio'); }
   pintarTodo();
 }
-function mostrarSetup(msg) {
-  $('loading').style.display = 'none'; $('tabs').style.display = 'none';
-  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
-  $('setup').style.display = 'flex'; $('claveMsg').textContent = msg || '';
-  const avisos = [];
-  if (!almacenamientoOk()) avisos.push('Tu iPhone no está dejando guardar datos de la app y por eso te pide la clave cada vez. Ve a <b>Ajustes → Apps → Safari</b> y desactiva <b>«Bloquear todas las cookies»</b>.');
-  if (!esApp() && /iPhone|iPad/.test(navigator.userAgent)) avisos.push('Estás en Safari. Para que recuerde la clave, ábrela siempre desde el <b>icono de la pantalla de inicio</b> y pega la clave ahí.');
-  $('claveAviso').innerHTML = avisos.join('<br><br>'); $('claveAviso').style.display = avisos.length ? 'block' : 'none';
-}
-async function probarYGuardarClave(k, msgEl) {
-  k = String(k || '').trim();
-  if (k.length < 32) { msgEl.textContent = 'La clave no parece completa.'; return false; }
-  const anterior = clave(); claveMem = k;
-  msgEl.textContent = 'Comprobando…';
-  try { await apiGet({ api: 'ping' }); await guardarClave(k); msgEl.textContent = '✓ Conectada'; return true; }
-  catch (e) { claveMem = anterior; msgEl.textContent = e.message; return false; }
-}
-$('claveGuardar').onclick = async () => { if (await probarYGuardarClave($('claveInput').value, $('claveMsg'))) { $('loading').style.display = 'flex'; S = null; cargar(); } };
 
 function pintarTodo() {
   if (!S) return;
+  aplicarConfig();
   refrescarAjustes();
   pintarInicio(); pintarMovs(); pintarPend(); pintarFormulario(); pintarCuentas(); pintarHist();
   pintarMetas(); pintarComp(); pintarSubs();
+  pintarMenuCasas(); pintarPrimeros();
+  if (vistaActual === 'casa' && !soloInvitado) pintarCasa();
   if (vistaActual === 'cats' && (!CE || !hayCambios())) pintarCatsPres(true);
   if (vistaActual === 'hogar' && !hogarEditando) pintarHogar();
+  if (vistaActual === 'ajustes') pintarAjustes();
 }
 
 /* ───────── INICIO ───────── */
@@ -918,7 +1044,7 @@ document.querySelectorAll('#segCat button').forEach((b) => b.onclick = () => {
 });
 
 /* ───────── MOVIMIENTOS ───────── */
-const movsOrdenados = () => (S.movimientos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : b.fila - a.fila);
+const movsOrdenados = () => (S.movimientos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.n || 0) - (a.n || 0));
 const esEntrada = (m) => m.tipo === 'Ingreso' || m.tipo === 'Reintegro';
 function movHtml(m) {
   const entra = esEntrada(m), sg = entra ? '+' : m.tipo === 'Transferencia' ? '' : '−';
@@ -1083,18 +1209,26 @@ const cuentasPropias = () => S.datos.cuentas.filter((c) => !['Sin indicar', 'Otr
 function opcionesHacia(sel) {
   return '<option value="">— Fuera de mis cuentas —</option>' + cuentasPropias().map((c) => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join('');
 }
-const SUG = { 'Ingreso': '💼 Nómina', 'Ahorro / inversión': '📈 Inversión y emergencia', 'Transferencia': '🛍️ Gastos personales', 'Gasto': '🛒 Comida' };
+/* Categoría que se propone para cada tipo: la primera de ese tipo (con preferencia por las habituales) */
+const SUG_RE = { 'Ingreso': /n[oó]mina|sueldo|salario/i, 'Gasto': /comida|super/i, 'Transferencia': /personal/i, 'Reintegro': /comida/i, 'Ahorro / inversión': /./ };
+function sugerida(t) {
+  if (!S || !S.datos) return '';
+  const tc = S.datos.tiposCat || {}, quiero = t === 'Transferencia' || t === 'Reintegro' ? 'Gasto' : t;
+  const l = S.datos.categorias.filter((c) => tc[c] === quiero);
+  return l.find((c) => SUG_RE[t] && SUG_RE[t].test(c)) || l[0] || '';
+}
+const SUG = new Proxy({}, { get: (_, t) => sugerida(String(t)) });
 let formListo = false;
 function pintarFormulario() {
   const d = S.datos;
   if (!formListo) { $('fecha').value = hoyLocal(); ['imp', 'fecha'].forEach((i) => $(i).addEventListener('input', calcParte)); formListo = true; }
-  const cuentaSel = $('cuenta').value || 'Banco';
+  const cuentaSel = $('cuenta').value || cuentaPrincipal();
   $('cuenta').innerHTML = opciones(d.cuentas, cuentaSel);
   const hayHacia = conHacia(tipo);
   $('cuentaLbl').textContent = hayHacia ? 'Desde' : 'Cuenta';
   $('haciaWrap').style.display = hayHacia ? 'block' : 'none';
   if (hayHacia) {
-    const previo = $('hacia').dataset.tipo === tipo ? $('hacia').value : (tipo === 'Ahorro / inversión' ? 'Cuenta ahorro' : '');
+    const previo = $('hacia').dataset.tipo === tipo ? $('hacia').value : (tipo === 'Ahorro / inversión' ? (cuentaDeRol('ahorro') || cuentaDeRol('emergencia') || cuentaDeRol('inversion')) : '');
     $('hacia').innerHTML = opcionesHacia(previo); $('hacia').dataset.tipo = tipo;
   }
   $('segTipo').innerHTML = d.tipos.map((t) => `<button class="${t === tipo ? 'on' : ''}" data-v="${esc(t)}">${esc(t === 'Ahorro / inversión' ? 'Ahorro' : t)}</button>`).join('');
@@ -1109,7 +1243,7 @@ function pintarFormulario() {
 function calcParte() {
   const d = S.datos, imp = num($('imp').value) || 0, el = $('parte');
   if (tipo === 'Gasto' && d.hogar.includes(cat) && imp > 0) {
-    const n = (S.hogar && S.hogar.personas) || d.personas;
+    const n = (S.hogar && (S.hogar.divisor || S.hogar.personas)) || d.personas;
     el.style.display = 'block';
     el.textContent = quienPago !== 'yo' ? `Lo ha pagado ${quienPago}: tu parte es ${eur(imp / n)} y se la debes. No sale de tus cuentas.` : `Gasto del hogar: tu parte es ${eur(imp / n)} (entre ${n}).`;
   } else if (tipo === 'Reintegro') { el.style.display = 'block'; el.textContent = 'Reintegro: dinero que te devuelven. No cuenta como gasto tuyo.'; }
@@ -1202,7 +1336,7 @@ $('abrirCompra').onclick = () => {
       <div><label>Precio de compra / ud.</label><input id="cPrecio" type="text" inputmode="decimal" placeholder="0,00 €"></div></div>
     <label>Fecha</label><input type="date" id="cFecha" value="${hoyLocal()}">
     <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px"><input type="checkbox" id="cRegistrar" checked> Anotar en Movimientos como ahorro / inversión</label>
-    <div id="cCuentaWrap"><label>Pagado desde</label><select id="cCuenta">${opciones(S.datos.cuentas, 'Banco')}</select></div>
+    <div id="cCuentaWrap"><label>Pagado desde</label><select id="cCuenta">${opciones(S.datos.cuentas, cuentaPrincipal())}</select></div>
     <div class="hint" id="cResumen" style="display:none"></div>
     <button class="btn" id="cGuardar">Guardar compra</button>`);
   if (!v.activos.length) { $('cMetal').value = 'nuevo'; $('cNuevoWrap').style.display = 'block'; }
@@ -1239,19 +1373,16 @@ function pintarHogar() {
 }
 function dibujarHogar() {
   const h = hogarEdit;
-  $('hPersonas').textContent = h.personas;
   $('hLista').innerHTML = h.conceptos.map((c, i) => `<div class="hrow"><div class="top"><span>${esc(c.nombre)}</span>
     <input type="text" inputmode="decimal" data-i="${i}" value="${aTexto(c.total)}"></div>
-    <div class="sub" id="hParte${i}">Tu parte: ${eur(c.total / h.personas)}</div></div>`).join('');
+    <div class="sub" id="hParte${i}">Tu parte: ${eur(c.total / (h.divisor || h.personas))}</div></div>`).join('');
   $('hLista').querySelectorAll('input').forEach((inp) => inp.addEventListener('input', () => {
     hogarEditando = true; const c = h.conceptos[inp.dataset.i]; c.total = num(inp.value) || 0;
-    $('hParte' + inp.dataset.i).textContent = `Tu parte: ${eur(c.total / h.personas)}`; totalHogar();
+    $('hParte' + inp.dataset.i).textContent = `Tu parte: ${eur(c.total / (h.divisor || h.personas))}`; totalHogar();
   }));
   totalHogar();
 }
-function totalHogar() { $('hTotal').textContent = eur(hogarEdit.conceptos.reduce((s, c) => s + c.total / hogarEdit.personas, 0)); }
-$('hMenos').onclick = () => { if (hogarEdit.personas > 1) { hogarEdit.personas--; hogarEditando = true; dibujarHogar(); } };
-$('hMas').onclick = () => { if (hogarEdit.personas < 20) { hogarEdit.personas++; hogarEditando = true; dibujarHogar(); } };
+function totalHogar() { $('hTotal').textContent = eur(hogarEdit.conceptos.reduce((s, c) => s + c.total / (hogarEdit.divisor || hogarEdit.personas), 0)); }
 $('hGuardar').onclick = async () => {
   await conBoton($('hGuardar'), 'Guardando…', async () => {
     toast('✓ ' + await apiPost('guardarHogar', { personas: hogarEdit.personas, conceptos: hogarEdit.conceptos.map((c) => ({ fila: c.fila, total: c.total })) }));
@@ -1259,18 +1390,7 @@ $('hGuardar').onclick = async () => {
   });
 };
 
-/* ───────── AJUSTES ───────── */
-function pintarAjustes() {
-  $('ajClave').value = clave();
-  $('ajEmail').checked = ajustes().email !== false;
-  const h = ls.get('mp-hora');
-  $('ajInfo').textContent = h ? `Última actualización: ${new Date(h).toLocaleString('es-ES')}` : 'Aún no hay datos guardados.';
-}
-$('ajGuardar').onclick = async () => {
-  const msg = { textContent: '' };
-  if (await probarYGuardarClave($('ajClave').value, msg)) { toast('✓ Clave guardada'); cargar(); } else toast(msg.textContent, true);
-};
-$('ajBorrar').onclick = () => { ls.del(CACHE_KEY); ls.del('mp-hora'); S = null; arrancada = false; $('loading').style.display = 'flex'; cargar(); };
+
 
 /* ───────── HISTÓRICO ───────── */
 function pintarHist() {
@@ -1315,16 +1435,16 @@ async function abrirDetalle(m) {
 }
 
 /* ───────── AJUSTES DE PLANIFICACIÓN (reparto, destinos del ahorro, metas) ─────────
-   Se guardan en el móvil y en la hoja (para que no se pierdan); gana la versión más reciente. */
-const AJ_KEY = 'mp-ajustes-app';
+   Se guardan en el móvil y en tu cuenta; gana la versión más reciente. */
+const ajKey = () => 'mp2-ajustes-' + ((Dt && Dt.uid()) || '');
 const AJ_DEF = { pct: { fijos: 50, variables: 30, ahorro: 20 }, base: null,
-  bolsas: [{ nombre: 'Fondo de emergencia', pct: 40, cuenta: 'Revolut' }, { nombre: 'Inversión', pct: 30, cuenta: 'Trade Republic' }, { nombre: 'Ahorros', pct: 30, cuenta: 'Cuenta ahorro' }],
+  bolsas: [],
   metas: [], t: 0 };
 let A = null;
 const copia = (o) => JSON.parse(JSON.stringify(o));
 function ajustes() {
   if (A) return A;
-  let loc = null; try { loc = JSON.parse(ls.get(AJ_KEY)); } catch (e) {}
+  let loc = null; try { loc = JSON.parse(ls.get(ajKey())); } catch (e) {}
   const srv = S && S.ajustesApp;
   const mejor = [loc, srv].filter((x) => x && typeof x === 'object').sort((a, b) => (b.t || 0) - (a.t || 0))[0];
   A = Object.assign(copia(AJ_DEF), mejor || {});
@@ -1335,10 +1455,12 @@ function ajustes() {
   }
   return A;
 }
-/* Para qué es cada cuenta */
-const USO_CUENTAS = { 'Revolut': 'Fondo de emergencia', 'Trade Republic': 'Inversión', 'Cuenta ahorro': 'Ahorros', 'Banco': 'Día a día', 'Efectivo': 'Día a día' };
-const DIARIO = ['Banco', 'Efectivo'];
-const cuentaParaMeta = (n) => /emergencia|imprevist/i.test(n) ? 'Revolut' : /inversi|trade|bolsa|etf|indexad/i.test(n) ? 'Trade Republic' : /ahorro/i.test(n) ? 'Cuenta ahorro' : '';
+/* Para qué es cada cuenta: sale de su papel (Ajustes › Cuentas) */
+const ROL_TXT = { dia_a_dia: 'Día a día', emergencia: 'Fondo de emergencia', inversion: 'Inversión', ahorro: 'Ahorro' };
+let USO_CUENTAS = {}, DIARIO = [];
+const cuentaDeRol = (r) => { const roles = (S && S.datos && S.datos.roles) || {}; return Object.keys(roles).find((n) => roles[n] === r) || ''; };
+const cuentaPrincipal = () => DIARIO[0] || ((S && S.datos && S.datos.cuentas[0]) || '');
+const cuentaParaMeta = (n) => /emergencia|imprevist/i.test(n) ? cuentaDeRol('emergencia') : /inversi|bolsa|etf|indexad/i.test(n) ? cuentaDeRol('inversion') : /ahorro/i.test(n) ? cuentaDeRol('ahorro') : '';
 const cuentasAhorro = () => cuentasPropias().filter((c) => !DIARIO.includes(c));
 const opcionesAhorro = (sel, vacio) => `<option value="">${vacio}</option>` + cuentasAhorro().concat(sel && !cuentasAhorro().includes(sel) ? [sel] : [])
   .map((c) => `<option value="${esc(c)}" ${c === sel ? 'selected' : ''}>${esc(c)}${USO_CUENTAS[c] ? ' · ' + USO_CUENTAS[c] : ''}</option>`).join('');
@@ -1347,7 +1469,7 @@ function refrescarAjustes() {
   if (srv && A && (srv.t || 0) > (A.t || 0)) A = null;
 }
 async function guardarAjustes(ok) {
-  A.t = Date.now(); ls.set(AJ_KEY, JSON.stringify(A));
+  A.t = Date.now(); ls.set(ajKey(), JSON.stringify(A));
   try { await apiPost('guardarAjustesApp', A); toast('✓ ' + ok); }
   catch (e) {
     if (/desconocida/i.test(e.message)) toast('✓ ' + ok + ' en este móvil');
@@ -1367,7 +1489,7 @@ function agregados() {
   const fijos = new Set(r.categorias.filter((c) => c.fijo).map((c) => c.cat));
   const g = { ing: { c: r.ingresos, p: 0 }, fijo: { c: 0, p: 0, plan: 0 }, var: { c: 0, p: 0, plan: 0 }, aho: { c: r.ahorro, p: 0, plan: r.planAhorro } };
   r.categorias.filter((c) => c.tipo === 'Gasto').forEach((c) => { const x = c.fijo ? g.fijo : g.var; x.c += c.real; x.plan += c.plan; });
-  // Lo que no tenga categoría con plan cuenta como variable, para cuadrar con el total de la hoja
+  // Lo que no tenga categoría con plan cuenta como variable, para cuadrar con el total
   g.var.c = Math.max(0, r.gastos - g.fijo.c);
   (S.movimientos || []).forEach((m) => {
     if (!ESTADOS_PREV.includes(m.estado) || !m.fecha || m.fecha < s.inicio || m.fecha > s.fin) return;
@@ -1458,7 +1580,7 @@ function ahorrarAhora() {
   const g = agregados(), a = ajustes();
   const falta = baseNomina(g) * a.pct.ahorro / 100 - g.aho.c - g.aho.p;
   const destino = (a.bolsas.find((b) => b.cuenta && cuentasPropias().includes(b.cuenta)) || {}).cuenta || (cuentasAhorro()[0] || '');
-  nuevoCon({ tipo: 'Ahorro / inversión', imp: falta > 0 ? Math.round(falta * 100) / 100 : 0, cuenta: 'Banco', hacia: destino, conc: 'Ahorro del ciclo' });
+  nuevoCon({ tipo: 'Ahorro / inversión', imp: falta > 0 ? Math.round(falta * 100) / 100 : 0, cuenta: cuentaPrincipal(), hacia: destino, conc: 'Ahorro del ciclo' });
 }
 function pintarRapidos() {
   const vistos = new Map();
@@ -1523,7 +1645,7 @@ function pintarMetas() {
   const fijosMes = agregados().fijo.plan;
   const tieneEmer = metas.some((m) => /emergencia/i.test(m.nombre));
   $('mtSugerencia').innerHTML = !tieneEmer && fijosMes > 0 ? `<div class="card" style="margin-top:2px"><div class="aviso" style="border:0;padding:0"><span class="ai warn">!</span><div class="ab">Te recomiendo un fondo de emergencia<div class="sub">3 meses de gastos fijos: ${eur(fijosMes * 3)}. Te cubre si falla un ingreso o surge un imprevisto.</div></div><button id="mtCrearEmer">Crear</button></div></div>` : '';
-  if ($('mtCrearEmer')) $('mtCrearEmer').onclick = () => editarMeta(-1, { nombre: 'Fondo de emergencia', objetivo: Math.round(fijosMes * 3), cuenta: cuentasPropias().includes('Revolut') ? 'Revolut' : '' });
+  if ($('mtCrearEmer')) $('mtCrearEmer').onclick = () => editarMeta(-1, { nombre: 'Fondo de emergencia', objetivo: Math.round(fijosMes * 3), cuenta: cuentaDeRol('emergencia') });
   $('menuMetas').textContent = metas.length ? `${metas.length} ${metas.length === 1 ? 'meta' : 'metas'} · ${obj > 0 ? Math.round(tot / obj * 100) : 0}% conseguido` : 'Fondo de emergencia, viajes, inversión…';
 }
 $('mtNueva').onclick = () => editarMeta(-1);
@@ -1563,16 +1685,16 @@ function editarMeta(i, pre) {
 }
 function aportarMeta(m) {
   const cuota = Math.round(cuotaMeta(m) * 100) / 100;
-  if (m.cuenta) { nuevoCon({ tipo: 'Ahorro / inversión', imp: cuota, cuenta: 'Banco', hacia: m.cuenta, conc: 'Ahorro · ' + m.nombre }); return; }
+  if (m.cuenta) { nuevoCon({ tipo: 'Ahorro / inversión', imp: cuota, cuenta: cuentaPrincipal(), hacia: m.cuenta, conc: 'Ahorro · ' + m.nombre }); return; }
   abrirHoja('aportar', m.nombre, `
     <div class="sub">Esta meta no está enlazada a una cuenta, así que anoto la aportación aquí.</div>
     <div class="card" style="margin-top:12px;text-align:center"><input class="big-input num" id="apImp" type="text" inputmode="decimal" value="${cuota > 0 ? aTexto(cuota) : ''}" placeholder="0,00 €"></div>
-    <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px"><input type="checkbox" id="apMov" checked> Anotar también en Movimientos como ahorro (sale del Banco)</label>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px"><input type="checkbox" id="apMov" checked> Anotar también en Movimientos como ahorro (sale de ${esc(cuentaPrincipal())})</label>
     <button class="btn" id="apGuardar">Aportar</button>`);
   $('apGuardar').onclick = async () => {
     const x = num($('apImp').value); if (!(x > 0)) { toast('Importe no válido', true); return; }
     await conBoton($('apGuardar'), 'Guardando…', async () => {
-      if ($('apMov').checked) await apiPost('agregarMovimiento', { fecha: hoyLocal(), tipo: 'Ahorro / inversión', cat: SUG['Ahorro / inversión'], conc: 'Ahorro · ' + m.nombre, imp: x, cuenta: 'Banco', hacia: '', estado: 'Confirmado', notas: 'Meta: ' + m.nombre });
+      if ($('apMov').checked) await apiPost('agregarMovimiento', { fecha: hoyLocal(), tipo: 'Ahorro / inversión', cat: SUG['Ahorro / inversión'], conc: 'Ahorro · ' + m.nombre, imp: x, cuenta: cuentaPrincipal(), hacia: '', estado: 'Confirmado', notas: 'Meta: ' + m.nombre });
       m.actual = (Number(m.actual) || 0) + x;
       await guardarAjustes(`Aportados ${eur(x)} a ${m.nombre}`);
       cerrarHoja(); pintarMetas();
@@ -1580,7 +1702,7 @@ function aportarMeta(m) {
   };
 }
 
-/* ───────── CATEGORÍAS AUTOMÁTICAS (mismas reglas que el script de la hoja) ───────── */
+/* ───────── CATEGORÍAS AUTOMÁTICAS ───────── */
 const palabrasDe = (t, vac) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-zñ ]/g, ' ').split(/\s+/).filter((w) => w.length >= 3 && !(vac || []).includes(w));
 function autoCategoria(conc) {
@@ -1625,7 +1747,8 @@ function pintarQuien() {
 /* ───────── CUENTAS COMPARTIDAS ───────── */
 function pintarComp() {
   const c = S.compartidos;
-  if (!c) { $('cpGente').innerHTML = '<div class="card empty">Actualiza la hoja para ver las cuentas compartidas.</div>'; return; }
+  if (!c) { $('cpGente').innerHTML = '<div class="card empty">No compartes gastos con nadie. Añade a las personas de tu hogar en Ajustes y marca qué categorías son compartidas.</div>'; $('cpCats').innerHTML = ''; $('cpMovs').innerHTML = ''; $('cpSub').textContent = ''; return; }
+  pintarInvitarComp();
   $('cpSub').textContent = `Hogar entre ${c.personas}. Marca cada mes qué te han pasado ya; lo que no, se divide al gastar.`;
   const mini = (t, v) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${v}</div></div>`;
   const estado = (s, n) => Math.abs(s) < 0.01 ? 'Estáis en paz' : s > 0 ? `${n} te debe ${eur(s)}` : `Le debes ${eur(-s)} a ${n}`;
@@ -1645,11 +1768,11 @@ function pintarComp() {
   }).join('');
   $('cpGente').querySelectorAll('[data-saldar]').forEach((b) => b.onclick = async () => {
     const p = c.gente[b.dataset.saldar];
-    const txt = p.saldo > 0 ? `Anoto que ${p.nombre} te ha pagado ${eur(p.saldo)} (entra en el Banco).` : `Anoto que le has pagado ${eur(-p.saldo)} a ${p.nombre} (sale del Banco).`;
+    const txt = p.saldo > 0 ? `Anoto que ${p.nombre} te ha pagado ${eur(p.saldo)} (entra en ${cuentaPrincipal()}).` : `Anoto que le has pagado ${eur(-p.saldo)} a ${p.nombre} (sale de ${cuentaPrincipal()}).`;
     if (!confirm(txt + ' ¿Continuar?')) return;
     await conBoton(b, 'Guardando…', async () => toast('✓ ' + await apiPost('saldarCompartidos', p.nombre)));
   });
-  $('cpGente').querySelectorAll('[data-pago]').forEach((b) => b.onclick = () => { quienPago = c.gente[b.dataset.pago].nombre; nuevoCon({ tipo: 'Gasto', cat: '🛒 Comida', quien: quienPago }); });
+  $('cpGente').querySelectorAll('[data-pago]').forEach((b) => b.onclick = () => { quienPago = c.gente[b.dataset.pago].nombre; nuevoCon({ tipo: 'Gasto', cat: S.datos.hogar[0], quien: quienPago }); });
   const p0 = c.gente[0], otro = p0 ? p0.nombre : 'la otra persona';
   $('cpCats').innerHTML = c.cats.map((x, k) => {
     const f = x.plan > 0 ? Math.min(100, x.total / x.plan * 100) : (x.total > 0 ? 100 : 0), over = x.plan > 0 && x.total > x.plan + 0.005;
@@ -1665,7 +1788,7 @@ function pintarComp() {
   }).join('');
   $('cpCats').querySelectorAll('[data-aporte]').forEach((b) => b.onclick = () => {
     const x = c.cats[b.dataset.aporte];
-    nuevoCon({ tipo: 'Reintegro', cat: x.cat, cuenta: 'Banco', imp: Math.round(x.plan / c.personas * 100) / 100,
+    nuevoCon({ tipo: 'Reintegro', cat: x.cat, cuenta: cuentaPrincipal(), imp: Math.round(x.plan / c.personas * 100) / 100,
       conc: `${otro} · ${sinEmoji(x.cat).toLowerCase()} · ${S.resumen.ciclo}` });
     toast(`Ajusta el importe si te pasó otra cantidad`);
   });
@@ -1688,7 +1811,7 @@ function pintarSubs() {
   const s = S.suscripciones;
   if (!s) { $('sbLista').innerHTML = '<div class="empty">Actualiza la hoja para ver tus suscripciones.</div>'; return; }
   const act = s.subs.filter((x) => x.estado === 'Activa'), mes = act.reduce((t, x) => t + x.imp, 0);
-  const fijos = s.fijos.filter((f) => f.activo && f.tipo === 'Gasto'), fijosMes = fijos.reduce((t, f) => t + (S.datos.hogar.includes(f.cat) ? f.imp / ((S.hogar && S.hogar.personas) || 1) : f.imp), 0);
+  const fijos = s.fijos.filter((f) => f.activo && f.tipo === 'Gasto'), fijosMes = fijos.reduce((t, f) => t + (S.datos.hogar.includes(f.cat) ? f.imp / ((S.hogar && (S.hogar.divisor || S.hogar.personas)) || 1) : f.imp), 0);
   $('sbMes').textContent = eur(mes) + ' /mes'; $('sbAno').textContent = eur(mes * 12); $('sbTodo').textContent = eur(mes + fijosMes);
   const subidas = act.filter((x) => x.cobrado && x.cobrado.estado === 'Confirmado' && x.cobrado.imp > x.imp + 0.01);
   $('sbAvisos').innerHTML = subidas.length ? `<div class="card" style="margin-top:10px;padding:4px 16px">${subidas.map((x) => `<div class="aviso"><span class="ai neg">!</span><div class="ab">${esc(x.nombre)} te ha cobrado ${eur(x.cobrado.imp)}<div class="sub">En tu lista está a ${eur(x.imp)}: ¿ha subido de precio?</div></div><button data-sub="${s.subs.indexOf(x)}">Revisar</button></div>`).join('')}</div>` : '';
@@ -1700,7 +1823,8 @@ function pintarSubs() {
       <div style="text-align:right"><div class="v num">${eur(x.imp)}</div><div class="sub num">${on ? eur(x.imp * 12) + '/año' : ''}</div></div></div></div>`;
   }).join('') : '<div class="empty">No tienes suscripciones</div>';
   document.querySelectorAll('#v-subs [data-sub]').forEach((el) => el.onclick = () => editarSub(s.subs[el.dataset.sub]));
-  $('sbFijos').innerHTML = s.fijos.length ? s.fijos.filter((f) => f.activo).map((f) => `<div class="line-wrap"><div class="line" style="cursor:default"><div><div>${emoji(f.cat)} ${esc(f.conc)}</div><div class="sub">${esc(f.tipo)} · día ${esc(f.dia)} · ${esc(f.cuenta || '')}</div></div><div class="v num ${f.tipo === 'Gasto' ? 'neg' : 'pos'}">${f.tipo === 'Gasto' ? '−' : '+'}${eur(f.imp)}</div></div></div>`).join('') : '<div class="empty">Sin fijos</div>';
+  $('sbFijos').innerHTML = s.fijos.length ? s.fijos.map((f) => `<div class="line-wrap"><div class="line" data-fijo="${s.fijos.indexOf(f)}" style="${f.activo ? '' : 'opacity:.55'}"><div><div>${emoji(f.cat)} ${esc(f.conc)}</div><div class="sub">${esc(f.tipo)} · día ${esc(f.dia)} · ${esc(f.cuenta || '')}${f.activo ? '' : ' · pausado'}</div></div><div class="v num ${f.tipo === 'Gasto' ? 'neg' : ['Ingreso', 'Reintegro'].includes(f.tipo) ? 'pos' : ''}">${f.tipo === 'Gasto' ? '−' : ['Ingreso', 'Reintegro'].includes(f.tipo) ? '+' : ''}${eur(f.imp)}</div></div></div>`).join('') : '<div class="empty">Aún no tienes pagos fijos</div>';
+  $('sbFijos').querySelectorAll('[data-fijo]').forEach((el) => el.onclick = () => editarFijo(s.fijos[el.dataset.fijo]));
   $('menuSubs').textContent = `${act.length} activas · ${eur(mes)}/mes`;
 }
 function editarSub(x) {
@@ -1874,41 +1998,269 @@ $('imImportar').onclick = async () => {
     ir('movs');
   });
 };
-function pintarImportCuentas() { const sel = $('imCuenta').value || 'Banco'; $('imCuenta').innerHTML = opciones(cuentasPropias(), sel); }
+function pintarImportCuentas() { const sel = $('imCuenta').value || cuentaPrincipal(); $('imCuenta').innerHTML = opciones(cuentasPropias(), sel); }
 
 /* ───────── ATAJO DEL IPHONE ───────── */
-function pintarSiri() {
-  const paso = (n, t, s) => `<div class="aviso"><span class="ai pos" style="background:var(--blue-s);color:var(--blue-d)">${n}</span><div class="ab">${t}${s ? `<div class="sub">${s}</div>` : ''}</div></div>`;
-  $('srPasos').innerHTML = [
-    paso(1, 'Abre la app <b>Atajos</b> y pulsa <b>＋</b>', 'Ponle de nombre <b>Anotar gasto</b> (es lo que dirás a Siri).'),
-    paso(2, 'Añade la acción <b>«Solicitar entrada»</b>', 'Tipo: Texto. Pregunta: «¿Qué has gastado?».'),
-    paso(3, 'Añade <b>«Obtener contenido de URL»</b>', 'En URL pega la <b>dirección</b> (botón de abajo). Toca la flecha y pon Método <b>POST</b> y Cuerpo <b>JSON</b>.'),
-    paso(4, 'Añade tres campos de texto al cuerpo', '<b>key</b> = tu clave (botón de abajo) · <b>accion</b> = gastoRapido · <b>texto</b> = la variable «Entrada proporcionada».'),
-    paso(5, 'Añade <b>«Obtener valor del diccionario»</b>', 'Clave: <b>mensaje</b>, del «Contenido de la URL».'),
-    paso(6, 'Añade <b>«Mostrar notificación»</b> con ese valor', 'Te dirá lo que se ha anotado y cuánto te queda en esa categoría.'),
-    paso('✓', 'Úsalo', '«Oye Siri, anotar gasto» · o en el atajo: Compartir → <b>Añadir a pantalla de inicio</b> · o en Ajustes → Accesibilidad → Tocar → <b>Tocar atrás</b>.'),
-  ].join('');
+const URL_ATAJO = CFG.supabaseUrl + '/functions/v1/gasto-rapido';
+let atajoHay = false;
+async function pintarSiri() {
+  $('srUrl').textContent = URL_ATAJO;
+  if (!Dt || !Dt.atajo) return;
+  try {
+    const l = await Dt.atajo.estado();
+    atajoHay = l.length > 0;
+    if (atajoHay) marcarPaso('siri');
+    const f = (iso) => iso ? new Date(iso).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+    $('srEstado').innerHTML = atajoHay
+      ? '✓ Atajo conectado desde el ' + esc(f(l[0].creado_en)) + '. ' + (l[0].usado_en ? 'Último uso: ' + esc(f(l[0].usado_en)) + '.' : 'Aún no se ha usado.')
+      : 'Aún no tienes el atajo conectado. Crea una clave y úsala en el paso 3.';
+  } catch (e) { $('srEstado').textContent = e.message; }
+  $('srCrear').textContent = atajoHay ? 'Crear clave nueva' : 'Crear clave del atajo';
+  $('srQuitar').style.display = atajoHay ? '' : 'none';
 }
+$('srCrear').onclick = async () => {
+  if (atajoHay && !confirm('La clave que usa ahora tu atajo dejará de funcionar y tendrás que poner la nueva. ¿Seguimos?')) return;
+  await conBoton($('srCrear'), 'Creando…', async () => {
+    const clave = await Dt.atajo.crear();
+    $('srClave').textContent = clave; $('srClaveBox').style.display = '';
+    await pintarSiri();
+  });
+  $('srCrear').textContent = atajoHay ? 'Crear clave nueva' : 'Crear clave del atajo'; // conBoton deja el texto de antes
+};
+$('srCopiarClave').onclick = () => copiar($('srClave').textContent, 'Clave copiada');
+$('srCopiarUrl').onclick = () => copiar(URL_ATAJO, 'URL copiada');
+$('srQuitar').onclick = async () => {
+  if (!confirm('El atajo dejará de funcionar hasta que crees otra clave. ¿Desconectar?')) return;
+  await conBoton($('srQuitar'), 'Desconectando…', async () => { await Dt.atajo.borrar(); $('srClaveBox').style.display = 'none'; await pintarSiri(); toast('Atajo desconectado'); });
+};
 async function copiar(t, ok) {
   try { await navigator.clipboard.writeText(t); toast('✓ ' + ok); }
   catch (e) { prompt('Copia esto:', t); }
 }
-$('srCopiarUrl').onclick = () => copiar(API_URL, 'Dirección copiada');
-$('srCopiarClave').onclick = () => copiar(clave(), 'Clave copiada');
 $('srProbar').onclick = async () => {
   const t = $('srTexto').value.trim(); if (!t) { toast('Escribe algo como «12,50 Mercadona»', true); return; }
   await conBoton($('srProbar'), 'Anotando…', async () => {
-    const r = await fetch(API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ key: clave(), accion: 'gastoRapido', texto: t }) });
-    const j = await r.json();
-    $('srRes').innerHTML = esc(j.mensaje || j.error || '');
-    if (j.ok) { $('srTexto').value = ''; cargar(); }
+    try { $('srRes').innerHTML = esc(await apiPost('gastoRapido', { texto: t })); $('srTexto').value = ''; }
+    catch (e) { $('srRes').innerHTML = esc(e.message); }
   });
 };
 
-/* ───────── AJUSTES: email ───────── */
-$('ajEmail').onchange = async () => { ajustes().email = $('ajEmail').checked; await guardarAjustes($('ajEmail').checked ? 'Resumen por email activado' : 'Resumen por email desactivado'); };
-$('ajEmailPrueba').onclick = () => conBoton($('ajEmailPrueba'), 'Enviando…', async () => toast('✓ ' + await apiPost('enviarResumenPrueba')));
 
+
+
+/* ───────── INSTALAR · PRIMEROS PASOS ───────── */
+let avisoInstalar = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); avisoInstalar = e; if (vistaActual === 'instalar') pintarInstalar(); if ($('insHoja')) pintarInstalar($('insHoja')); });
+window.addEventListener('appinstalled', () => { ls.set('mp2-instalada', '1'); avisoInstalar = null; if (S) pintarPrimeros(); });
+function plataforma() {
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return { ios, safari: ios && !/CriOS|FxiOS|EdgiOS|GSA\//.test(ua), android: /Android/.test(ua) };
+}
+const ICO_COMPARTIR = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v9h12v-9"/></svg>';
+function pintarInstalar(destino) {
+  const p = plataforma(), el = destino || $('insCuerpo'), q = (id) => el.querySelector('#' + id);
+  if (esApp()) { el.innerHTML = '<div class="card"><b class="pos">✓ Ya la tienes instalada.</b><div class="sub" style="margin-top:6px">La estás usando desde la pantalla de inicio.</div></div>'; return; }
+  const pasos = (l) => `<div class="card"><ol style="margin:0;padding-left:20px;line-height:1.7;font-size:15px">${l.map((x) => `<li>${x}</li>`).join('')}</ol></div>`;
+  if (p.ios && !p.safari) { el.innerHTML = '<div class="card"><b>Ábrela en Safari.</b><div class="sub" style="margin-top:6px">En iPhone solo Safari puede añadir apps a la pantalla de inicio. Copia la dirección y pégala en Safari.</div><button class="btn sec" id="insCopiar">Copiar dirección</button></div>'; q('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada'); return; }
+  if (p.ios) { el.innerHTML = pasos([`Pulsa el botón <b>Compartir</b> ${ICO_COMPARTIR} (abajo en Safari, o arriba en iPad).`, 'Baja y elige <b>Añadir a pantalla de inicio</b>.', 'Pulsa <b>Añadir</b>. Ya puedes abrirla desde su icono.']) + '<div class="hint">Si no ves la opción, pulsa «Editar acciones» al final de la lista y actívala.</div>'; return; }
+  if (avisoInstalar) {
+    el.innerHTML = '<div class="card"><div class="sub">Tu navegador puede instalarla directamente.</div><button class="btn" id="insYa">Instalar ahora</button></div>';
+    q('insYa').onclick = async () => { avisoInstalar.prompt(); const r = await avisoInstalar.userChoice; avisoInstalar = null; if (r && r.outcome === 'accepted') { ls.set('mp2-instalada', '1'); toast('✓ Instalada'); if (destino) { cerrarHoja(); return; } } pintarInstalar(destino); };
+    return;
+  }
+  if (p.android) { el.innerHTML = pasos(['Abre el menú del navegador <b>⋮</b> (arriba a la derecha en Chrome).', 'Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.', 'Confirma. Ya puedes abrirla desde su icono.']); return; }
+  el.innerHTML = pasos(['En el ordenador, busca el icono de instalar en la barra de direcciones (Chrome o Edge) y púlsalo.', 'Para tenerla en el móvil, abre esta misma dirección en el móvil y sigue los pasos de esta página.']) +
+    '<button class="btn sec" id="insCopiar">Copiar dirección</button>';
+  q('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada');
+}
+/** La primera vez que se abre en el navegador del móvil, se ofrece instalarla (una sola vez por dispositivo). */
+function ofrecerInstalar() {
+  const p = plataforma();
+  if (esApp() || (!p.ios && !p.android) || ls.get('mp2-instalar-ofrecido') || ls.get('mp2-instalada')) return;
+  if (ls.get('mp2-unirse') || $('sheet').classList.contains('on')) return; // primero, unirse al hogar
+  ls.set('mp2-instalar-ofrecido', '1');
+  abrirHoja('antes de empezar', 'Ponla en tu pantalla de inicio', `
+    <div class="sub">Así se abre como una app más: con su icono, a pantalla completa y sin el navegador. Solo hay que hacerlo una vez.</div>
+    <div id="insHoja" style="margin-top:12px"></div>
+    ${p.ios && p.safari ? '<div class="hint">Después ábrela siempre desde el icono. La primera vez te pedirá entrar con tu email.</div>' : ''}
+    <button class="btn sec" id="insLuego">Ahora no</button>
+    <div class="sub" style="font-size:12px;margin-top:8px;text-align:center">La tienes siempre en Menú › Instalar la app.</div>`);
+  pintarInstalar($('insHoja'));
+  $('insLuego').onclick = cerrarHoja;
+}
+const psKey = (k) => 'mp2-ps-' + k + '-' + ((Dt && Dt.uid()) || '');
+function marcarPaso(k) { if (!ls.get(psKey(k))) { ls.set(psKey(k), '1'); } }
+function pintarPrimeros() {
+  const el = $('primeros'); if (!el || !S) return;
+  if (ls.get(psKey('oculto'))) { el.innerHTML = ''; return; }
+  const otros = (S.miembros || []).filter((m) => !m.esYo);
+  const pasos = [
+    { k: 'instalar', t: 'Instalar la app en tu pantalla de inicio', ok: esApp() || !!ls.get('mp2-instalada'), ir: 'instalar' },
+    { k: 'saldos', t: 'Revisar que los saldos de tus cuentas cuadran con el banco', ok: !!ls.get(psKey('saldos')), ir: 'cuentas' },
+    { k: 'gasto', t: 'Anotar tu primer gasto', ok: (S.movimientos || []).some((m) => !m.recurrente && m.tipo === 'Gasto'), ir: 'add' },
+    { k: 'presupuesto', t: 'Ajustar cuánto dedicas a cada categoría', ok: !!ls.get(psKey('presupuesto')), ir: 'cats' },
+    plataforma().ios ? { k: 'siri', t: 'Crear el atajo para anotar con Siri', ok: !!ls.get(psKey('siri')), ir: 'siri' } : null,
+    otros.length ? { k: 'casa', t: `Invitar a ${otros.map((m) => m.nombre).join(' y ')} a ver los gastos de casa`, ok: otros.every((m) => m.conectado), ir: 'ajustes' } : null,
+  ].filter(Boolean);
+  const hechos = pasos.filter((p) => p.ok).length;
+  if (hechos === pasos.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<h2 style="display:flex;justify-content:space-between">Primeros pasos <span class="sub" style="letter-spacing:0;text-transform:none">${hechos} de ${pasos.length}</span></h2>
+    <div class="card" style="padding:4px 16px">${pasos.map((p) => `<div class="menu-item" data-ps="${p.ir}" style="${p.ok ? 'opacity:.55' : ''}">
+      <div class="mi-ico" style="font-size:15px">${p.ok ? '✓' : '○'}</div><div class="mi-t" style="${p.ok ? 'text-decoration:line-through' : ''}">${esc(p.t)}</div><span class="arrow">›</span></div>`).join('')}
+      <button class="linkbtn" id="psOcultar" style="margin:6px 0 8px">Ocultar</button></div>`;
+  el.querySelectorAll('[data-ps]').forEach((b) => b.onclick = () => ir(b.dataset.ps));
+  $('psOcultar').onclick = () => { ls.set(psKey('oculto'), '1'); pintarPrimeros(); };
+}
+
+/* ───────── HOGAR COMPARTIDO ─────────
+ * Dueña: invita a alguien de su hogar con un enlace (?unirse=código, sirve una vez, caduca en 14 días).
+ * Invitada/o: ve solo las categorías compartidas de ese hogar, anota lo que paga y avisa cuando pasa su parte.
+ */
+const URL_APP = location.origin + location.pathname;
+let HOGARES = [], casaOwner = null, soloInvitado = false;
+(function leerEnlaceInvitacion() {
+  const q = new URLSearchParams(location.search), cod = q.get('unirse');
+  if (!cod) return;
+  if (/^[0-9a-z]{20,64}$/i.test(cod)) ls.set('mp2-unirse', cod);
+  q.delete('unirse');
+  history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString().replace(/=(&|$)/g, '$1') : ''));
+})();
+/** Si hay una invitación pendiente, pregunta si unirse. Devuelve el id de la dueña si acepta. */
+function revisarInvitacion() {
+  const cod = ls.get('mp2-unirse');
+  if (!cod) return Promise.resolve(false);
+  return Dt.hogar.verInvitacion(cod).then((v) => {
+    if (!v || !v.valida) { ls.del('mp2-unirse'); toast('Ese enlace de invitación ya no vale. Pide uno nuevo.', true); return false; }
+    if (v.propia) { ls.del('mp2-unirse'); toast('Ese enlace es para otra persona: compártelo con ella.'); return false; }
+    $('loading').style.display = 'none';
+    return new Promise((fin) => {
+      abrirHoja('invitación', `${v.de} te invita a su hogar`, `
+        <div class="sub">Entrarás como <b>${esc(v.como)}</b>. Verás los gastos de casa que compartís y quién debe a quién, y podrás anotar lo que pagues tú.</div>
+        <div class="hint">Sus cuentas, su nómina y sus gastos personales siguen siendo privados. Los tuyos también.</div>
+        <button class="btn" id="invSi">Unirme al hogar</button><button class="btn sec" id="invNo">Ahora no</button>`);
+      $('invSi').onclick = () => conBoton($('invSi'), 'Uniendo…', async () => {
+        const r = await Dt.hogar.aceptar(cod);
+        ls.del('mp2-unirse'); cerrarHoja(); toast('✓ Ya estás en el hogar de ' + r.de); setTimeout(ofrecerInstalar, 2500);
+        HOGARES = await Dt.hogar.mios().catch(() => HOGARES);
+        fin(r.owner);
+      });
+      $('invNo').onclick = () => { ls.del('mp2-unirse'); cerrarHoja(); fin(false); };
+    });
+  }).catch(() => false);
+}
+/** Cuenta nueva: si viene invitada/o, primero el hogar; la configuración propia es opcional. */
+async function decidirInicioNuevo() {
+  const owner = await revisarInvitacion();
+  if (owner || (HOGARES.length && ls.get('mp2-solo-hogar') !== 'no')) { mostrarCasaSola(owner || HOGARES[0].owner); return; }
+  mostrarBienvenida();
+}
+function mostrarCasaSola(owner) {
+  soloInvitado = true; casaOwner = owner;
+  $('loading').style.display = 'none'; quitarPantallas(); $('tabs').style.display = 'none';
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  $('v-casa').classList.add('on'); window.scrollTo(0, 0);
+  pintarCasa();
+}
+function abrirCasa(owner) { casaOwner = owner; ir('casa'); }
+$('csUsarApp').onclick = () => { ls.set('mp2-solo-hogar', 'no'); soloInvitado = false; $('v-casa').classList.remove('on'); mostrarBienvenida(); };
+$('csSalirSesion').onclick = () => sb.auth.signOut();
+function pintarMenuCasas() {
+  $('menuCasas').innerHTML = HOGARES.map((h, i) => `<div class="menu-item" data-casa="${i}"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><circle cx="12" cy="14" r="2"/></svg></div>
+    <div class="mi-t">Hogar de ${esc(h.de)}<div class="mi-s">Lo que compartes como ${esc(h.como)}</div></div><span class="arrow">›</span></div>`).join('');
+  $('menuCasas').querySelectorAll('[data-casa]').forEach((b) => b.onclick = () => abrirCasa(HOGARES[b.dataset.casa].owner));
+}
+let CASA = null;
+async function pintarCasa() {
+  const owner = casaOwner || (HOGARES[0] || {}).owner;
+  $('csTop').style.display = soloInvitado ? 'none' : ''; $('csSolo').style.display = soloInvitado ? '' : 'none';
+  if (!owner) { $('csCuerpo').innerHTML = '<div class="card empty">No estás en ningún hogar compartido.</div>'; return; }
+  if (!CASA || CASA.owner !== owner) $('csCuerpo').innerHTML = '<div class="card empty">Cargando…</div>';
+  let v;
+  try { v = await Dt.hogar.ver(owner); } catch (e) { $('csCuerpo').innerHTML = `<div class="card empty">${esc(e.message)}</div>`; return; }
+  CASA = Object.assign(v, { owner });
+  $('csTitulo').textContent = 'Hogar de ' + v.de;
+  $('csSub').textContent = `Ciclo ${v.ciclo.nombre}: del ${fechaCorta(v.ciclo.inicio)} al ${fechaCorta(v.ciclo.fin)}. Entras como ${v.yo}.`;
+  const p = v.mio || { saldo: 0, siAcabaHoy: 0, suParte: 0, aportado: 0, pagoEl: 0, previsto: 0, porCat: {} };
+  const s = p.saldo; // > 0: le debo a la dueña
+  const frase = (x) => Math.abs(x) < 0.01 ? 'Estáis en paz' : x > 0 ? `Le debes ${eur(x)} a ${esc(v.de)}` : `${esc(v.de)} te debe ${eur(-x)}`;
+  const mini = (t, val) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${val}</div></div>`;
+  const cierre = !v.comp.cierre && Math.abs(p.siAcabaHoy - s) >= 0.01
+    ? `<div class="hint" style="margin-top:10px">Aún queda fondo común sin gastar. Si el ciclo acabara hoy: <b>${frase(p.siAcabaHoy).replace(/^./, (x) => x.toLowerCase())}</b>.</div>` : '';
+  const cats = v.comp.cats.map((x) => {
+    const f = x.plan > 0 ? Math.min(100, x.total / x.plan * 100) : (x.total > 0 ? 100 : 0), over = x.plan > 0 && x.total > x.plan + 0.005;
+    const ap = (p.porCat[x.cat] || {}).aportado || 0, prev = (p.porCat[x.cat] || {}).previsto || 0;
+    return `<div class="cat"><div class="top"><span>${esc(x.cat)}</span><span class="amt num"><b>${eur(x.total)}</b> / ${eur(x.plan)}</span></div>
+      <div class="bar"><i style="width:${f}%" class="${over ? 'over' : f >= 85 ? 'warn' : ''}"></i></div>
+      <div class="left">${ap > 0.005 ? `<span class="pos">✓ Has pasado ${eur(ap)}</span>` : prev > 0.005 ? `Has avisado de ${eur(prev)} · pendiente de confirmar` : 'Aún no has pasado tu parte · cada gasto se divide'}</div></div>`;
+  }).join('') || '<div class="empty">No hay categorías compartidas.</div>';
+  const quien = (m) => m.tipo === 'Gasto' ? 'Pagó ' + (m.pagadoPor || v.de) : m.tipo === 'Reintegro' ? (m.de || v.yo) + ' pasó su parte' + (m.estado !== 'Confirmado' ? ' · pendiente de confirmar' : '') : v.de + ' pagó a ' + (m.pagoA || '');
+  const movs = v.movs.map((m) => `<div class="mov"><div class="ico">${emoji(m.cat)}</div><div class="info"><div class="t">${esc(m.conc)}</div>
+      <div class="s">${fechaLarga(m.fecha)} · ${esc(quien(m))}</div></div><div class="amt num ${m.tipo === 'Gasto' ? '' : 'pos'}">${eur(m.imp)}</div></div>`).join('')
+    || '<div class="empty">Aún no hay gastos de casa este ciclo</div>';
+  $('csCuerpo').innerHTML = `
+    <div class="card hero"><div class="lbl">Ahora mismo</div>
+      <div class="big num ${Math.abs(s) < 0.01 ? 'pos' : s > 0 ? 'neg' : ''}" style="font-size:30px">${frase(s)}</div>
+      <div class="grid2">${mini('Tu parte de lo gastado', eur(p.suParte))}${mini('Ya has pasado', eur(p.aportado))}${mini('Pagado por ti', eur(p.pagoEl))}${mini('Avisado, sin confirmar', eur(p.previsto))}</div>
+      ${cierre}</div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="csGasto">＋ Gasto que he pagado</button><button class="btn sec" id="csAporte">He pasado dinero</button></div>
+    <h2>Categorías compartidas</h2><div class="card" style="padding:4px 16px">${cats}</div>
+    <h2>Este ciclo</h2><div class="card" style="padding:4px 16px">${movs}</div>
+    <button class="linkbtn" id="csDejar" style="margin-top:12px">Salir de este hogar</button>`;
+  $('csGasto').onclick = () => anotarEnCasa('gasto');
+  $('csAporte').onclick = () => anotarEnCasa('aporte', s > 0.005 ? s : 0);
+  $('csDejar').onclick = async () => {
+    if (!confirm(`¿Salir del hogar de ${v.de}? Dejarás de verlo. Para volver necesitarás otra invitación.`)) return;
+    try { await Dt.hogar.salir(owner); } catch (e) { toast(e.message, true); return; }
+    HOGARES = await Dt.hogar.mios().catch(() => []); CASA = null; casaOwner = null; pintarMenuCasas();
+    toast('Has salido del hogar');
+    if (soloInvitado) { soloInvitado = false; mostrarBienvenida(); } else ir('menu');
+  };
+}
+function anotarEnCasa(tipoCasa, sugerido) {
+  const v = CASA; if (!v) return;
+  const gasto = tipoCasa === 'gasto';
+  const ops = v.categorias.map((k) => `<option value="${k.id}">${esc(k.nombre)}</option>`).join('');
+  abrirHoja('hogar de ' + v.de, gasto ? 'Gasto que he pagado' : 'He pasado dinero', `
+    ${gasto ? '' : `<div class="sub">Se lo avisaremos a ${esc(v.de)} para que lo confirme cuando lo vea en su cuenta.</div>`}
+    <label>Importe</label><input id="cxImp" inputmode="decimal" placeholder="0,00 €" value="${sugerido ? aTexto(sugerido) : ''}">
+    <label>${gasto ? 'Categoría' : 'Para qué categoría (opcional)'}</label><select id="cxCat">${gasto ? '' : '<option value="">Varias / saldar cuentas</option>'}${ops}</select>
+    ${gasto ? '<label>Concepto</label><input id="cxConc" maxlength="100" placeholder="p. ej. Mercadona">' : ''}
+    <label>Fecha</label><input id="cxFecha" type="date" value="${hoyLocal()}">
+    <button class="btn" id="cxOk">${gasto ? 'Anotar gasto' : 'Avisar'}</button>`);
+  $('cxOk').onclick = () => conBoton($('cxOk'), 'Guardando…', async () => {
+    const imp = num($('cxImp').value); if (!(imp > 0)) { toast('Escribe el importe', true); return; }
+    const m = await Dt.hogar.anotar(v.owner, { tipo: tipoCasa, cat: $('cxCat').value, conc: gasto ? $('cxConc').value.trim() : '', imp, fecha: $('cxFecha').value || hoyLocal() });
+    cerrarHoja(); toast('✓ ' + m); pintarCasa();
+  });
+}
+/* Dueña: invitar a una persona del hogar */
+async function invitarPersona(m) {
+  abrirHoja('hogar', 'Invitar a ' + m.nombre, '<div class="card empty">Creando el enlace…</div>');
+  let cod;
+  try { cod = await Dt.hogar.invitar(m.id); } catch (e) { $('hojaCuerpo').innerHTML = `<div class="card empty">${esc(e.message)}</div>`; return; }
+  const url = URL_APP + '?unirse=' + cod;
+  const texto = `Te invito a nuestro hogar en Mi presupuesto para llevar juntos los gastos de casa. Ábrelo desde el móvil: ${url}`;
+  $('hojaCuerpo').innerHTML = `
+    <div class="sub">Mándale este enlace a ${esc(m.nombre)}. Al abrirlo crea su cuenta (o entra) y verá solo los gastos de las categorías compartidas y quién debe a quién. Podrá anotar lo que pague y avisarte cuando te pase su parte.</div>
+    <div class="hint">No verá tus cuentas, tu nómina ni tus otros gastos.</div>
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:var(--yellow-s);border-radius:10px;padding:10px;margin-top:12px;user-select:all">${esc(url)}</div>
+    ${navigator.share ? '<button class="btn" id="invEnviar">Enviar enlace</button>' : ''}
+    <button class="btn ${navigator.share ? 'sec' : ''}" id="invCopiar">Copiar enlace</button>
+    <div class="sub" style="font-size:12px;margin-top:8px">Sirve una sola vez y caduca en 14 días. Si creas otro, este deja de valer.</div>`;
+  if ($('invEnviar')) $('invEnviar').onclick = async () => { try { await navigator.share({ title: 'Mi presupuesto', text: texto }); } catch (e) { /* cancelado */ } };
+  $('invCopiar').onclick = () => copiar(url, 'Enlace copiado');
+}
+async function desconectarPersona(m) {
+  if (!confirm(`¿Desconectar a ${m.nombre}? Dejará de ver los gastos del hogar. Sigue en tu hogar para repartir gastos.`)) return;
+  try { await Dt.hogar.desconectar(m.id); toast('✓ Desconectado'); cargar(); } catch (e) { toast(e.message, true); }
+}
+function pintarInvitarComp() {
+  const pend = (S.miembros || []).filter((m) => !m.esYo && !m.conectado);
+  $('cpInvitar').innerHTML = pend.length && S.compartidos ? `<div class="card" style="margin-bottom:10px"><div class="sub">¿Quieres que ${esc(pend.map((m) => m.nombre).join(' y '))} vea esto en su móvil y anote lo que paga?</div>
+    ${pend.map((m) => `<button class="btn sec" data-inv="${m.id}">Invitar a ${esc(m.nombre)}</button>`).join('')}</div>` : '';
+  $('cpInvitar').querySelectorAll('[data-inv]').forEach((b) => b.onclick = () => invitarPersona(S.miembros.find((m) => m.id === b.dataset.inv)));
+}
 
 /* ───────── CATEGORÍAS Y PRESUPUESTO (incluye el reparto automático de la nómina) ───────── */
 const GRUPO_N = { fijo: 'Gastos fijos', variable: 'Gastos variables', ahorro: 'Ahorro e inversión' };
@@ -2070,7 +2422,7 @@ $('ctGuardar').onclick = () => conBoton($('ctGuardar'), 'Guardando…', async ()
   a.base = CN.v;
   if (base > 0) { const pf = Math.min(100, Math.round(t.fijo / base * 100)), pv = Math.min(100 - pf, Math.round(t.variable / base * 100));
     a.pct = { fijos: pf, variables: pv, ahorro: Math.min(100 - pf - pv, Math.round(t.ahorro / base * 100)) }; }
-  a.t = Date.now(); ls.set(AJ_KEY, JSON.stringify(a));
+  a.t = Date.now(); ls.set(ajKey(), JSON.stringify(a));
   d.ajustes = a;
   toast('✓ ' + await apiPost('guardarCategorias', d));
   pintarCatsPres(true);
@@ -2102,6 +2454,633 @@ $('ctNueva').onclick = () => {
   };
 };
 
+/* ═════════════════════════ v2: configuración desde la app ═════════════════════════ */
+
+/* Tarjetas de Inicio y botones rápidos que se pueden elegir */
+const TARJETAS = [['flujo', 'Ingresos y gastos del ciclo'], ['prevision', 'Gasto al día y previsión'], ['avisos', 'Avisos'], ['grafica', 'Gráfica del gasto'],
+  ['stack', 'En qué se va'], ['categorias', 'Presupuesto por categoría'], ['recientes', 'Últimos movimientos']];
+const SVG = (d) => `<svg viewBox="0 0 24 24">${d}</svg>`;
+const ACCIONES = {
+  gasto: { t: 'Gasto', c: 'g', i: '<path d="M5 12h14"/>', f: "nuevoCon({tipo:'Gasto'})" },
+  ingreso: { t: 'Ingreso', c: 'i', i: '<path d="M12 5v14M5 12h14"/>', f: "nuevoCon({tipo:'Ingreso'})" },
+  ahorrar: { t: 'Ahorrar', c: 'a', i: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/>', f: 'ahorrarAhora()' },
+  presupuesto: { t: 'Presupuesto', c: 'p', i: '<circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/><path d="M18 6L6 18"/>', f: "ir('cats')" },
+  transferencia: { t: 'Transferir', c: 'p', i: '<path d="M4 8h13l-3-3M20 16H7l3 3"/>', f: "nuevoCon({tipo:'Transferencia'})" },
+  pendientes: { t: 'Pendientes', c: 'i', i: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>', f: "ir('pend')" },
+  importar: { t: 'Importar', c: 'p', i: '<path d="M12 4v11M7 10l5 5 5-5"/><rect x="4" y="17" width="16" height="3" rx="1.5"/>', f: "ir('import')" },
+  compartidas: { t: 'Hogar', c: 'a', i: '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M13 15.2c.9-.5 1.9-.7 3-.7 2.2 0 4.2 1.5 5 4.5"/>', f: "ir('comp')" },
+};
+
+/** Aplica lo elegido en Ajustes: papeles de las cuentas, tarjetas de Inicio, botones rápidos y metales. */
+function aplicarConfig() {
+  if (!S || !S.datos) return;
+  const roles = S.datos.roles || {};
+  DIARIO = Object.keys(roles).filter((n) => roles[n] === 'dia_a_dia');
+  USO_CUENTAS = {}; Object.keys(roles).forEach((n) => { USO_CUENTAS[n] = ROL_TXT[roles[n]] || ''; });
+  if (!S.datos.categorias.includes(cat)) cat = SUG[tipo] || S.datos.categorias[0] || '';
+  const c = S.config || {};
+  const tj = Array.isArray(c.inicio_tarjetas) ? c.inicio_tarjetas : TARJETAS.map((t) => t[0]);
+  document.querySelectorAll('[data-card]').forEach((el) => el.classList.toggle('oculta', !tj.includes(el.dataset.card)));
+  const ac = (Array.isArray(c.acciones_rapidas) ? c.acciones_rapidas : []).filter((k) => ACCIONES[k]).slice(0, 4);
+  $('quick').innerHTML = ac.map((k) => { const a = ACCIONES[k]; return `<button onclick="${a.f}"><span class="qi ${a.c}">${SVG(a.i)}</span>${a.t}</button>`; }).join('');
+  $('quick').style.display = ac.length ? '' : 'none';
+  $('metalesWrap').style.display = c.metales ? '' : 'none';
+  $('miniMetales').style.display = c.metales ? '' : 'none';
+}
+
+/* ───────── ENTRAR · CREAR CUENTA · CONTRASEÑA ───────── */
+let auModo = 'entrar';
+function mostrarAuth(msg) {
+  $('loading').style.display = 'none'; $('tabs').style.display = 'none'; $('bienvenida').style.display = 'none';
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  cerrarHoja();
+  S = null; arrancada = false; A = null; soloInvitado = false; CASA = null; HOGARES = []; casaOwner = null;
+  $('setup').style.display = 'flex';
+  ponerModoAuth(auModo === 'nueva' ? 'nueva' : auModo === 'crear' || ls.get('mp2-unirse') ? 'crear' : 'entrar');
+  $('auMsg').textContent = msg || '';
+}
+function ponerModoAuth(m) {
+  auModo = m;
+  const seg = m === 'entrar' || m === 'crear';
+  $('auModo').style.display = seg ? 'flex' : 'none';
+  $('auModo').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === m));
+  $('auEmailWrap').style.display = m === 'nueva' ? 'none' : 'block';
+  $('auPassWrap').style.display = m === 'olvido' ? 'none' : 'block';
+  $('auPassLbl').textContent = m === 'nueva' ? 'Contraseña nueva' : m === 'crear' ? 'Contraseña (mínimo 8 caracteres)' : 'Contraseña';
+  $('auPass').autocomplete = m === 'entrar' ? 'current-password' : 'new-password';
+  $('auLegal').style.display = m === 'crear' ? 'block' : 'none';
+  $('auBoton').textContent = { entrar: 'Entrar', crear: 'Crear cuenta', olvido: 'Enviarme el enlace', nueva: 'Guardar contraseña' }[m];
+  $('auOlvido').style.display = m === 'crear' || m === 'nueva' ? 'none' : 'block';
+  $('auOlvido').textContent = m === 'olvido' ? '‹ Volver a entrar' : '¿Has olvidado la contraseña?';
+  $('auSub').textContent = m === 'olvido' ? 'Escribe tu email y te enviaré un enlace para poner una contraseña nueva.'
+    : m === 'nueva' ? 'Escribe tu contraseña nueva.'
+    : ls.get('mp2-unirse') ? 'Te han invitado a un hogar compartido. Crea tu cuenta (o entra si ya tienes una) para unirte.'
+    : 'Tus cuentas, tu presupuesto y lo que compartes en casa. Tus datos son solo tuyos.';
+  $('auMsg').textContent = '';
+}
+$('auModo').querySelectorAll('button').forEach((b) => b.onclick = () => ponerModoAuth(b.dataset.m));
+$('auOlvido').onclick = () => ponerModoAuth(auModo === 'olvido' ? 'entrar' : 'olvido');
+['auEmail', 'auPass'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('auBoton').click(); }));
+function traducirAuth(e) {
+  const m = (e && e.message) || String(e);
+  if (/Invalid login/i.test(m)) return 'Email o contraseña incorrectos.';
+  if (/not confirmed/i.test(m)) return 'Aún no has confirmado tu email. Busca el enlace que te enviamos (mira también en spam).';
+  if (/already (been )?registered|already exists/i.test(m)) return 'Ya hay una cuenta con ese email. Entra o recupera la contraseña.';
+  if (/rate limit|too many|security purposes/i.test(m)) return 'Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.';
+  if (/Password should|weak/i.test(m)) return 'La contraseña es demasiado débil. Usa al menos 8 caracteres.';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'Sin conexión. Inténtalo de nuevo.';
+  return m;
+}
+$('auBoton').onclick = () => conBoton($('auBoton'), 'Un momento…', async () => {
+  const email = $('auEmail').value.trim(), pass = $('auPass').value, msg = (t) => { $('auMsg').textContent = t; };
+  if (auModo !== 'nueva' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('Escribe un email válido.'); return; }
+  if (auModo !== 'olvido' && !pass) { msg('Escribe la contraseña.'); return; }
+  if ((auModo === 'crear' || auModo === 'nueva') && pass.length < 8) { msg('La contraseña debe tener al menos 8 caracteres.'); return; }
+  if (auModo === 'crear' && !$('auAcepto').checked) { msg('Para crear la cuenta, marca que aceptas la política de privacidad.'); return; }
+  const volver = location.origin + location.pathname;
+  if (auModo === 'entrar') {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) { msg(traducirAuth(error)); return; }
+    $('auPass').value = ''; $('setup').style.display = 'none'; $('loading').style.display = 'flex'; cargar();
+  } else if (auModo === 'crear') {
+    const inv = ls.get('mp2-unirse');
+    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: volver + (inv ? '?unirse=' + inv : '') } });
+    if (error) { msg(traducirAuth(error)); return; }
+    $('auPass').value = '';
+    if (data && data.session) { $('setup').style.display = 'none'; $('loading').style.display = 'flex'; cargar(); return; }
+    ponerModoAuth('entrar');
+    msg('✓ Te he enviado un email a ' + email + '. Ábrelo y pulsa el enlace para activar la cuenta; después entra aquí.');
+  } else if (auModo === 'olvido') {
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: volver });
+    if (error) { msg(traducirAuth(error)); return; }
+    msg('✓ Si hay una cuenta con ese email, te llegará un enlace para poner una contraseña nueva.');
+  } else if (auModo === 'nueva') {
+    const { error } = await sb.auth.updateUser({ password: pass });
+    if (error) { msg(traducirAuth(error)); return; }
+    $('auPass').value = ''; auModo = 'entrar'; toast('✓ Contraseña cambiada');
+    $('setup').style.display = 'none'; $('loading').style.display = 'flex'; cargar();
+  }
+});
+
+/* ───────── BIENVENIDA (primera configuración) ───────── */
+const WZ_CATS = [
+  { nombre: '💼 Nómina', grupo: 'ingreso' },
+  { nombre: '🏠 Alquiler o hipoteca', grupo: 'fijo', comp: true }, { nombre: '💡 Luz y agua', grupo: 'fijo', comp: true }, { nombre: '🌐 Internet', grupo: 'fijo', comp: true },
+  { nombre: '📱 Teléfono', grupo: 'fijo' }, { nombre: '🔁 Suscripciones', grupo: 'fijo' },
+  { nombre: '🛒 Comida', grupo: 'variable', comp: true }, { nombre: '🍽️ Restaurantes', grupo: 'variable' }, { nombre: '🚗 Transporte', grupo: 'variable' },
+  { nombre: '🎁 Personal', grupo: 'variable' }, { nombre: '💊 Salud', grupo: 'variable', on: false }, { nombre: '✈️ Viajes', grupo: 'variable', on: false },
+  { nombre: '🛟 Fondo de emergencia', grupo: 'ahorro', rol: 'emergencia' }, { nombre: '📈 Inversión', grupo: 'ahorro', rol: 'inversion', on: false }, { nombre: '🐷 Ahorro', grupo: 'ahorro', rol: 'ahorro' },
+];
+const GRUPO_WZ = { ingreso: 'Ingresos', fijo: 'Gastos fijos', variable: 'Gastos variables', ahorro: 'Ahorro e inversión' };
+let W = null, wPaso = 0;
+function nuevaBienvenida() {
+  return {
+    nombre: '', cicloDia: 28, nomina: '', objetivos: ['gastos'], inv: {}, miPeso: 1, compartes: false, hogar: [],
+    cuentas: [{ nombre: 'Banco', rol: 'dia_a_dia', saldo: '' }, { nombre: 'Efectivo', rol: 'dia_a_dia', saldo: '' }],
+    categorias: WZ_CATS.map((c) => ({ nombre: c.nombre, grupo: c.grupo, rol: c.rol || '', on: c.on !== false, plan: '', compartida: !!c.comp })),
+    tarjetas: TARJETAS.map((t) => t[0]), acciones: ['gasto', 'ingreso', 'ahorrar', 'presupuesto'], metales: false, email: false, emailDia: '',
+  };
+}
+function mostrarBienvenida() {
+  $('loading').style.display = 'none'; $('tabs').style.display = 'none'; $('setup').style.display = 'none';
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  $('bienvenida').style.display = 'flex';
+  if (!W) { W = nuevaBienvenida(); wPaso = 0; }
+  pintarPaso();
+}
+const OBJETIVOS = [['gastos', '🔍 Saber en qué se me va el dinero'], ['ahorrar', '🐷 Ahorrar y tener un colchón'], ['invertir', '📈 Invertir'],
+  ['casa', '🏠 Compartir gastos de casa'], ['deudas', '💳 Pagar préstamos o deudas']];
+const INVERSIONES = [['etf', '📈 Fondos indexados y ETF'], ['acciones', '📊 Acciones'], ['pension', '🧓 Plan de pensiones'], ['cripto', '🪙 Criptomonedas'],
+  ['metales', '🥇 Oro y plata'], ['depositos', '🏦 Depósitos y letras'], ['inmuebles', '🏘️ Inmuebles']];
+const tieneObj = (k) => W.objetivos.includes(k);
+function asegurarCat(nombre, grupo, extra) {
+  const c = W.categorias.find((x) => x.nombre === nombre);
+  if (c) { c.on = true; return c; }
+  const n = Object.assign({ nombre, grupo, rol: grupo === 'ahorro' ? 'ahorro' : '', on: true, plan: '', compartida: false }, extra || {});
+  const i = W.categorias.map((x) => x.grupo).lastIndexOf(grupo);
+  W.categorias.splice(i >= 0 ? i + 1 : W.categorias.length, 0, n); return n;
+}
+const asegurarCuenta = (nombre, rol) => { if (!W.cuentas.some((c) => c.rol === rol)) W.cuentas.push({ nombre, rol, saldo: '' }); };
+/** Lo que se elige en el primer paso prepara los siguientes (solo añade; nunca borra lo que ya se ha escrito). */
+function aplicarObjetivos() {
+  if (tieneObj('casa') && !W.casaVisto) { W.compartes = true; if (!W.hogar.length) W.hogar.push({ nombre: '', peso: 1, email: '' }); }
+  W.casaVisto = W.casaVisto || tieneObj('casa');
+  if (tieneObj('deudas')) asegurarCat('💳 Préstamos y deudas', 'fijo');
+  if (tieneObj('ahorrar')) { asegurarCat('🛟 Fondo de emergencia', 'ahorro', { rol: 'emergencia' }); asegurarCat('🐷 Ahorro', 'ahorro'); asegurarCuenta('Fondo de emergencia', 'emergencia'); }
+  if (tieneObj('invertir')) asegurarCuenta('Inversión', 'inversion');
+}
+/** Mi parte de lo que pone en una categoría del asistente (en las de casa, el importe es el total del hogar). */
+const pesoHogarW = () => W.miPeso + (W.compartes ? W.hogar.filter((p) => p.nombre).reduce((t, p) => t + (Number(p.peso) || 1), 0) : 0);
+const miParteW = (c) => { const v = num(c.plan) || 0; return c.compartida && W.compartes ? v * W.miPeso / pesoHogarW() : v; };
+function repartoW() {
+  const on = W.categorias.filter((c) => c.on && c.nombre);
+  const suma = (g) => on.filter((c) => c.grupo === g).reduce((t, c) => t + miParteW(c), 0);
+  const inv = Object.values(W.inv || {}).filter((x) => x.on).reduce((t, x) => t + (num(x.plan) || 0), 0);
+  const asignado = suma('fijo') + suma('variable') + suma('ahorro') + inv;
+  return { nomina: num(W.nomina) || 0, fijo: suma('fijo'), variable: suma('variable'), ahorro: suma('ahorro') + inv, asignado };
+}
+/** Propone importes para las categorías en blanco: fijos tal cual, ~20 % a ahorro (mín. 10 %) y el resto al día a día. */
+function proponerReparto() {
+  const r = repartoW(), n = r.nomina;
+  if (!(n > 0)) { toast('Escribe primero cuánto cobras (paso 1)', true); return; }
+  const libre = n - r.fijo;
+  if (libre <= 0) { toast('Tus gastos fijos ya ocupan toda la nómina', true); return; }
+  const metaAho = Math.max(n * 0.1, Math.min(n * 0.2, libre * 0.4));
+  const red5 = (x) => Math.max(0, Math.floor(x / 5) * 5);
+  const repartir = (grupo, total, pesos) => {
+    const vacias = W.categorias.filter((c) => c.on && c.nombre && c.grupo === grupo && !c.plan);
+    if (!vacias.length || total <= 0) return;
+    const peso = (c) => { const k = pesos.find(([re]) => re.test(c.nombre)); return k ? k[1] : 0.1; };
+    const tot = vacias.reduce((t, c) => t + peso(c), 0);
+    vacias.forEach((c) => {
+      const mia = total * peso(c) / tot;
+      const v = c.compartida && W.compartes ? mia * pesoHogarW() / W.miPeso : mia;
+      c.plan = aTexto(red5(v));
+    });
+  };
+  const ahoFalta = metaAho - r.ahorro;
+  repartir('ahorro', ahoFalta, [[/emergencia/i, 0.45], [/ahorro/i, 0.35], [/invers/i, 0.2]]);
+  const varFalta = n - r.fijo - Math.max(metaAho, r.ahorro) - r.variable;
+  repartir('variable', varFalta, [[/comida|super/i, 0.35], [/restaur/i, 0.12], [/transport|gasolina/i, 0.15], [/personal|ropa/i, 0.15], [/salud/i, 0.06], [/viaje/i, 0.07], [/ocio/i, 0.1]]);
+  const nom = W.categorias.find((c) => c.grupo === 'ingreso' && c.on && !c.plan); if (nom) nom.plan = aTexto(n);
+  pintarPaso(); toast('✓ Propuesta lista. Cambia lo que quieras');
+}
+const rolOpts = (sel) => Object.keys(ROL_TXT).map((r) => `<option value="${r}" ${r === sel ? 'selected' : ''}>${ROL_TXT[r]}</option>`).join('');
+const PASOS = [
+  { // 0 · Tú, tu ciclo y lo que quieres conseguir
+    html: () => `<div class="script">bienvenida</div><h1>Vamos a preparar tu app</h1>
+      <div class="sub">Unos pasos rápidos para que la app se adapte a ti. Todo se puede cambiar después en Ajustes.</div>
+      <label>¿Cómo te llamas?</label><input id="wNombre" value="${esc(W.nombre)}" maxlength="30" autocomplete="given-name" placeholder="Tu nombre">
+      <label>¿Qué día del mes cobras?</label><input id="wDia" type="number" inputmode="numeric" min="1" max="31" value="${esc(W.cicloDia)}">
+      <div class="hint" id="wDiaInfo"></div>
+      <label>¿Cuánto cobras al mes, neto? <span style="font-weight:400">(opcional)</span></label><input id="wNomina" inputmode="decimal" value="${esc(W.nomina)}" placeholder="p. ej. 1.600 €">
+      <div class="sub" style="font-size:12px;margin-top:6px">Con esto te propongo cuánto dedicar a cada cosa. Si varía, pon una media.</div>
+      <div class="wz-grupo">¿Qué quieres conseguir?</div>
+      <div class="chips" style="margin-top:8px">${OBJETIVOS.map(([k, t]) => `<button class="cchip ${tieneObj(k) ? 'on' : ''}" data-obj="${k}">${t}</button>`).join('')}</div>`,
+    tras: () => {
+      const f = () => { const d = Math.max(1, Math.min(31, Number($('wDia').value) || 1)); const c = Logica.ciclo(hoyLocal(), d); $('wDiaInfo').textContent = `Tu mes irá del día ${d} al día anterior del mes siguiente. Ahora mismo: del ${Logica.dmy(c.inicio)} al ${Logica.dmy(c.fin)}.`; };
+      $('wDia').oninput = f; f();
+      document.querySelectorAll('#wzCuerpo [data-obj]').forEach((b) => b.onclick = () => {
+        PASOS[0].leer(); const k = b.dataset.obj, i = W.objetivos.indexOf(k);
+        if (i >= 0) W.objetivos.splice(i, 1); else W.objetivos.push(k);
+        pintarPaso();
+      });
+    },
+    leer: () => { if (!$('wNombre')) return; W.nombre = $('wNombre').value.trim(); W.cicloDia = Math.max(1, Math.min(31, Math.round(Number($('wDia').value) || 28))); W.nomina = $('wNomina').value.trim(); },
+    validar: () => (W.nomina && !(num(W.nomina) > 0) ? 'La nómina no es un número válido.' : ''),
+    despues: aplicarObjetivos,
+  },
+  { // 1 · Cuentas
+    html: () => `<div class="script">tu dinero</div><h1>Tus cuentas</h1>
+      <div class="sub">Dónde tienes el dinero y para qué es cada cuenta. Abre la app de tu banco y escribe el saldo de hoy: a partir de ahí se mueve solo con lo que anotes.</div>
+      <div class="card" style="padding:4px 14px;margin-top:14px">${W.cuentas.map((c, i) => `<div class="wz-item cta">
+        <input class="wn" data-cn="${i}" value="${esc(c.nombre)}" placeholder="Nombre" aria-label="Nombre de la cuenta">
+        <select class="ws" data-cr="${i}" aria-label="Para qué es">${rolOpts(c.rol)}</select>
+        <input class="wi num" data-cs="${i}" value="${esc(c.saldo)}" inputmode="decimal" placeholder="Saldo" aria-label="Saldo de hoy">
+        <button class="xbtn" data-cx="${i}" aria-label="Quitar">✕</button></div>`).join('')}</div>
+      <div class="sug">${[['Fondo de emergencia', 'emergencia'], ['Cuenta de ahorro', 'ahorro'], ['Inversión', 'inversion'], ['Otra cuenta', 'dia_a_dia']].map(([n, r]) => `<button class="cchip" data-add="${r}" data-n="${n}">＋ ${n}</button>`).join('')}</div>`,
+    tras: () => {
+      document.querySelectorAll('#wzCuerpo [data-cx]').forEach((b) => b.onclick = () => { PASOS[1].leer(); W.cuentas.splice(Number(b.dataset.cx), 1); pintarPaso(); });
+      document.querySelectorAll('#wzCuerpo [data-add]').forEach((b) => b.onclick = () => { PASOS[1].leer(); W.cuentas.push({ nombre: b.dataset.n === 'Otra cuenta' ? '' : b.dataset.n, rol: b.dataset.add, saldo: '' }); pintarPaso(); });
+    },
+    leer: () => { W.cuentas.forEach((c, i) => { c.nombre = $('wzCuerpo').querySelector(`[data-cn="${i}"]`).value.trim(); c.rol = $('wzCuerpo').querySelector(`[data-cr="${i}"]`).value; c.saldo = $('wzCuerpo').querySelector(`[data-cs="${i}"]`).value.trim(); }); },
+    validar: () => {
+      const l = W.cuentas.filter((c) => c.nombre);
+      if (!l.length) return 'Añade al menos una cuenta.';
+      if (new Set(l.map((c) => c.nombre.toLowerCase())).size !== l.length) return 'Hay dos cuentas con el mismo nombre.';
+      if (W.cuentas.some((c) => c.saldo && !(num(c.saldo) >= 0))) return 'Algún saldo no es un número válido.';
+      if (!l.some((c) => c.rol === 'dia_a_dia')) return 'Marca al menos una cuenta como «Día a día» (la que usas para pagar).';
+      return '';
+    },
+  },
+  { // 1b · Inversión (solo si quiere invertir)
+    si: () => tieneObj('invertir'),
+    html: () => `<div class="script">tu dinero trabaja</div><h1>¿En qué inviertes?</h1>
+      <div class="sub">Marca lo que tienes o quieres empezar y cuánto aportas al mes. Las aportaciones cuentan como ahorro, no como gasto, y suman a tu patrimonio.</div>
+      <div class="chips" style="margin-top:14px">${INVERSIONES.map(([k, t]) => `<button class="cchip ${(W.inv[k] || {}).on ? 'on' : ''}" data-inv="${k}">${t}</button>`).join('')}</div>
+      ${INVERSIONES.some(([k]) => (W.inv[k] || {}).on) ? `<div class="card" style="padding:4px 14px;margin-top:14px">${INVERSIONES.filter(([k]) => (W.inv[k] || {}).on).map(([k, t]) => `<div class="wz-item">
+        <span class="wn">${t}</span><input class="wi num" data-iplan="${k}" value="${esc(W.inv[k].plan || '')}" inputmode="decimal" placeholder="€/mes" aria-label="Aportación al mes"></div>`).join('')}</div>` : ''}
+      <div class="hint">${(W.inv.metales || {}).on ? 'Activaré la sección de oro y plata para seguir lo que vale. ' : ''}Lo que tengas invertido hoy, ponlo como saldo de tu cuenta de inversión en el paso anterior. Si usas varios brókers, añade una cuenta por cada uno.</div>`,
+    tras: () => {
+      document.querySelectorAll('#wzCuerpo [data-inv]').forEach((b) => b.onclick = () => {
+        PASOS[wPaso].leer(); const k = b.dataset.inv; W.inv[k] = W.inv[k] || { on: false, plan: '' }; W.inv[k].on = !W.inv[k].on; pintarPaso();
+      });
+    },
+    leer: () => { document.querySelectorAll('#wzCuerpo [data-iplan]').forEach((el) => { W.inv[el.dataset.iplan].plan = el.value.trim(); }); },
+    validar: () => (Object.values(W.inv).some((x) => x.on && x.plan && !(num(x.plan) >= 0)) ? 'Alguna aportación no es un número válido.' : ''),
+    despues: () => { if ((W.inv.metales || {}).on) W.metales = true; },
+  },
+  { // 2 · Hogar
+    html: () => `<div class="script">en casa</div><h1>¿Compartes gastos?</h1>
+      <div class="sub">Si pagas cosas a medias (alquiler, comida…), añade a esas personas. No necesitan tener cuenta en la app.</div>
+      <label class="chk"><input type="checkbox" id="wComp" ${W.compartes ? 'checked' : ''}> Comparto gastos de casa con otras personas</label>
+      <div id="wHogarWrap" style="display:${W.compartes ? 'block' : 'none'}">
+        <div class="card" style="padding:4px 14px;margin-top:14px">
+          <div class="wz-item"><span class="wn"><b>${esc(W.nombre || 'Tú')}</b></span><span class="sub">Parte</span><input class="wi num" id="wMiPeso" value="${esc(W.miPeso)}" inputmode="decimal" style="flex-basis:64px" aria-label="Tu parte"><span style="width:30px"></span></div>
+          ${W.hogar.map((p, i) => `<div class="wz-item">
+            <input class="wn" data-pn="${i}" value="${esc(p.nombre)}" placeholder="Nombre">
+            <span class="sub">Parte</span><input class="wi num" data-pp="${i}" value="${esc(p.peso)}" inputmode="decimal" style="flex-basis:64px" aria-label="Su parte">
+            <button class="xbtn" data-px="${i}" aria-label="Quitar">✕</button></div>`).join('')}
+        </div>
+        <button class="btn sec" id="wPersona">＋ Añadir persona</button>
+        <div class="hint">La parte decide cómo se reparte: 1 y 1 es a medias; 2 y 1 es dos tercios y un tercio. Al terminar podrás invitarles para que vean los gastos de casa desde su móvil.</div>
+      </div>`,
+    tras: () => {
+      $('wComp').onchange = () => { PASOS[wPaso].leer(); W.compartes = $('wComp').checked; if (W.compartes && !W.hogar.length) W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
+      if ($('wPersona')) $('wPersona').onclick = () => { PASOS[wPaso].leer(); W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
+      document.querySelectorAll('#wzCuerpo [data-px]').forEach((b) => b.onclick = () => { PASOS[wPaso].leer(); W.hogar.splice(Number(b.dataset.px), 1); if (!W.hogar.length) W.compartes = false; pintarPaso(); });
+    },
+    leer: () => {
+      if (!$('wMiPeso')) return;
+      W.miPeso = num($('wMiPeso').value) > 0 ? num($('wMiPeso').value) : 1;
+      W.hogar.forEach((p, i) => { p.nombre = $('wzCuerpo').querySelector(`[data-pn="${i}"]`).value.trim(); const v = num($('wzCuerpo').querySelector(`[data-pp="${i}"]`).value); p.peso = v > 0 ? v : 1; });
+    },
+    validar: () => {
+      if (!W.compartes) return '';
+      const l = W.hogar.filter((p) => p.nombre);
+      if (!l.length) return 'Escribe el nombre de al menos una persona, o desmarca la casilla.';
+      if (l.some((p) => p.nombre.toLowerCase() === (W.nombre || 'yo').toLowerCase())) return 'Usa un nombre distinto al tuyo.';
+      return '';
+    },
+  },
+  { // 3 · Categorías
+    html: () => {
+      const comp = W.compartes && W.hogar.some((p) => p.nombre);
+      const n = num(W.nomina) || 0;
+      return `<div class="script">tu presupuesto</div><h1>Categorías</h1>
+        <div class="sub">Marca las que usas y cuánto quieres dedicar al mes (puedes dejarlo en blanco).${comp ? ' En las de casa, escribe el total del hogar: tu parte se calcula sola.' : ''}</div>
+        ${n > 0 ? `<div class="card" style="margin-top:14px"><div id="wRepTxt" class="sub"></div>
+          <button class="btn sec" id="wProponer" style="margin-top:10px">✨ Proponer un reparto</button>
+          <div class="sub" style="font-size:12px;margin-top:6px">Rellena las que estén en blanco: tus fijos tal cual, alrededor de un 20 % para ahorro y el resto para el día a día.</div></div>`
+          : '<div class="hint">Si escribes tu nómina en el primer paso, te propongo un reparto.</div>'}
+        ${['ingreso', 'fijo', 'variable', 'ahorro'].map((g) => `<div class="wz-grupo">${GRUPO_WZ[g]}</div>
+          <div class="card" style="padding:4px 14px;margin-top:8px">${W.categorias.map((c, i) => c.grupo !== g ? '' : `<div class="wz-item wcat">
+            <input type="checkbox" data-con="${i}" ${c.on ? 'checked' : ''} aria-label="Usar ${esc(c.nombre)}">
+            <input class="wn" data-cnom="${i}" value="${esc(c.nombre)}" aria-label="Nombre">
+            ${comp && (g === 'fijo' || g === 'variable') ? `<label class="chk mini"><input type="checkbox" data-ccomp="${i}" ${c.compartida ? 'checked' : ''}>Casa</label>` : ''}
+            <input class="wi num" data-cplan="${i}" value="${esc(c.plan)}" inputmode="decimal" placeholder="${g === 'ingreso' ? 'Al mes' : '€/mes'}" aria-label="Importe al mes"></div>`).join('')}</div>`).join('')}
+        <div class="sug"><button class="cchip" id="wCatNueva">＋ Otra categoría</button></div>`;
+    },
+    tras: () => {
+      const rep = () => {
+        if (!$('wRepTxt')) return;
+        PASOS[wPaso].leer(); const r = repartoW(), libre = r.nomina - r.asignado;
+        $('wRepTxt').innerHTML = `Cobras <b>${eur(r.nomina)}</b> · has repartido <b>${eur(r.asignado)}</b> · ${libre >= 0 ? `te quedan <b class="pos">${eur(libre)}</b> sin asignar` : `<b class="neg">te pasas en ${eur(-libre)}</b>`}`;
+      };
+      $('wzCuerpo').addEventListener('input', rep); $('wzCuerpo').addEventListener('change', rep); rep();
+      if ($('wProponer')) $('wProponer').onclick = () => { PASOS[wPaso].leer(); proponerReparto(); };
+      $('wCatNueva').onclick = () => {
+        PASOS[wPaso].leer();
+        const nombre = prompt('Nombre de la categoría (puedes empezar con un emoji):'); if (!nombre || !nombre.trim()) return;
+        const g = (prompt('¿Qué es? Escribe: fijo, variable, ahorro o ingreso', 'variable') || 'variable').trim().toLowerCase();
+        W.categorias.push({ nombre: nombre.trim(), grupo: GRUPO_WZ[g] ? g : 'variable', rol: g === 'ahorro' ? 'ahorro' : '', on: true, plan: '', compartida: false }); pintarPaso();
+      };
+    },
+    leer: () => {
+      W.categorias.forEach((c, i) => {
+        const q = (k) => $('wzCuerpo').querySelector(`[data-${k}="${i}"]`);
+        c.on = q('con').checked; c.nombre = q('cnom').value.trim(); c.plan = q('cplan').value.trim();
+        if (q('ccomp')) c.compartida = q('ccomp').checked;
+      });
+    },
+    validar: () => {
+      const l = W.categorias.filter((c) => c.on && c.nombre);
+      if (!l.some((c) => c.grupo === 'fijo' || c.grupo === 'variable')) return 'Elige al menos una categoría de gasto.';
+      if (new Set(l.map((c) => c.nombre.toLowerCase())).size !== l.length) return 'Hay dos categorías con el mismo nombre.';
+      if (l.some((c) => c.plan && !(num(c.plan) >= 0))) return 'Algún importe no es un número válido.';
+      return '';
+    },
+  },
+  { // 4 · Inicio y extras
+    html: () => `<div class="script">a tu gusto</div><h1>Tu pantalla de inicio</h1>
+      <div class="sub">Qué quieres ver al abrir la app.</div>
+      <div class="card" style="margin-top:14px">${TARJETAS.map(([k, t]) => `<label class="chk"><input type="checkbox" data-tj="${k}" ${W.tarjetas.includes(k) ? 'checked' : ''}> ${t}</label>`).join('')}</div>
+      <div class="wz-grupo">Botones rápidos (hasta 4)</div>
+      <div class="chips" style="margin-top:8px">${Object.keys(ACCIONES).map((k) => `<button class="cchip ${W.acciones.includes(k) ? 'on' : ''}" data-ac="${k}">${ACCIONES[k].t}</button>`).join('')}</div>
+      <div class="wz-grupo">Extras</div>
+      <div class="card" style="margin-top:8px">
+        <label class="chk" style="margin-top:0 !important"><input type="checkbox" id="wMetales" ${W.metales ? 'checked' : ''}> Tengo inversiones en metales (oro, plata…)</label>
+        <div class="sub" style="font-size:12px;margin-top:10px">Cada mes se cierra solo: el resumen queda guardado en <b>Histórico</b> y los avisos te salen en Inicio.</div>
+      </div>`,
+    tras: () => {
+      document.querySelectorAll('#wzCuerpo [data-ac]').forEach((b) => b.onclick = () => {
+        const k = b.dataset.ac, i = W.acciones.indexOf(k);
+        if (i >= 0) W.acciones.splice(i, 1); else if (W.acciones.length < 4) W.acciones.push(k); else { toast('Como mucho 4 botones', true); return; }
+        PASOS[wPaso].leer(); pintarPaso();
+      });
+
+    },
+    leer: () => {
+      W.tarjetas = TARJETAS.map((t) => t[0]).filter((k) => $('wzCuerpo').querySelector(`[data-tj="${k}"]`).checked);
+      W.metales = $('wMetales').checked;
+    },
+    validar: () => '',
+  },
+];
+const pasoVisible = (i) => !PASOS[i].si || PASOS[i].si();
+const pasoSig = (i, d) => { let j = i + d; while (j >= 0 && j < PASOS.length && !pasoVisible(j)) j += d; return j; };
+function pintarPaso() {
+  $('wzProg').innerHTML = PASOS.map((_, i) => pasoVisible(i) ? `<i class="${i <= wPaso ? 'on' : ''}"></i>` : '').join('');
+  $('wzCuerpo').innerHTML = PASOS[wPaso].html();
+  PASOS[wPaso].tras();
+  $('wzAtras').style.visibility = wPaso ? 'visible' : 'hidden';
+  $('wzSig').textContent = wPaso === PASOS.length - 1 ? 'Empezar' : 'Siguiente';
+  $('wzMsg').textContent = '';
+  window.scrollTo(0, 0);
+}
+$('wzAtras').onclick = () => { PASOS[wPaso].leer(); const j = pasoSig(wPaso, -1); if (j >= 0) { wPaso = j; pintarPaso(); } };
+$('wzSig').onclick = async () => {
+  if (!W) return;
+  PASOS[wPaso].leer();
+  const e = PASOS[wPaso].validar(); if (e) { $('wzMsg').textContent = e; return; }
+  if (PASOS[wPaso].despues) PASOS[wPaso].despues();
+  const sig = pasoSig(wPaso, 1);
+  if (sig < PASOS.length) { wPaso = sig; pintarPaso(); return; }
+  await conBoton($('wzSig'), 'Preparando…', async () => {
+    const nomina = num(W.nomina) > 0 ? num(W.nomina) : null;
+    // Inversión: una categoría de ahorro por cada tipo elegido (sustituye a la genérica)
+    const invs = tieneObj('invertir') ? INVERSIONES.filter(([k]) => (W.inv[k] || {}).on) : [];
+    const cats = W.categorias.map((c) => (invs.length && c.nombre === '📈 Inversión' ? Object.assign({}, c, { on: false }) : c))
+      .concat(invs.map(([k, t]) => ({ nombre: t, grupo: 'ahorro', rol: 'inversion', on: true, plan: W.inv[k].plan, compartida: false })));
+    const ajustesIni = nomina || tieneObj('ahorrar') ? Object.assign(copia(AJ_DEF), { base: nomina, t: Date.now() }) : null;
+    if (ajustesIni && tieneObj('ahorrar')) {
+      const r = repartoW(), gasto = r.fijo + r.variable || (nomina ? nomina * 0.7 : 0);
+      const cta = (W.cuentas.find((c) => c.rol === 'emergencia' && c.nombre) || {}).nombre || '';
+      if (gasto > 0) ajustesIni.metas.push({ id: Date.now(), nombre: '🛟 Fondo de emergencia', objetivo: Math.round(gasto * 3 / 50) * 50, fecha: '', cuenta: cta, actual: 0 });
+    }
+    const datos = {
+      nomina, ajustes: ajustesIni,
+      cicloDia: W.cicloDia, nombre: W.nombre, metales: W.metales, email: W.email, emailDia: W.email ? W.emailDia : null,
+      tarjetas: W.tarjetas, acciones: W.acciones, miPeso: W.miPeso,
+      cuentas: W.cuentas.filter((c) => c.nombre).map((c) => ({ nombre: c.nombre, rol: c.rol, saldo: c.saldo ? num(c.saldo) : 0 })),
+      hogar: W.compartes ? W.hogar.filter((p) => p.nombre) : [],
+      categorias: cats.map((c) => ({ on: c.on, nombre: c.nombre, grupo: c.grupo, rol: c.rol, compartida: c.compartida, plan: c.plan ? num(c.plan) : 0 })),
+    };
+    S = await Dt.completarBienvenida(datos);
+    ls.set(cacheKey(), JSON.stringify(S));
+    W = null; wPaso = 0;
+    A = null; arrancar(); toast('✓ ¡Lista! Mira «Primeros pasos» en Inicio');
+  });
+};
+
+/* ───────── AJUSTES ───────── */
+const GRUPO_TXT = { fijo: 'Fijo', variable: 'Variable', ahorro: 'Ahorro', ingreso: 'Ingreso' };
+function pintarAjustes() {
+  if (!S || !S.config) return;
+  const c = S.config;
+  $('ajCorreo').textContent = c.email || '';
+  if (document.activeElement !== $('ajNombre')) $('ajNombre').value = c.nombre || '';
+  if (document.activeElement !== $('ajDia')) $('ajDia').value = c.ciclo_dia;
+  $('ajDiaInfo').textContent = `Ciclo actual: del ${S.datos.ciclo.inicio} al ${S.datos.ciclo.fin}.`;
+  // Cuentas
+  $('ajCuentas').innerHTML = (S.cuentasDetalle.length ? S.cuentasDetalle.map((a, i) => `<div class="wz-item">
+      <div class="wn"><div>${esc(a.nombre)}</div><div class="sub num">${eur(a.saldo)}</div></div>
+      <select class="ws" data-rol="${i}" aria-label="Para qué es ${esc(a.nombre)}">${rolOpts(a.rol)}</select>
+      <button class="xbtn" data-ren="${i}" aria-label="Cambiar nombre">✎</button><button class="xbtn" data-arch="${i}" aria-label="Archivar">✕</button></div>`).join('') : '<div class="empty">Sin cuentas</div>') +
+    (S.cuentasArchivadas.length ? `<div class="wz-item"><div class="wn sub">Archivadas: ${S.cuentasArchivadas.map((a) => `${esc(a.nombre)} <button class="linkbtn" data-rec="${esc(a.id)}">recuperar</button>`).join(' · ')}</div></div>` : '');
+  $('ajCuentas').querySelectorAll('[data-rol]').forEach((el) => el.onchange = async () => {
+    const a = S.cuentasDetalle[el.dataset.rol];
+    try { toast('✓ ' + await apiPost('guardarCuenta', { id: a.id, rol: el.value })); } catch (e) { toast(e.message, true); }
+  });
+  $('ajCuentas').querySelectorAll('[data-ren]').forEach((b) => b.onclick = async () => {
+    const a = S.cuentasDetalle[b.dataset.ren], n = prompt('Nuevo nombre de la cuenta:', a.nombre);
+    if (!n || n.trim() === a.nombre) return;
+    try { toast('✓ ' + await apiPost('guardarCuenta', { id: a.id, nombre: n })); } catch (e) { toast(e.message, true); }
+  });
+  $('ajCuentas').querySelectorAll('[data-arch]').forEach((b) => b.onclick = async () => {
+    const a = S.cuentasDetalle[b.dataset.arch];
+    if (!confirm(`¿Archivar «${a.nombre}»? Deja de salir en las listas; sus movimientos se conservan.`)) return;
+    try { toast('✓ ' + await apiPost('guardarCuenta', { id: a.id, archivada: true })); } catch (e) { toast(e.message, true); }
+  });
+  $('ajCuentas').querySelectorAll('[data-rec]').forEach((b) => b.onclick = async () => {
+    try { toast('✓ ' + await apiPost('guardarCuenta', { id: b.dataset.rec, archivada: false })); } catch (e) { toast(e.message, true); }
+  });
+  // Categorías
+  const lista = S.datos.categorias;
+  $('ajCats').innerHTML = lista.length ? lista.map((n, i) => {
+    const k = S.categoriasPres.lista.find((x) => x.cat === n), g = k ? k.grupo : 'ingreso';
+    return `<div class="wz-item"><div class="wn">${esc(n)}<div class="sub">${GRUPO_TXT[g]}${k && k.compartida ? ' · compartida' : ''}</div></div>
+      <button class="xbtn" data-cren="${i}" aria-label="Cambiar nombre">✎</button><button class="xbtn" data-carch="${i}" aria-label="Quitar">✕</button></div>`;
+  }).join('') : '<div class="empty">Sin categorías</div>';
+  const idCat = (n) => (S.catIds || {})[n];
+  $('ajCats').querySelectorAll('[data-cren]').forEach((b) => b.onclick = async () => {
+    const n0 = lista[b.dataset.cren], n = prompt('Nuevo nombre de la categoría:', n0);
+    if (!n || n.trim() === n0) return;
+    try { toast('✓ ' + await apiPost('guardarCategoria', { id: idCat(n0), nombre: n })); } catch (e) { toast(e.message, true); }
+  });
+  $('ajCats').querySelectorAll('[data-carch]').forEach((b) => b.onclick = async () => {
+    const n0 = lista[b.dataset.carch];
+    if (!confirm(`¿Quitar «${n0}»? Deja de salir en las listas y en el presupuesto; los movimientos que ya tiene se conservan.`)) return;
+    try { toast('✓ ' + await apiPost('guardarCategoria', { id: idCat(n0), archivada: true })); } catch (e) { toast(e.message, true); }
+  });
+  // Hogar
+  $('ajHogar').innerHTML = S.miembros.map((m, i) => `<div class="wz-item"><div class="wn">${esc(m.nombre)}${m.esYo ? ' <span class="tag">tú</span>' : ''}
+      <div class="sub">Parte ${aTexto(m.peso)}${m.email ? ' · ' + esc(m.email) : ''}</div>
+      ${m.esYo ? '' : m.conectado ? `<div class="sub pos">✓ Tiene la app · <button class="linkbtn" data-mdes="${i}" style="padding:0">Desconectar</button></div>` : `<button class="linkbtn" data-minv="${i}">Invitar a la app ›</button>`}</div>
+      <button class="xbtn" data-mren="${i}" aria-label="Editar">✎</button>${m.esYo ? '' : `<button class="xbtn" data-mx="${i}" aria-label="Quitar">✕</button>`}</div>`).join('') || '<div class="empty">Solo tú</div>';
+  $('ajHogar').querySelectorAll('[data-mren]').forEach((b) => b.onclick = () => editarPersona(S.miembros[b.dataset.mren]));
+  $('ajHogar').querySelectorAll('[data-minv]').forEach((b) => b.onclick = () => invitarPersona(S.miembros[b.dataset.minv]));
+  $('ajHogar').querySelectorAll('[data-mdes]').forEach((b) => b.onclick = () => desconectarPersona(S.miembros[b.dataset.mdes]));
+  $('ajHogar').querySelectorAll('[data-mx]').forEach((b) => b.onclick = async () => {
+    const m = S.miembros[b.dataset.mx];
+    if (!confirm(`¿Quitar a ${m.nombre} del hogar? Los gastos compartidos dejarán de repartirse con esta persona.`)) return;
+    try { toast('✓ ' + await apiPost('quitarMiembro', m.id)); } catch (e) { toast(e.message, true); }
+  });
+  // Inicio
+  const tj = Array.isArray(c.inicio_tarjetas) ? c.inicio_tarjetas : [], ac = Array.isArray(c.acciones_rapidas) ? c.acciones_rapidas : [];
+  $('ajTarjetas').innerHTML = TARJETAS.map(([k, t]) => `<label class="chk"><input type="checkbox" data-atj="${k}" ${tj.includes(k) ? 'checked' : ''}> ${t}</label>`).join('');
+  $('ajAcciones').innerHTML = `<div class="chips" style="margin-top:8px">${Object.keys(ACCIONES).map((k) => `<button class="cchip ${ac.includes(k) ? 'on' : ''}" data-aac="${k}">${ACCIONES[k].t}</button>`).join('')}</div>`;
+  $('ajTarjetas').querySelectorAll('[data-atj]').forEach((el) => el.onchange = () => guardarConfig({ inicio_tarjetas: TARJETAS.map((t) => t[0]).filter((k) => $('ajTarjetas').querySelector(`[data-atj="${k}"]`).checked) }));
+  $('ajAcciones').querySelectorAll('[data-aac]').forEach((b) => b.onclick = () => {
+    const l = ac.slice(), k = b.dataset.aac, i = l.indexOf(k);
+    if (i >= 0) l.splice(i, 1); else if (l.length < 4) l.push(k); else { toast('Como mucho 4 botones', true); return; }
+    guardarConfig({ acciones_rapidas: l });
+  });
+  // Extras y email
+  $('ajMetales').checked = !!c.metales;
+  $('ajEmailWrap').style.display = c.email_permitido ? '' : 'none';
+  $('ajEmail').checked = !!c.email_resumen; $('ajAvisos').checked = !!c.email_avisos;
+  $('ajEmailDiaWrap').style.display = c.email_resumen ? 'block' : 'none';
+  if (document.activeElement !== $('ajEmailDia')) $('ajEmailDia').value = c.email_dia || c.ciclo_dia;
+  const h = ls.get('mp2-hora');
+  $('ajInfo').textContent = (h ? `Última actualización: ${new Date(h).toLocaleString('es-ES')}. ` : '') + `${S.movimientos.length} movimientos guardados en tu cuenta.`;
+}
+async function guardarConfig(c, ok) {
+  try { const m = await apiPost('guardarConfig', c); toast('✓ ' + (ok || m)); pintarAjustes(); }
+  catch (e) { toast(e.message, true); pintarAjustes(); }
+}
+$('ajNombre').onchange = async () => {
+  const n = $('ajNombre').value.trim(); if (!n) return;
+  const yo = S.miembros.find((m) => m.esYo);
+  await guardarConfig({ nombre: n }, 'Nombre guardado');
+  if (yo && yo.nombre !== n) { try { await apiPost('guardarMiembro', { id: yo.id, nombre: n, peso: yo.peso, email: yo.email }); } catch (e) { toast(e.message, true); } }
+};
+$('ajDia').onchange = async () => {
+  const d = Math.round(Number($('ajDia').value));
+  if (!(d >= 1 && d <= 31)) { toast('Elige un día entre 1 y 31', true); pintarAjustes(); return; }
+  if (d === S.config.ciclo_dia) return;
+  if (!confirm(`¿Cambiar el inicio del ciclo al día ${d}? El ciclo actual se recalcula con las nuevas fechas.`)) { pintarAjustes(); return; }
+  await guardarConfig({ ciclo_dia: d }, 'Día de cobro guardado'); cargar();
+};
+$('ajMetales').onchange = () => guardarConfig({ metales: $('ajMetales').checked });
+$('ajEmail').onchange = () => guardarConfig({ email_resumen: $('ajEmail').checked, email_dia: $('ajEmail').checked ? (Number($('ajEmailDia').value) || S.config.ciclo_dia) : S.config.email_dia });
+$('ajEmailPrueba').onclick = () => conBoton($('ajEmailPrueba'), 'Enviando…', async () => {
+  toast('✓ ' + await apiPost('enviarResumenPrueba'));
+});
+$('ajAvisos').onchange = () => guardarConfig({ email_avisos: $('ajAvisos').checked });
+$('ajEmailDia').onchange = () => { const d = Math.round(Number($('ajEmailDia').value)); if (d >= 1 && d <= 31) guardarConfig({ email_dia: d }, `El resumen llegará el día ${d}`); else { toast('Elige un día entre 1 y 31', true); pintarAjustes(); } };
+$('ajCuentaNueva').onclick = () => {
+  abrirHoja('nueva cuenta', 'Añadir cuenta', `
+    <label>Nombre</label><input id="nNombre2" placeholder="p. ej. ING, Hucha…" autocomplete="off" maxlength="40">
+    <label>Para qué es</label><select id="nRol2">${rolOpts('dia_a_dia')}</select>
+    <label>Saldo de hoy</label><input id="nSaldo2" type="text" inputmode="decimal" placeholder="0,00 €">
+    <button class="btn" id="nGuardar2">Guardar cuenta</button>`);
+  $('nGuardar2').onclick = async () => {
+    const nombre = $('nNombre2').value.trim(); if (!nombre) { toast('Escribe el nombre', true); return; }
+    const saldo = $('nSaldo2').value === '' ? 0 : num($('nSaldo2').value); if (!(saldo >= 0)) { toast('Saldo no válido', true); return; }
+    await conBoton($('nGuardar2'), 'Guardando…', async () => { toast('✓ ' + await apiPost('agregarCuenta', { nombre, saldo, rol: $('nRol2').value })); cerrarHoja(); });
+  };
+};
+$('ajCatNueva').onclick = () => $('ctNueva').click();
+$('ajCatIngreso').onclick = async () => {
+  const n = prompt('Nombre de la categoría de ingreso (p. ej. 💼 Nómina, 🧾 Facturas):'); if (!n || !n.trim()) return;
+  try { toast('✓ ' + await apiPost('guardarCategorias', { nueva: { cat: n.trim(), grupo: 'ingreso', plan: 0 } })); } catch (e) { toast(e.message, true); }
+};
+$('ajPersona').onclick = () => editarPersona(null);
+function editarPersona(m) {
+  const nueva = !m; m = m || { nombre: '', peso: 1, email: '', esYo: false };
+  abrirHoja(nueva ? 'hogar' : (m.esYo ? 'tú' : 'hogar'), nueva ? 'Añadir persona' : m.nombre, `
+    <label>Nombre</label><input id="pNombre" value="${esc(m.nombre)}" maxlength="30" autocomplete="off">
+    <label>Parte en los gastos compartidos</label><input id="pPeso" type="text" inputmode="decimal" value="${aTexto(m.peso)}">
+    <div class="sub" style="margin-top:6px">1 y 1 es a medias; 2 y 1 es dos tercios y un tercio.</div>
+    ${m.esYo ? '' : `<label>Email (opcional)</label><input id="pEmail" type="email" value="${esc(m.email)}" autocapitalize="off" autocomplete="off" placeholder="Por si algún día tiene cuenta en la app">`}
+    <button class="btn" id="pGuardar">Guardar</button>`);
+  $('pGuardar').onclick = async () => {
+    const d = { id: m.id, nombre: $('pNombre').value.trim(), peso: num($('pPeso').value), email: $('pEmail') ? $('pEmail').value.trim() : m.email, esYo: m.esYo };
+    if (!d.nombre) { toast('Escribe el nombre', true); return; }
+    if (!(d.peso > 0)) { toast('La parte tiene que ser mayor que 0', true); return; }
+    if (d.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) { toast('Email no válido', true); return; }
+    await conBoton($('pGuardar'), 'Guardando…', async () => {
+      toast('✓ ' + await apiPost('guardarMiembro', d));
+      if (m.esYo && d.nombre !== S.config.nombre) await apiPost('guardarConfig', { nombre: d.nombre });
+      cerrarHoja();
+    });
+  };
+}
+async function cerrarSesion() {
+  if (!confirm('¿Cerrar sesión en este dispositivo?')) return;
+  const ck = cacheKey(); ls.del(ck); ls.del(ajKey()); ls.del('mp2-hora');
+  W = null; wPaso = 0;
+  await sb.auth.signOut();
+  mostrarAuth('Has cerrado sesión.');
+}
+$('ajSalir').onclick = cerrarSesion;
+$('wzSalir').onclick = cerrarSesion;
+$('ajExportar').onclick = () => conBoton($('ajExportar'), 'Preparando…', async () => {
+  const datos = await Dt.exportar();
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `mi-presupuesto-${hoyLocal()}.json`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('✓ Datos descargados');
+});
+$('ajBorrarTodo').onclick = async () => {
+  const t = prompt('Se borrarán TODOS tus datos (cuentas, movimientos, categorías, histórico…). Tu acceso se mantiene y empezarás de cero.\n\nEscribe BORRAR para confirmar:');
+  if (t === null) return;
+  if (t.trim().toUpperCase() !== 'BORRAR') { toast('No se ha borrado nada', true); return; }
+  await conBoton($('ajBorrarTodo'), 'Borrando…', async () => {
+    await Dt.borrarTodo(); ls.del(cacheKey()); ls.del(ajKey()); A = null; S = null; arrancada = false; W = null;
+    toast('✓ Datos borrados'); $('loading').style.display = 'flex'; cargar();
+  });
+};
+$('ajEliminar').onclick = async () => {
+  const t = prompt('Se eliminará tu cuenta y todos tus datos para siempre. No se puede deshacer.\n\nEscribe ELIMINAR para confirmar:');
+  if (t === null) return;
+  if (t.trim().toUpperCase() !== 'ELIMINAR') { toast('No se ha eliminado nada', true); return; }
+  await conBoton($('ajEliminar'), 'Eliminando…', async () => {
+    const { error } = await sb.functions.invoke('eliminar-cuenta', { method: 'POST' });
+    if (error) throw new Error('No se pudo eliminar la cuenta. Inténtalo más tarde.');
+    ls.del(cacheKey()); ls.del(ajKey()); ls.del('mp2-hora');
+    await sb.auth.signOut();
+    mostrarAuth('Tu cuenta y tus datos se han eliminado.');
+  });
+};
+
+/* ───────── PAGOS FIJOS (recurrentes) ───────── */
+function editarFijo(f) {
+  const nuevo = !f, d = S.datos;
+  f = f || { activo: true, dia: Number(hoyLocal().slice(8)), tipo: 'Gasto', cat: SUG['Gasto'], conc: '', imp: 0, cuenta: cuentaPrincipal(), hacia: '', de: '', hasta: '' };
+  const gente = (S.miembros || []).filter((m) => !m.esYo).map((m) => m.nombre);
+  abrirHoja(nuevo ? 'nuevo pago fijo' : 'pago fijo', nuevo ? 'Añadir pago fijo' : f.conc, `
+    <label>Concepto</label><input id="fxConc" value="${esc(f.conc)}" placeholder="p. ej. Alquiler, Nómina, Gimnasio" autocomplete="off" maxlength="80">
+    <label>Tipo</label><select id="fxTipo">${opciones(d.tipos, f.tipo)}</select>
+    <label>Categoría</label><select id="fxCat">${opciones(d.categorias.includes(f.cat) || !f.cat ? d.categorias : [f.cat].concat(d.categorias), f.cat)}</select>
+    <div class="row"><div><label>Importe</label><input id="fxImp" type="text" inputmode="decimal" value="${f.imp ? aTexto(f.imp) : ''}" placeholder="0,00 €"></div>
+      <div><label>Día del mes</label><input id="fxDia" type="number" inputmode="numeric" min="1" max="31" value="${esc(f.dia || '')}"></div></div>
+    <label id="fxCuentaLbl">Cuenta</label><select id="fxCuenta">${opciones(d.cuentas, f.cuenta || cuentaPrincipal())}</select>
+    <div id="fxHaciaWrap"><label>Hacia</label><select id="fxHacia">${opcionesHacia(f.hacia || '')}</select></div>
+    <div id="fxDeWrap"><label>¿Quién te lo pasa?</label><select id="fxDe"><option value="">—</option>${opciones(gente, f.de)}</select></div>
+    <label>Hasta (opcional)</label><input id="fxHasta" type="date" value="${esc(f.hasta || '')}">
+    <label class="chk"><input type="checkbox" id="fxActivo" ${f.activo ? 'checked' : ''}> Activo (se prevé cada ciclo)</label>
+    <div class="hint">Se crea como previsto al empezar cada ciclo; lo confirmas cuando se cobre o se pague.</div>
+    <button class="btn" id="fxGuardar">Guardar</button>
+    ${nuevo ? '' : '<button class="btn sec danger" id="fxBorrar" style="margin-top:8px">Eliminar</button>'}`);
+  const tipoCambia = () => { const t = $('fxTipo').value; $('fxHaciaWrap').style.display = conHacia(t) ? 'block' : 'none'; $('fxCuentaLbl').textContent = conHacia(t) ? 'Desde' : 'Cuenta'; $('fxDeWrap').style.display = t === 'Reintegro' && gente.length ? 'block' : 'none'; };
+  $('fxTipo').onchange = tipoCambia; tipoCambia();
+  $('fxGuardar').onclick = async () => {
+    const x = { fila: f.fila, conc: $('fxConc').value.trim(), tipo: $('fxTipo').value, cat: $('fxCat').value, imp: num($('fxImp').value), dia: Number($('fxDia').value),
+      cuenta: $('fxCuenta').value, hacia: conHacia($('fxTipo').value) ? $('fxHacia').value : '', de: $('fxDe').value, hasta: $('fxHasta').value, activo: $('fxActivo').checked };
+    if (!x.conc) { toast('Escribe el concepto', true); return; }
+    if (!(x.imp >= 0)) { toast('Importe no válido', true); return; }
+    if (!(x.dia >= 1 && x.dia <= 31)) { toast('Elige un día entre 1 y 31', true); return; }
+    await conBoton($('fxGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('guardarRecurrente', x)); cerrarHoja(); });
+  };
+  if ($('fxBorrar')) $('fxBorrar').onclick = async () => {
+    if (!confirm(`¿Eliminar «${f.conc}»? Los movimientos que ya creó se conservan.`)) return;
+    await conBoton($('fxBorrar'), 'Eliminando…', async () => { toast('✓ ' + await apiPost('eliminarRecurrente', f.fila)); cerrarHoja(); });
+  };
+}
+$('sbFijoNuevo').onclick = () => editarFijo(null);
+
 /* ───────── Hoja inferior ───────── */
 function abrirHoja(etiqueta, titulo, html) {
   $('hojaEtiqueta').textContent = etiqueta; $('hojaTitulo').textContent = titulo; $('hojaCuerpo').innerHTML = html;
@@ -2110,9 +3089,9 @@ function abrirHoja(etiqueta, titulo, html) {
 function cerrarHoja() { $('sheet').classList.remove('on'); document.body.style.overflow = ''; }
 
 /* ───────── Arranque ───────── */
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S) cargar(); });
-recuperarClave().then(() => cargar());
+if ('serviceWorker' in navigator && !DEMO) navigator.serviceWorker.register('sw.js').catch(() => {});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S && sb) cargar(); });
+iniciarConexion().then(() => cargar()).catch((e) => { $('loading').style.display = 'none'; mostrarAuth(e.message); });
 </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 // Guarda la app en el móvil para que abra al instante, incluso sin conexión.
 // Al cambiar cualquier archivo de la app, sube el número de VERSION.
-const VERSION = 'mi-presupuesto-v11';
-const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
+const VERSION = 'mi-presupuesto-v2-7';
+const ARCHIVOS = ['./', 'index.html', 'config.js', 'logica.js', 'datos.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'privacidad.html', 'aviso-legal.html'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
@@ -9,7 +9,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys()
-    .then((ks) => Promise.all(ks.filter((k) => k !== VERSION && k !== 'mp-ajustes').map((k) => caches.delete(k))))
+    .then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -17,11 +17,11 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Los datos (Google Apps Script) siempre van a la red
-  if (url.hostname.endsWith('script.google.com') || url.hostname.endsWith('googleusercontent.com')) return;
+  // Los datos (Supabase) siempre van a la red
+  if (url.hostname.endsWith('.supabase.co')) return;
   const propio = url.origin === self.location.origin;
-  const fuentes = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-  if (!propio && !fuentes) return;
+  const externo = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com' || url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'cdnjs.cloudflare.com';
+  if (!propio && !externo) return;
   // Muestra lo guardado al momento y lo renueva por detrás
   e.respondWith(caches.open(VERSION).then((cache) => cache.match(req, { ignoreSearch: propio }).then((guardado) => {
     const red = fetch(req).then((resp) => {

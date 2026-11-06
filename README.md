@@ -1,15 +1,13 @@
-# Mi presupuesto · app instalable
+# Mi presupuesto
 
-App web instalable (PWA) que lee y escribe en mi hoja de Google "Planner financiero"
-a través del script de Apps Script "Mi presupuesto".
+App web instalable (PWA) para llevar cuentas, presupuesto, ahorro y gastos compartidos.
+Los datos se guardan en Supabase (UE); cada cuenta solo ve lo suyo.
 
-- `index.html` – la app (pantallas y lógica).
-- `manifest.webmanifest` – nombre, icono y modo pantalla completa.
-- `sw.js` – guarda la app en el móvil para que abra al instante.
-- `icon-*.png`, `apple-touch-icon.png` – iconos.
-
-La clave de conexión **no** está en este repositorio: se pega dentro de la app la primera vez
-y se guarda solo en el móvil.
-
-Al cambiar cualquier archivo, sube el número de `VERSION` en `sw.js` para que el móvil
-descargue la versión nueva.
+- `index.html` – la app (pantallas).
+- `logica.js` – cálculos (ciclo, saldos, presupuesto, gastos compartidos).
+- `datos.js` – lectura y escritura en Supabase.
+- `config.js` – dirección del proyecto de Supabase y su clave pública (no es secreta).
+- `sw.js` – guarda la app en el móvil para que abra al instante. Al cambiar cualquier archivo, sube `VERSION`.
+- `privacidad.html`, `aviso-legal.html` – textos legales.
+- `v1/` – versión antigua conectada a la hoja de Google (copia de seguridad).
+- `v2/` – dirección anterior de la app nueva: redirige aquí.

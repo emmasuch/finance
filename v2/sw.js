@@ -1,6 +1,6 @@
 // Guarda la app en el móvil para que abra al instante, incluso sin conexión.
 // Al cambiar cualquier archivo de la app, sube el número de VERSION.
-const VERSION = 'mi-presupuesto-v2-2';
+const VERSION = 'mi-presupuesto-v2-3';
 const ARCHIVOS = ['./', 'index.html', 'config.js', 'logica.js', 'datos.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {

@@ -324,11 +324,19 @@
 
   /** "12,50 Mercadona" → {imp, conc, entrada}. Con + delante es una entrada. */
   function leerGastoRapido(texto) {
-    texto = String(texto || '').trim();
+    texto = String(texto || '').trim()
+      .replace(/(\d+)\s*(?:€|euros?)?\s+con\s+(\d{1,2})\b(?:\s*(?:céntimos?|centimos?))?/i, (_, e, c) => e + ',' + c.padStart(2, '0')) // Siri: «12 con 50»
+      .replace(/[.!?¡¿]+$/, '');
     const m = /([+-]?)\s*(\d+(?:[.,]\d{1,2})?)\s*(?:€|euros?)?/i.exec(texto);
     if (!m) throw new Error('No encuentro el importe en "' + texto + '".');
     let conc = (texto.slice(0, m.index) + ' ' + texto.slice(m.index + m[0].length)).replace(/\s+/g, ' ').trim() || 'Gasto rápido';
     return { imp: red(Number(m[2].replace(',', '.'))), conc: mayus(conc), entrada: m[1] === '+' };
+  }
+
+  /** Hash (SHA-256 en hexadecimal) de la clave del atajo: la base de datos solo guarda esto. */
+  async function hashClave(clave) {
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(clave)));
+    return Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, '0')).join('');
   }
 
   /* ───── Cierre del ciclo ───── */
@@ -364,7 +372,7 @@
   return {
     MESES, PENDIENTES, TIPOS, ROLES, PALABRAS_CAT, VACIAS, red, ymd, aFecha, sumarDias, dmy, mayus,
     ciclo, cicloDesde, cicloAnterior, fechaEnCiclo, hogar, miParte, efectosSaldo, saldos, resumen, pendientes, serie,
-    recurrentesDelCiclo, compartidos, movimientoSaldar, palabras, aprender, categorizar, leerGastoRapido,
+    recurrentesDelCiclo, compartidos, movimientoSaldar, palabras, aprender, categorizar, leerGastoRapido, hashClave,
     ciclosPorCerrar, filaHistorico,
   };
 });

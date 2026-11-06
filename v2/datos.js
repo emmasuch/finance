@@ -448,7 +448,8 @@
       const deTipo = X.cats.filter((k) => k.tipo === (tipo === 'Reintegro' ? 'Gasto' : tipo));
       const cat = auto.cat || ((deTipo.find((k) => /personal|otros|varios/i.test(k.nombre)) || deTipo[0] || X.cats[0] || {}).nombre || '');
       const cuenta = auto.cuenta && X.acc.nombre[auto.cuenta] ? auto.cuenta : cuentaPrincipal();
-      await A.agregarMovimiento({ fecha: hoy(), tipo, cat, conc: g.conc, imp: g.imp, cuenta, estado: 'Confirmado', notas: 'Anotado con gasto rápido.' });
+      const fecha = /^\d{4}-\d{2}-\d{2}$/.test(p.fecha || '') ? p.fecha : hoy();
+      await A.agregarMovimiento({ fecha, tipo, cat, conc: g.conc, imp: g.imp, cuenta, estado: 'Confirmado', notas: p.notas || 'Anotado con gasto rápido.' });
       return '✓ ' + g.imp.toFixed(2).replace('.', ',') + ' € · ' + g.conc + ' → ' + (cat || 'sin categoría');
     },
     async enviarResumenPrueba() { // manda ya el resumen del último mes cerrado a mi email (máx. 3 por hora)
@@ -540,6 +541,24 @@
     },
     async completarBienvenida(w) { await leer(); await completarBienvenida(w); await leer(); await preparar(); await leer(); return construir(); },
     detalleMes, exportar, borrarTodo,
+    /** Clave del atajo de Siri: se crea aquí, se enseña una vez y solo se guarda su hash. */
+    atajo: {
+      async estado() { return ok(await sb.from('api_tokens').select('id,creado_en,usado_en').order('creado_en')); },
+      async crear() {
+        const ses = (await sb.auth.getSession()).data.session;
+        if (!ses) throw new Error('Tu sesión ha caducado. Vuelve a entrar.');
+        const b = new Uint8Array(24); crypto.getRandomValues(b);
+        const clave = 'mp_' + Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+        ok(await sb.from('api_tokens').delete().eq('user_id', ses.user.id).select('id')); // una sola clave: la anterior deja de valer
+        ok(await sb.from('api_tokens').insert({ user_id: ses.user.id, hash: await L.hashClave(clave) }).select('id'));
+        return clave;
+      },
+      async borrar() {
+        const ses = (await sb.auth.getSession()).data.session;
+        if (!ses) throw new Error('Tu sesión ha caducado. Vuelve a entrar.');
+        ok(await sb.from('api_tokens').delete().eq('user_id', ses.user.id).select('id'));
+      },
+    },
     uid: () => uid,
     _interno: () => ({ D, X }),
   };

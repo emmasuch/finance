@@ -647,7 +647,34 @@
     <div class="sub" style="margin-top:6px;font-size:12px">Empieza por + si es una entrada: «+300 Bizum cena».</div>
   </div>
   <h2>Atajo del iPhone</h2>
-  <div class="card"><div class="sub">El atajo de Siri para esta versión llegará en la siguiente fase. Mientras tanto, anota aquí escribiendo el importe y el concepto.</div></div>
+  <div class="card">
+    <div class="sub" id="srEstado">Comprobando…</div>
+    <div id="srClaveBox" style="display:none;margin-top:12px">
+      <div class="sub" style="font-weight:600;color:var(--tx)">Tu clave del atajo</div>
+      <div id="srClave" style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:var(--yellow-s);border-radius:10px;padding:10px;margin-top:6px;user-select:all"></div>
+      <button class="btn" id="srCopiarClave" style="margin-top:8px">Copiar clave</button>
+      <div class="sub" style="margin-top:6px;font-size:12px">Solo se enseña ahora. Pégala en el atajo (paso 3) y no la compartas: quien la tenga puede anotar gastos en tu cuenta.</div>
+    </div>
+    <button class="btn sec" id="srCrear" style="margin-top:12px">Crear clave del atajo</button>
+    <button class="linkbtn" id="srQuitar" style="display:none;margin-top:6px">Desconectar el atajo</button>
+  </div>
+  <h2>Cómo crear el atajo</h2>
+  <div class="card sr-pasos">
+    <ol style="margin:0;padding-left:20px;line-height:1.55;font-size:14px">
+      <li>Abre la app <b>Atajos</b> del iPhone, pulsa <b>+</b> y llámalo <b>Anotar gasto</b>.</li>
+      <li>Añade la acción <b>Dictar texto</b> (idioma: Español).</li>
+      <li>Añade <b>Obtener contenido de URL</b>:
+        <ul style="padding-left:18px;margin:4px 0">
+          <li>URL: <span id="srUrl" style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all"></span> <button class="linkbtn" id="srCopiarUrl">Copiar</button></li>
+          <li>Pulsa la flechita: Método <b>POST</b> y Cuerpo de la solicitud <b>JSON</b>.</li>
+          <li>Añade un campo de texto <b>clave</b> y pega tu clave.</li>
+          <li>Añade un campo de texto <b>texto</b> y elige la variable <b>Texto dictado</b>.</li>
+        </ul></li>
+      <li>Añade <b>Obtener valor de diccionario</b> con la clave <b>mensaje</b>.</li>
+      <li>Añade <b>Mostrar notificación</b> con ese <b>Valor de diccionario</b>.</li>
+    </ol>
+    <div class="hint">Luego di <b>«Oye Siri, anotar gasto»</b> y dicta, por ejemplo, «12,50 Mercadona». Si ya tenías el atajo de la versión anterior, basta con cambiar la URL y poner la clave nueva en el campo <b>key</b>.</div>
+  </div>
 </div></div>
 
 <!-- GASTOS COMPARTIDOS -->
@@ -1898,7 +1925,37 @@ $('imImportar').onclick = async () => {
 function pintarImportCuentas() { const sel = $('imCuenta').value || cuentaPrincipal(); $('imCuenta').innerHTML = opciones(cuentasPropias(), sel); }
 
 /* ───────── ATAJO DEL IPHONE ───────── */
-function pintarSiri() {}
+const URL_ATAJO = CFG.supabaseUrl + '/functions/v1/gasto-rapido';
+let atajoHay = false;
+async function pintarSiri() {
+  $('srUrl').textContent = URL_ATAJO;
+  if (!Dt || !Dt.atajo) return;
+  try {
+    const l = await Dt.atajo.estado();
+    atajoHay = l.length > 0;
+    const f = (iso) => iso ? new Date(iso).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+    $('srEstado').innerHTML = atajoHay
+      ? '✓ Atajo conectado desde el ' + esc(f(l[0].creado_en)) + '. ' + (l[0].usado_en ? 'Último uso: ' + esc(f(l[0].usado_en)) + '.' : 'Aún no se ha usado.')
+      : 'Aún no tienes el atajo conectado. Crea una clave y úsala en el paso 3.';
+  } catch (e) { $('srEstado').textContent = e.message; }
+  $('srCrear').textContent = atajoHay ? 'Crear clave nueva' : 'Crear clave del atajo';
+  $('srQuitar').style.display = atajoHay ? '' : 'none';
+}
+$('srCrear').onclick = async () => {
+  if (atajoHay && !confirm('La clave que usa ahora tu atajo dejará de funcionar y tendrás que poner la nueva. ¿Seguimos?')) return;
+  await conBoton($('srCrear'), 'Creando…', async () => {
+    const clave = await Dt.atajo.crear();
+    $('srClave').textContent = clave; $('srClaveBox').style.display = '';
+    await pintarSiri();
+  });
+  $('srCrear').textContent = atajoHay ? 'Crear clave nueva' : 'Crear clave del atajo'; // conBoton deja el texto de antes
+};
+$('srCopiarClave').onclick = () => copiar($('srClave').textContent, 'Clave copiada');
+$('srCopiarUrl').onclick = () => copiar(URL_ATAJO, 'URL copiada');
+$('srQuitar').onclick = async () => {
+  if (!confirm('El atajo dejará de funcionar hasta que crees otra clave. ¿Desconectar?')) return;
+  await conBoton($('srQuitar'), 'Desconectando…', async () => { await Dt.atajo.borrar(); $('srClaveBox').style.display = 'none'; await pintarSiri(); toast('Atajo desconectado'); });
+};
 async function copiar(t, ok) {
   try { await navigator.clipboard.writeText(t); toast('✓ ' + ok); }
   catch (e) { prompt('Copia esto:', t); }

@@ -128,7 +128,7 @@
       cuentasDetalle: X.cuentas.map((a) => ({ id: a.id, nombre: a.nombre, rol: a.rol, orden: a.orden, saldo: X.saldos[a.nombre] || 0 })),
       catIds: Object.fromEntries(X.cats.map((k) => [k.nombre, k.id])),
       cuentasArchivadas: D.accounts.filter((a) => a.archivada).map((a) => ({ id: a.id, nombre: a.nombre })),
-      miembros: X.miembros.map((m) => ({ id: m.id, nombre: m.nombre, esYo: m.es_yo, peso: Number(m.peso), email: m.email || '' })),
+      miembros: X.miembros.map((m) => ({ id: m.id, nombre: m.nombre, esYo: m.es_yo, peso: Number(m.peso), email: m.email || '', conectado: !!m.cuenta_user_id })),
       datos: {
         personasProximo: null, finCiclo: fin,
         tipos: L.TIPOS.slice(), categorias: X.cats.map((k) => k.nombre), cuentas: X.cuentas.map((a) => a.nombre), estados: ESTADOS.slice(),
@@ -483,7 +483,8 @@
   /* ───── Bienvenida: crea todo de una vez (se puede repetir sin duplicar) ───── */
   async function completarBienvenida(w) {
     await A.guardarConfig({ ciclo_dia: w.cicloDia, nombre: w.nombre || null, metales: !!w.metales, email_resumen: !!w.email, email_dia: w.emailDia || null,
-      inicio_tarjetas: w.tarjetas, acciones_rapidas: w.acciones });
+      inicio_tarjetas: w.tarjetas, acciones_rapidas: w.acciones, nomina: Number(w.nomina) > 0 ? red(w.nomina) : null });
+    if (w.ajustes) await A.guardarAjustesApp(w.ajustes);
     const cuentas = w.cuentas.filter((c) => String(c.nombre || '').trim()).map((c, i) => ({ user_id: uid, nombre: c.nombre.trim(), rol: c.rol, saldo_base: red(Number(c.saldo) || 0), fecha_base: hoy(), base_en: ahora(), orden: i }));
     if (!cuentas.length) throw new Error('Añade al menos una cuenta.');
     const accs = ok(await sb.from('accounts').upsert(cuentas, { onConflict: 'user_id,nombre' }).select());
@@ -557,6 +558,32 @@
         const ses = (await sb.auth.getSession()).data.session;
         if (!ses) throw new Error('Tu sesión ha caducado. Vuelve a entrar.');
         ok(await sb.from('api_tokens').delete().eq('user_id', ses.user.id).select('id'));
+      },
+    },
+    /** Hogar compartido: invitar a alguien del hogar y, si me han invitado a mí, ver y anotar en ese hogar. */
+    hogar: {
+      async invitar(memberId) { return ok(await sb.rpc('crear_invitacion', { p_member: memberId })); },
+      async desconectar(memberId) { ok(await sb.from('household_members').update({ cuenta_user_id: null }).eq('id', memberId).select('id')); },
+      async verInvitacion(codigo) { return ok(await sb.rpc('ver_invitacion', { p_codigo: codigo })); },
+      async aceptar(codigo) { return ok(await sb.rpc('aceptar_invitacion', { p_codigo: codigo })); },
+      async mios() { return ok(await sb.rpc('mis_hogares')) || []; },
+      async salir(owner) { ok(await sb.rpc('salir_de_hogar', { p_owner: owner })); },
+      async anotar(owner, d) {
+        return ok(await sb.rpc('anotar_en_hogar', { p_owner: owner, p_tipo: d.tipo, p_cat: d.cat || null, p_concepto: d.conc || '', p_importe: red(Number(d.imp)), p_fecha: d.fecha || hoy() }));
+      },
+      /** Lo que ve la persona invitada, ya calculado: quién debe a quién en el ciclo de ese hogar. */
+      async ver(owner) {
+        const r = ok(await sb.rpc('hogar_compartido', { p_owner: owner }));
+        const c = L.ciclo(hoy(), r.ciclo_dia);
+        const h = L.hogar((r.miembros || []).map((m) => ({ nombre: m.nombre, esYo: m.es_yo, peso: Number(m.peso) || 1 })));
+        const cats = (r.categorias || []).map((k) => k.nombre);
+        const plan = {};
+        (r.categorias || []).forEach((k) => { plan[k.nombre] = k.total_hogar != null ? Number(k.total_hogar) : red(Number(k.plan) * h.pesoTotal / h.miPeso); });
+        const movs = (r.movimientos || []).map((m) => ({ id: m.id, fecha: m.fecha, tipo: m.tipo, cat: m.cat || '', conc: m.conc, imp: Number(m.imp), parte: Number(m.parte),
+          estado: m.estado, ajuste: !!m.ajuste, pagadoPor: m.pagadoPor || '', de: m.de || '', pagoA: m.pagoA || '' }));
+        const comp = L.compartidos(movs, h, plan, c, cats, hoy());
+        const yo = comp.gente.find((g) => g.nombre === r.yo) || null;
+        return { de: r.de, yo: r.yo, ciclo: c, categorias: r.categorias || [], comp, mio: yo, movs: movs.filter((m) => m.fecha >= c.inicio && m.fecha <= c.fin), plan };
       },
     },
     uid: () => uid,

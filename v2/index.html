@@ -287,6 +287,14 @@
   .sug { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
   .sug .cchip { padding:6px 10px; font-size:12px; }
   #bienvenida { align-items:flex-start; }
+  .faq details { border-bottom:1px solid var(--line); padding:12px 0; }
+  .faq details:last-child { border-bottom:0; }
+  .faq summary { cursor:pointer; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:10px; }
+  .faq summary::-webkit-details-marker { display:none; }
+  .faq summary::after { content:'+'; color:var(--sub); font-weight:400; }
+  .faq details[open] summary::after { content:'−'; }
+  .faq p { margin:8px 0 0; color:var(--sub); font-size:14px; line-height:1.55; }
+  .faq a, #v-ayuda a { color:var(--blue-d); }
   #bienvenida .card { max-width:540px; }
 </style>
 </head>
@@ -302,10 +310,14 @@
     <div class="seg" id="auModo" style="margin-top:14px"><button class="on" data-m="entrar">Entrar</button><button data-m="crear">Crear cuenta</button></div>
     <div id="auEmailWrap"><label>Email</label><input id="auEmail" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" inputmode="email"></div>
     <div id="auPassWrap"><label id="auPassLbl">Contraseña</label><input id="auPass" type="password" autocomplete="current-password"></div>
-    <div id="auLegal" class="sub" style="display:none;margin-top:12px;font-size:12px">Al crear la cuenta, tus datos se guardan en servidores de la Unión Europea solo para que la app funcione. Puedes descargarlos o borrarlos cuando quieras desde Ajustes.</div>
+    <div id="auLegal" style="display:none;margin-top:12px">
+      <label class="chk" style="align-items:flex-start !important;font-size:13px !important"><input type="checkbox" id="auAcepto" style="margin-top:2px"> <span>Tengo 14 años o más y acepto la <a href="privacidad.html" target="_blank" style="color:var(--blue-d)">política de privacidad</a> y el <a href="aviso-legal.html" target="_blank" style="color:var(--blue-d)">aviso legal</a>.</span></label>
+      <div class="sub" style="font-size:12px;margin-top:6px">Tus datos se guardan en la Unión Europea solo para que la app funcione. Puedes descargarlos o borrarlos cuando quieras desde Ajustes.</div>
+    </div>
     <button class="btn" id="auBoton">Entrar</button>
     <button class="linkbtn" id="auOlvido" style="margin-top:10px">¿Has olvidado la contraseña?</button>
     <div class="sub" id="auMsg" style="margin-top:10px"></div>
+    <div class="sub" style="margin-top:16px;font-size:12px;text-align:center"><a href="privacidad.html" style="color:inherit">Privacidad</a> · <a href="aviso-legal.html" style="color:inherit">Aviso legal</a></div>
   </div>
 </div>
 
@@ -337,6 +349,7 @@
     </div>
   </div>
   <div class="quick" id="quick"></div>
+  <div id="primeros"></div>
   <div class="banner" id="bannerPend" style="display:none" onclick="ir('pend')">
     <span><b id="bannerN"></b> por confirmar</span><span class="pill">Revisar</span>
   </div>
@@ -489,6 +502,7 @@
   <div class="menu-grp"><h2>Hogar</h2>
     <div class="card" style="padding:4px 16px">
       <div class="menu-item" onclick="ir('comp')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M13 15.2c.9-.5 1.9-.7 3-.7 2.2 0 4.2 1.5 5 4.5"/></svg></div><div class="mi-t">Cuentas compartidas<div class="mi-s" id="menuComp">Quién debe a quién</div></div><span class="arrow">›</span></div>
+      <div id="menuCasas"></div>
       <div class="menu-item" onclick="ir('hogar')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></div><div class="mi-t">Gastos del hogar<div class="mi-s" id="menuHogar">Personas y gastos del hogar</div></div><span class="arrow">›</span></div>
     </div>
   </div>
@@ -496,6 +510,13 @@
     <div class="card" style="padding:4px 16px">
       <div class="menu-item" onclick="ir('hist')"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg></div><div class="mi-t">Histórico<div class="mi-s">Meses cerrados y su detalle</div></div><span class="arrow">›</span></div>
       <div class="menu-item" onclick="ir('cuentas')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg></div><div class="mi-t">Cuentas e inversiones<div class="mi-s">Saldos, metales y patrimonio</div></div><span class="arrow">›</span></div>
+    </div>
+  </div>
+  <div class="menu-grp"><h2>Ayuda</h2>
+    <div class="card" style="padding:4px 16px">
+      <div class="menu-item" onclick="ir('instalar')"><div class="mi-ico"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M12 8v6M9.5 11.5L12 14l2.5-2.5"/></svg></div><div class="mi-t">Instalar la app<div class="mi-s">Tenla en la pantalla de inicio</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="ir('ayuda')"><div class="mi-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4M12 16.8v.2"/></svg></div><div class="mi-t">Ayuda<div class="mi-s">Cómo funciona cada cosa</div></div><span class="arrow">›</span></div>
+      <div class="menu-item" onclick="location.href='privacidad.html'"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></div><div class="mi-t">Privacidad<div class="mi-s">Qué datos se guardan y tus derechos</div></div><span class="arrow">›</span></div>
     </div>
   </div>
   <div class="menu-grp"><h2>Configuración</h2>
@@ -578,7 +599,8 @@
   <div class="script">hogar</div>
   <h1>Cuentas compartidas</h1>
   <div class="sub" id="cpSub">Lo que pagáis entre todos este ciclo y quién debe a quién.</div>
-  <div id="cpGente" style="margin-top:16px"></div>
+  <div id="cpInvitar" style="margin-top:16px"></div>
+  <div id="cpGente"></div>
   <h2>Qué te han pasado este ciclo</h2>
   <div class="card" style="padding:4px 16px" id="cpCats"></div>
   <h2>Movimientos compartidos</h2>
@@ -690,6 +712,50 @@
   <button class="btn" id="hGuardar">Guardar</button>
 </div></div>
 
+<!-- HOGAR COMPARTIDO (cuando otra persona me ha invitado) -->
+<div class="view" id="v-casa"><div class="wrap">
+  <div class="topbar" id="csTop"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">hogar compartido</div>
+  <h1 id="csTitulo">Hogar</h1>
+  <div class="sub" id="csSub">Lo que pagáis entre todos y quién debe a quién.</div>
+  <div id="csCuerpo" style="margin-top:16px"></div>
+  <div id="csSolo" style="display:none">
+    <div class="card" style="margin-top:16px">
+      <div class="sub">¿Quieres llevar también tus propias cuentas y tu presupuesto? Nadie más los verá.</div>
+      <button class="btn sec" id="csUsarApp">Usar la app para mis finanzas</button>
+    </div>
+    <button class="linkbtn" id="csSalirSesion" style="margin-top:10px">Cerrar sesión</button>
+  </div>
+</div></div>
+
+<!-- INSTALAR LA APP -->
+<div class="view" id="v-instalar"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">en tu móvil</div>
+  <h1>Instalar la app</h1>
+  <div class="sub">Tenla en la pantalla de inicio como cualquier otra app: se abre a pantalla completa y más rápido. No ocupa casi nada y no pasa por ninguna tienda.</div>
+  <div id="insCuerpo" style="margin-top:16px"></div>
+</div></div>
+
+<!-- AYUDA -->
+<div class="view" id="v-ayuda"><div class="wrap">
+  <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
+  <div class="script">dudas</div>
+  <h1>Ayuda</h1>
+  <div class="card faq" style="margin-top:16px;padding:4px 16px">
+    <details><summary>¿Cómo funciona el «mes»?</summary><p>Tu mes va del día que cobras al día anterior del mes siguiente (lo eliges en Ajustes). Todo se cuenta por ese ciclo: ingresos, gastos y presupuesto. Al terminar, se cierra solo y lo ves en Histórico.</p></details>
+    <details><summary>¿Cómo se calculan los saldos de mis cuentas?</summary><p>Escribes el saldo que ves en tu banco un día y, desde ahí, la app suma y resta lo que anotas como confirmado. Si alguna vez no cuadra, ve a Cuentas, toca la cuenta y escribe el saldo real: se vuelve a contar desde ese momento.</p></details>
+    <details><summary>¿Qué diferencia hay entre previsto y confirmado?</summary><p>Lo previsto (recibos, nómina, suscripciones) aparece solo cada mes para que sepas lo que viene. Cuando lo ves en el banco, lo confirmas en Pendientes y entonces mueve el saldo.</p></details>
+    <details><summary>Gastos compartidos y «mi parte»</summary><p>Si compartes casa, marca qué categorías son de todos y la parte de cada persona. De cada gasto compartido solo cuenta tu parte en tu presupuesto, y la app lleva quién debe a quién. Si la otra persona te pasa su parte a principio de mes, márcalo en Cuentas compartidas.</p></details>
+    <details><summary>¿Cómo invito a alguien de mi casa?</summary><p>En Ajustes › Hogar, toca «Invitar a la app» junto a su nombre y mándale el enlace. Con su propia cuenta verá solo los gastos de las categorías compartidas, podrá anotar lo que pague y avisarte de cuándo te pasa dinero. No ve tus cuentas, tu nómina ni tus otros gastos.</p></details>
+    <details><summary>Anotar rápido sin abrir la app</summary><p>En el iPhone puedes crear un atajo y decir «Oye Siri, anotar gasto». Los pasos están en Menú › Anotar sin abrir la app. La categoría se pone sola según lo que has anotado antes.</p></details>
+    <details><summary>Importar el extracto del banco</summary><p>Descarga los movimientos de tu banco en Excel o CSV y súbelos en Menú › Importar extracto. La app no duplica lo que ya tienes y te deja revisar antes de guardar.</p></details>
+    <details><summary>Inversiones y metas de ahorro</summary><p>Lo que aportas a inversión o ahorro no cuenta como gasto: va a tus cuentas de ahorro e inversión y suma a tu patrimonio. En Metas de ahorro puedes poner un objetivo (por ejemplo un fondo de emergencia de 3 meses de gastos) y ver cuánto te falta.</p></details>
+    <details><summary>¿Quién puede ver mis datos?</summary><p>Solo tú. Se guardan cifrados en servidores de la Unión Europea y cada cuenta solo puede leer lo suyo. Puedes descargarlos o borrarlos cuando quieras en Ajustes › Mis datos. Más detalle en la <a href="privacidad.html">política de privacidad</a>.</p></details>
+  </div>
+  <div class="sub" style="text-align:center;margin-top:16px"><a href="privacidad.html">Privacidad</a> · <a href="aviso-legal.html">Aviso legal</a></div>
+</div></div>
+
 <!-- AJUSTES -->
 <div class="view" id="v-ajustes"><div class="wrap">
   <div class="topbar"><button class="back" onclick="ir('menu')">‹ Menú</button></div>
@@ -716,7 +782,7 @@
   <h2>Hogar</h2>
   <div class="card" style="padding:4px 16px" id="ajHogar"></div>
   <button class="btn sec" id="ajPersona">＋ Añadir persona</button>
-  <div class="sub" style="margin-top:8px">No hace falta que tengan cuenta en la app. Los gastos de las categorías compartidas se reparten según la parte de cada persona.</div>
+  <div class="sub" style="margin-top:8px">No hace falta que tengan cuenta en la app. Si les invitas, verán desde su móvil solo los gastos compartidos y podrán anotar lo que paguen.</div>
   <h2>Inicio</h2>
   <div class="card">
     <div class="sub">Tarjetas que se ven</div><div id="ajTarjetas"></div>
@@ -805,12 +871,12 @@ async function apiPost(accion, ...args) {
 
 /* ───────── Utilidades ───────── */
 const $ = (id) => document.getElementById(id);
-const eur = (n) => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+const eur = (n) => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR', useGrouping: 'always' });
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const emoji = (cat) => { const m = String(cat || '').match(/^\p{Extended_Pictographic}️?/u); return m ? m[0] : '•'; };
 const sinEmoji = (cat) => String(cat || '').replace(/^\p{Extended_Pictographic}️?\s*/u, '');
 const fechaCorta = (ymd) => { if (!ymd) return ''; const [y, m, d] = ymd.split('-'); return `${d}/${m}`; };
-const num = (s) => { let t = String(s).replace(/\s|€/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); return Number(t); };
+const num = (s) => { let t = String(s).replace(/\s|€/g, ''); if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); else if (/^[+-]?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, ''); return Number(t); };
 const aTexto = (n) => String(Math.round((Number(n) || 0) * 100) / 100).replace('.', ',');
 const hoyLocal = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const mayus = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -851,6 +917,10 @@ function ir(v) {
   if (v === 'subs') pintarSubs();
   if (v === 'import') pintarImportCuentas();
   if (v === 'siri') pintarSiri();
+  if (v === 'casa') pintarCasa();
+  if (v === 'instalar') pintarInstalar();
+  if (v === 'cuentas') marcarPaso('saldos');
+  if (v === 'cats') marcarPaso('presupuesto');
 }
 document.querySelectorAll('nav.tabs button').forEach((b) => b.onclick = () => ir(b.dataset.v));
 
@@ -868,8 +938,10 @@ function cargar() {
     try {
       const d = await Dt.cargar();
       S = d; ls.set(ck, JSON.stringify(d)); ls.set('mp2-hora', new Date().toISOString());
-      if (S.necesitaBienvenida) { mostrarBienvenida(); return; }
+      HOGARES = await Dt.hogar.mios().catch(() => HOGARES);
+      if (S.necesitaBienvenida) { await decidirInicioNuevo(); return; }
       arrancar(); $('offline').style.display = 'none';
+      if (ls.get('mp2-unirse')) revisarInvitacion().then((owner) => { if (owner) { pintarMenuCasas(); abrirCasa(owner); } });
     } catch (e) {
       if (/Sin sesión|sesión ha caducado/.test(e.message)) { mostrarAuth(/caducado/.test(e.message) ? e.message : ''); return; }
       if (S) { $('offline').style.display = 'block'; toast('Sin conexión: datos guardados', true); }
@@ -892,6 +964,8 @@ function pintarTodo() {
   refrescarAjustes();
   pintarInicio(); pintarMovs(); pintarPend(); pintarFormulario(); pintarCuentas(); pintarHist();
   pintarMetas(); pintarComp(); pintarSubs();
+  pintarMenuCasas(); pintarPrimeros();
+  if (vistaActual === 'casa' && !soloInvitado) pintarCasa();
   if (vistaActual === 'cats' && (!CE || !hayCambios())) pintarCatsPres(true);
   if (vistaActual === 'hogar' && !hogarEditando) pintarHogar();
   if (vistaActual === 'ajustes') pintarAjustes();
@@ -1673,6 +1747,7 @@ function pintarQuien() {
 function pintarComp() {
   const c = S.compartidos;
   if (!c) { $('cpGente').innerHTML = '<div class="card empty">No compartes gastos con nadie. Añade a las personas de tu hogar en Ajustes y marca qué categorías son compartidas.</div>'; $('cpCats').innerHTML = ''; $('cpMovs').innerHTML = ''; $('cpSub').textContent = ''; return; }
+  pintarInvitarComp();
   $('cpSub').textContent = `Hogar entre ${c.personas}. Marca cada mes qué te han pasado ya; lo que no, se divide al gastar.`;
   const mini = (t, v) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${v}</div></div>`;
   const estado = (s, n) => Math.abs(s) < 0.01 ? 'Estáis en paz' : s > 0 ? `${n} te debe ${eur(s)}` : `Le debes ${eur(-s)} a ${n}`;
@@ -1933,6 +2008,7 @@ async function pintarSiri() {
   try {
     const l = await Dt.atajo.estado();
     atajoHay = l.length > 0;
+    if (atajoHay) marcarPaso('siri');
     const f = (iso) => iso ? new Date(iso).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
     $('srEstado').innerHTML = atajoHay
       ? '✓ Atajo conectado desde el ' + esc(f(l[0].creado_en)) + '. ' + (l[0].usado_en ? 'Último uso: ' + esc(f(l[0].usado_en)) + '.' : 'Aún no se ha usado.')
@@ -1970,6 +2046,205 @@ $('srProbar').onclick = async () => {
 
 
 
+
+/* ───────── INSTALAR · PRIMEROS PASOS ───────── */
+let avisoInstalar = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); avisoInstalar = e; if (vistaActual === 'instalar') pintarInstalar(); });
+window.addEventListener('appinstalled', () => { ls.set('mp2-instalada', '1'); avisoInstalar = null; if (S) pintarPrimeros(); });
+function plataforma() {
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return { ios, safari: ios && !/CriOS|FxiOS|EdgiOS|GSA\//.test(ua), android: /Android/.test(ua) };
+}
+const ICO_COMPARTIR = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v9h12v-9"/></svg>';
+function pintarInstalar() {
+  const p = plataforma(), el = $('insCuerpo');
+  if (esApp()) { el.innerHTML = '<div class="card"><b class="pos">✓ Ya la tienes instalada.</b><div class="sub" style="margin-top:6px">La estás usando desde la pantalla de inicio.</div></div>'; return; }
+  const pasos = (l) => `<div class="card"><ol style="margin:0;padding-left:20px;line-height:1.7;font-size:15px">${l.map((x) => `<li>${x}</li>`).join('')}</ol></div>`;
+  if (p.ios && !p.safari) { el.innerHTML = '<div class="card"><b>Ábrela en Safari.</b><div class="sub" style="margin-top:6px">En iPhone solo Safari puede añadir apps a la pantalla de inicio. Copia la dirección y pégala en Safari.</div><button class="btn sec" id="insCopiar">Copiar dirección</button></div>'; $('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada'); return; }
+  if (p.ios) { el.innerHTML = pasos([`Pulsa el botón <b>Compartir</b> ${ICO_COMPARTIR} (abajo en Safari, o arriba en iPad).`, 'Baja y elige <b>Añadir a pantalla de inicio</b>.', 'Pulsa <b>Añadir</b>. Ya puedes abrirla desde su icono.']) + '<div class="hint">Si no ves la opción, pulsa «Editar acciones» al final de la lista y actívala.</div>'; return; }
+  if (avisoInstalar) {
+    el.innerHTML = '<div class="card"><div class="sub">Tu navegador puede instalarla directamente.</div><button class="btn" id="insYa">Instalar ahora</button></div>';
+    $('insYa').onclick = async () => { avisoInstalar.prompt(); const r = await avisoInstalar.userChoice; if (r && r.outcome === 'accepted') { ls.set('mp2-instalada', '1'); toast('✓ Instalada'); } avisoInstalar = null; pintarInstalar(); };
+    return;
+  }
+  if (p.android) { el.innerHTML = pasos(['Abre el menú del navegador <b>⋮</b> (arriba a la derecha en Chrome).', 'Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.', 'Confirma. Ya puedes abrirla desde su icono.']); return; }
+  el.innerHTML = pasos(['En el ordenador, busca el icono de instalar en la barra de direcciones (Chrome o Edge) y púlsalo.', 'Para tenerla en el móvil, abre esta misma dirección en el móvil y sigue los pasos de esta página.']) +
+    '<button class="btn sec" id="insCopiar">Copiar dirección</button>';
+  $('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada');
+}
+const psKey = (k) => 'mp2-ps-' + k + '-' + ((Dt && Dt.uid()) || '');
+function marcarPaso(k) { if (!ls.get(psKey(k))) { ls.set(psKey(k), '1'); } }
+function pintarPrimeros() {
+  const el = $('primeros'); if (!el || !S) return;
+  if (ls.get(psKey('oculto'))) { el.innerHTML = ''; return; }
+  const otros = (S.miembros || []).filter((m) => !m.esYo);
+  const pasos = [
+    { k: 'instalar', t: 'Instalar la app en tu pantalla de inicio', ok: esApp() || !!ls.get('mp2-instalada'), ir: 'instalar' },
+    { k: 'saldos', t: 'Revisar que los saldos de tus cuentas cuadran con el banco', ok: !!ls.get(psKey('saldos')), ir: 'cuentas' },
+    { k: 'gasto', t: 'Anotar tu primer gasto', ok: (S.movimientos || []).some((m) => !m.recurrente && m.tipo === 'Gasto'), ir: 'add' },
+    { k: 'presupuesto', t: 'Ajustar cuánto dedicas a cada categoría', ok: !!ls.get(psKey('presupuesto')), ir: 'cats' },
+    plataforma().ios ? { k: 'siri', t: 'Crear el atajo para anotar con Siri', ok: !!ls.get(psKey('siri')), ir: 'siri' } : null,
+    otros.length ? { k: 'casa', t: `Invitar a ${otros.map((m) => m.nombre).join(' y ')} a ver los gastos de casa`, ok: otros.every((m) => m.conectado), ir: 'ajustes' } : null,
+  ].filter(Boolean);
+  const hechos = pasos.filter((p) => p.ok).length;
+  if (hechos === pasos.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<h2 style="display:flex;justify-content:space-between">Primeros pasos <span class="sub" style="letter-spacing:0;text-transform:none">${hechos} de ${pasos.length}</span></h2>
+    <div class="card" style="padding:4px 16px">${pasos.map((p) => `<div class="menu-item" data-ps="${p.ir}" style="${p.ok ? 'opacity:.55' : ''}">
+      <div class="mi-ico" style="font-size:15px">${p.ok ? '✓' : '○'}</div><div class="mi-t" style="${p.ok ? 'text-decoration:line-through' : ''}">${esc(p.t)}</div><span class="arrow">›</span></div>`).join('')}
+      <button class="linkbtn" id="psOcultar" style="margin:6px 0 8px">Ocultar</button></div>`;
+  el.querySelectorAll('[data-ps]').forEach((b) => b.onclick = () => ir(b.dataset.ps));
+  $('psOcultar').onclick = () => { ls.set(psKey('oculto'), '1'); pintarPrimeros(); };
+}
+
+/* ───────── HOGAR COMPARTIDO ─────────
+ * Dueña: invita a alguien de su hogar con un enlace (?unirse=código, sirve una vez, caduca en 14 días).
+ * Invitada/o: ve solo las categorías compartidas de ese hogar, anota lo que paga y avisa cuando pasa su parte.
+ */
+const URL_APP = location.origin + location.pathname;
+let HOGARES = [], casaOwner = null, soloInvitado = false;
+(function leerEnlaceInvitacion() {
+  const q = new URLSearchParams(location.search), cod = q.get('unirse');
+  if (!cod) return;
+  if (/^[0-9a-z]{20,64}$/i.test(cod)) ls.set('mp2-unirse', cod);
+  q.delete('unirse');
+  history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString().replace(/=(&|$)/g, '$1') : ''));
+})();
+/** Si hay una invitación pendiente, pregunta si unirse. Devuelve el id de la dueña si acepta. */
+function revisarInvitacion() {
+  const cod = ls.get('mp2-unirse');
+  if (!cod) return Promise.resolve(false);
+  return Dt.hogar.verInvitacion(cod).then((v) => {
+    if (!v || !v.valida) { ls.del('mp2-unirse'); toast('Ese enlace de invitación ya no vale. Pide uno nuevo.', true); return false; }
+    if (v.propia) { ls.del('mp2-unirse'); toast('Ese enlace es para otra persona: compártelo con ella.'); return false; }
+    $('loading').style.display = 'none';
+    return new Promise((fin) => {
+      abrirHoja('invitación', `${v.de} te invita a su hogar`, `
+        <div class="sub">Entrarás como <b>${esc(v.como)}</b>. Verás los gastos de casa que compartís y quién debe a quién, y podrás anotar lo que pagues tú.</div>
+        <div class="hint">Sus cuentas, su nómina y sus gastos personales siguen siendo privados. Los tuyos también.</div>
+        <button class="btn" id="invSi">Unirme al hogar</button><button class="btn sec" id="invNo">Ahora no</button>`);
+      $('invSi').onclick = () => conBoton($('invSi'), 'Uniendo…', async () => {
+        const r = await Dt.hogar.aceptar(cod);
+        ls.del('mp2-unirse'); cerrarHoja(); toast('✓ Ya estás en el hogar de ' + r.de);
+        HOGARES = await Dt.hogar.mios().catch(() => HOGARES);
+        fin(r.owner);
+      });
+      $('invNo').onclick = () => { ls.del('mp2-unirse'); cerrarHoja(); fin(false); };
+    });
+  }).catch(() => false);
+}
+/** Cuenta nueva: si viene invitada/o, primero el hogar; la configuración propia es opcional. */
+async function decidirInicioNuevo() {
+  const owner = await revisarInvitacion();
+  if (owner || (HOGARES.length && ls.get('mp2-solo-hogar') !== 'no')) { mostrarCasaSola(owner || HOGARES[0].owner); return; }
+  mostrarBienvenida();
+}
+function mostrarCasaSola(owner) {
+  soloInvitado = true; casaOwner = owner;
+  $('loading').style.display = 'none'; quitarPantallas(); $('tabs').style.display = 'none';
+  document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
+  $('v-casa').classList.add('on'); window.scrollTo(0, 0);
+  pintarCasa();
+}
+function abrirCasa(owner) { casaOwner = owner; ir('casa'); }
+$('csUsarApp').onclick = () => { ls.set('mp2-solo-hogar', 'no'); soloInvitado = false; $('v-casa').classList.remove('on'); mostrarBienvenida(); };
+$('csSalirSesion').onclick = () => sb.auth.signOut();
+function pintarMenuCasas() {
+  $('menuCasas').innerHTML = HOGARES.map((h, i) => `<div class="menu-item" data-casa="${i}"><div class="mi-ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><circle cx="12" cy="14" r="2"/></svg></div>
+    <div class="mi-t">Hogar de ${esc(h.de)}<div class="mi-s">Lo que compartes como ${esc(h.como)}</div></div><span class="arrow">›</span></div>`).join('');
+  $('menuCasas').querySelectorAll('[data-casa]').forEach((b) => b.onclick = () => abrirCasa(HOGARES[b.dataset.casa].owner));
+}
+let CASA = null;
+async function pintarCasa() {
+  const owner = casaOwner || (HOGARES[0] || {}).owner;
+  $('csTop').style.display = soloInvitado ? 'none' : ''; $('csSolo').style.display = soloInvitado ? '' : 'none';
+  if (!owner) { $('csCuerpo').innerHTML = '<div class="card empty">No estás en ningún hogar compartido.</div>'; return; }
+  if (!CASA || CASA.owner !== owner) $('csCuerpo').innerHTML = '<div class="card empty">Cargando…</div>';
+  let v;
+  try { v = await Dt.hogar.ver(owner); } catch (e) { $('csCuerpo').innerHTML = `<div class="card empty">${esc(e.message)}</div>`; return; }
+  CASA = Object.assign(v, { owner });
+  $('csTitulo').textContent = 'Hogar de ' + v.de;
+  $('csSub').textContent = `Ciclo ${v.ciclo.nombre}: del ${fechaCorta(v.ciclo.inicio)} al ${fechaCorta(v.ciclo.fin)}. Entras como ${v.yo}.`;
+  const p = v.mio || { saldo: 0, siAcabaHoy: 0, suParte: 0, aportado: 0, pagoEl: 0, previsto: 0, porCat: {} };
+  const s = p.saldo; // > 0: le debo a la dueña
+  const frase = (x) => Math.abs(x) < 0.01 ? 'Estáis en paz' : x > 0 ? `Le debes ${eur(x)} a ${esc(v.de)}` : `${esc(v.de)} te debe ${eur(-x)}`;
+  const mini = (t, val) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${val}</div></div>`;
+  const cierre = !v.comp.cierre && Math.abs(p.siAcabaHoy - s) >= 0.01
+    ? `<div class="hint" style="margin-top:10px">Aún queda fondo común sin gastar. Si el ciclo acabara hoy: <b>${frase(p.siAcabaHoy).replace(/^./, (x) => x.toLowerCase())}</b>.</div>` : '';
+  const cats = v.comp.cats.map((x) => {
+    const f = x.plan > 0 ? Math.min(100, x.total / x.plan * 100) : (x.total > 0 ? 100 : 0), over = x.plan > 0 && x.total > x.plan + 0.005;
+    const ap = (p.porCat[x.cat] || {}).aportado || 0, prev = (p.porCat[x.cat] || {}).previsto || 0;
+    return `<div class="cat"><div class="top"><span>${esc(x.cat)}</span><span class="amt num"><b>${eur(x.total)}</b> / ${eur(x.plan)}</span></div>
+      <div class="bar"><i style="width:${f}%" class="${over ? 'over' : f >= 85 ? 'warn' : ''}"></i></div>
+      <div class="left">${ap > 0.005 ? `<span class="pos">✓ Has pasado ${eur(ap)}</span>` : prev > 0.005 ? `Has avisado de ${eur(prev)} · pendiente de confirmar` : 'Aún no has pasado tu parte · cada gasto se divide'}</div></div>`;
+  }).join('') || '<div class="empty">No hay categorías compartidas.</div>';
+  const quien = (m) => m.tipo === 'Gasto' ? 'Pagó ' + (m.pagadoPor || v.de) : m.tipo === 'Reintegro' ? (m.de || v.yo) + ' pasó su parte' + (m.estado !== 'Confirmado' ? ' · pendiente de confirmar' : '') : v.de + ' pagó a ' + (m.pagoA || '');
+  const movs = v.movs.map((m) => `<div class="mov"><div class="ico">${emoji(m.cat)}</div><div class="info"><div class="t">${esc(m.conc)}</div>
+      <div class="s">${fechaLarga(m.fecha)} · ${esc(quien(m))}</div></div><div class="amt num ${m.tipo === 'Gasto' ? '' : 'pos'}">${eur(m.imp)}</div></div>`).join('')
+    || '<div class="empty">Aún no hay gastos de casa este ciclo</div>';
+  $('csCuerpo').innerHTML = `
+    <div class="card hero"><div class="lbl">Ahora mismo</div>
+      <div class="big num ${Math.abs(s) < 0.01 ? 'pos' : s > 0 ? 'neg' : ''}" style="font-size:30px">${frase(s)}</div>
+      <div class="grid2">${mini('Tu parte de lo gastado', eur(p.suParte))}${mini('Ya has pasado', eur(p.aportado))}${mini('Pagado por ti', eur(p.pagoEl))}${mini('Avisado, sin confirmar', eur(p.previsto))}</div>
+      ${cierre}</div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="csGasto">＋ Gasto que he pagado</button><button class="btn sec" id="csAporte">He pasado dinero</button></div>
+    <h2>Categorías compartidas</h2><div class="card" style="padding:4px 16px">${cats}</div>
+    <h2>Este ciclo</h2><div class="card" style="padding:4px 16px">${movs}</div>
+    <button class="linkbtn" id="csDejar" style="margin-top:12px">Salir de este hogar</button>`;
+  $('csGasto').onclick = () => anotarEnCasa('gasto');
+  $('csAporte').onclick = () => anotarEnCasa('aporte', s > 0.005 ? s : 0);
+  $('csDejar').onclick = async () => {
+    if (!confirm(`¿Salir del hogar de ${v.de}? Dejarás de verlo. Para volver necesitarás otra invitación.`)) return;
+    try { await Dt.hogar.salir(owner); } catch (e) { toast(e.message, true); return; }
+    HOGARES = await Dt.hogar.mios().catch(() => []); CASA = null; casaOwner = null; pintarMenuCasas();
+    toast('Has salido del hogar');
+    if (soloInvitado) { soloInvitado = false; mostrarBienvenida(); } else ir('menu');
+  };
+}
+function anotarEnCasa(tipoCasa, sugerido) {
+  const v = CASA; if (!v) return;
+  const gasto = tipoCasa === 'gasto';
+  const ops = v.categorias.map((k) => `<option value="${k.id}">${esc(k.nombre)}</option>`).join('');
+  abrirHoja('hogar de ' + v.de, gasto ? 'Gasto que he pagado' : 'He pasado dinero', `
+    ${gasto ? '' : `<div class="sub">Se lo avisaremos a ${esc(v.de)} para que lo confirme cuando lo vea en su cuenta.</div>`}
+    <label>Importe</label><input id="cxImp" inputmode="decimal" placeholder="0,00 €" value="${sugerido ? aTexto(sugerido) : ''}">
+    <label>${gasto ? 'Categoría' : 'Para qué categoría (opcional)'}</label><select id="cxCat">${gasto ? '' : '<option value="">Varias / saldar cuentas</option>'}${ops}</select>
+    ${gasto ? '<label>Concepto</label><input id="cxConc" maxlength="100" placeholder="p. ej. Mercadona">' : ''}
+    <label>Fecha</label><input id="cxFecha" type="date" value="${hoyLocal()}">
+    <button class="btn" id="cxOk">${gasto ? 'Anotar gasto' : 'Avisar'}</button>`);
+  $('cxOk').onclick = () => conBoton($('cxOk'), 'Guardando…', async () => {
+    const imp = num($('cxImp').value); if (!(imp > 0)) { toast('Escribe el importe', true); return; }
+    const m = await Dt.hogar.anotar(v.owner, { tipo: tipoCasa, cat: $('cxCat').value, conc: gasto ? $('cxConc').value.trim() : '', imp, fecha: $('cxFecha').value || hoyLocal() });
+    cerrarHoja(); toast('✓ ' + m); pintarCasa();
+  });
+}
+/* Dueña: invitar a una persona del hogar */
+async function invitarPersona(m) {
+  abrirHoja('hogar', 'Invitar a ' + m.nombre, '<div class="card empty">Creando el enlace…</div>');
+  let cod;
+  try { cod = await Dt.hogar.invitar(m.id); } catch (e) { $('hojaCuerpo').innerHTML = `<div class="card empty">${esc(e.message)}</div>`; return; }
+  const url = URL_APP + '?unirse=' + cod;
+  const texto = `Te invito a nuestro hogar en Mi presupuesto para llevar juntos los gastos de casa. Ábrelo desde el móvil: ${url}`;
+  $('hojaCuerpo').innerHTML = `
+    <div class="sub">Mándale este enlace a ${esc(m.nombre)}. Al abrirlo crea su cuenta (o entra) y verá solo los gastos de las categorías compartidas y quién debe a quién. Podrá anotar lo que pague y avisarte cuando te pase su parte.</div>
+    <div class="hint">No verá tus cuentas, tu nómina ni tus otros gastos.</div>
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:var(--yellow-s);border-radius:10px;padding:10px;margin-top:12px;user-select:all">${esc(url)}</div>
+    ${navigator.share ? '<button class="btn" id="invEnviar">Enviar enlace</button>' : ''}
+    <button class="btn ${navigator.share ? 'sec' : ''}" id="invCopiar">Copiar enlace</button>
+    <div class="sub" style="font-size:12px;margin-top:8px">Sirve una sola vez y caduca en 14 días. Si creas otro, este deja de valer.</div>`;
+  if ($('invEnviar')) $('invEnviar').onclick = async () => { try { await navigator.share({ title: 'Mi presupuesto', text: texto }); } catch (e) { /* cancelado */ } };
+  $('invCopiar').onclick = () => copiar(url, 'Enlace copiado');
+}
+async function desconectarPersona(m) {
+  if (!confirm(`¿Desconectar a ${m.nombre}? Dejará de ver los gastos del hogar. Sigue en tu hogar para repartir gastos.`)) return;
+  try { await Dt.hogar.desconectar(m.id); toast('✓ Desconectado'); cargar(); } catch (e) { toast(e.message, true); }
+}
+function pintarInvitarComp() {
+  const pend = (S.miembros || []).filter((m) => !m.esYo && !m.conectado);
+  $('cpInvitar').innerHTML = pend.length && S.compartidos ? `<div class="card" style="margin-bottom:10px"><div class="sub">¿Quieres que ${esc(pend.map((m) => m.nombre).join(' y '))} vea esto en su móvil y anote lo que paga?</div>
+    ${pend.map((m) => `<button class="btn sec" data-inv="${m.id}">Invitar a ${esc(m.nombre)}</button>`).join('')}</div>` : '';
+  $('cpInvitar').querySelectorAll('[data-inv]').forEach((b) => b.onclick = () => invitarPersona(S.miembros.find((m) => m.id === b.dataset.inv)));
+}
 
 /* ───────── CATEGORÍAS Y PRESUPUESTO (incluye el reparto automático de la nómina) ───────── */
 const GRUPO_N = { fijo: 'Gastos fijos', variable: 'Gastos variables', ahorro: 'Ahorro e inversión' };
@@ -2203,9 +2478,9 @@ function mostrarAuth(msg) {
   $('loading').style.display = 'none'; $('tabs').style.display = 'none'; $('bienvenida').style.display = 'none';
   document.querySelectorAll('.view').forEach((x) => x.classList.remove('on'));
   cerrarHoja();
-  S = null; arrancada = false; A = null;
+  S = null; arrancada = false; A = null; soloInvitado = false; CASA = null; HOGARES = []; casaOwner = null;
   $('setup').style.display = 'flex';
-  ponerModoAuth(auModo === 'nueva' ? 'nueva' : auModo === 'crear' ? 'crear' : 'entrar');
+  ponerModoAuth(auModo === 'nueva' ? 'nueva' : auModo === 'crear' || ls.get('mp2-unirse') ? 'crear' : 'entrar');
   $('auMsg').textContent = msg || '';
 }
 function ponerModoAuth(m) {
@@ -2222,7 +2497,9 @@ function ponerModoAuth(m) {
   $('auOlvido').style.display = m === 'crear' || m === 'nueva' ? 'none' : 'block';
   $('auOlvido').textContent = m === 'olvido' ? '‹ Volver a entrar' : '¿Has olvidado la contraseña?';
   $('auSub').textContent = m === 'olvido' ? 'Escribe tu email y te enviaré un enlace para poner una contraseña nueva.'
-    : m === 'nueva' ? 'Escribe tu contraseña nueva.' : 'Tus cuentas, tu presupuesto y lo que compartes en casa. Tus datos son solo tuyos.';
+    : m === 'nueva' ? 'Escribe tu contraseña nueva.'
+    : ls.get('mp2-unirse') ? 'Te han invitado a un hogar compartido. Crea tu cuenta (o entra si ya tienes una) para unirte.'
+    : 'Tus cuentas, tu presupuesto y lo que compartes en casa. Tus datos son solo tuyos.';
   $('auMsg').textContent = '';
 }
 $('auModo').querySelectorAll('button').forEach((b) => b.onclick = () => ponerModoAuth(b.dataset.m));
@@ -2243,13 +2520,15 @@ $('auBoton').onclick = () => conBoton($('auBoton'), 'Un momento…', async () =>
   if (auModo !== 'nueva' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('Escribe un email válido.'); return; }
   if (auModo !== 'olvido' && !pass) { msg('Escribe la contraseña.'); return; }
   if ((auModo === 'crear' || auModo === 'nueva') && pass.length < 8) { msg('La contraseña debe tener al menos 8 caracteres.'); return; }
+  if (auModo === 'crear' && !$('auAcepto').checked) { msg('Para crear la cuenta, marca que aceptas la política de privacidad.'); return; }
   const volver = location.origin + location.pathname;
   if (auModo === 'entrar') {
     const { error } = await sb.auth.signInWithPassword({ email, password: pass });
     if (error) { msg(traducirAuth(error)); return; }
     $('auPass').value = ''; $('setup').style.display = 'none'; $('loading').style.display = 'flex'; cargar();
   } else if (auModo === 'crear') {
-    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: volver } });
+    const inv = ls.get('mp2-unirse');
+    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { emailRedirectTo: volver + (inv ? '?unirse=' + inv : '') } });
     if (error) { msg(traducirAuth(error)); return; }
     $('auPass').value = '';
     if (data && data.session) { $('setup').style.display = 'none'; $('loading').style.display = 'flex'; cargar(); return; }
@@ -2280,7 +2559,7 @@ const GRUPO_WZ = { ingreso: 'Ingresos', fijo: 'Gastos fijos', variable: 'Gastos 
 let W = null, wPaso = 0;
 function nuevaBienvenida() {
   return {
-    nombre: '', cicloDia: 28, miPeso: 1, compartes: false, hogar: [],
+    nombre: '', cicloDia: 28, nomina: '', objetivos: ['gastos'], inv: {}, miPeso: 1, compartes: false, hogar: [],
     cuentas: [{ nombre: 'Banco', rol: 'dia_a_dia', saldo: '' }, { nombre: 'Efectivo', rol: 'dia_a_dia', saldo: '' }],
     categorias: WZ_CATS.map((c) => ({ nombre: c.nombre, grupo: c.grupo, rol: c.rol || '', on: c.on !== false, plan: '', compartida: !!c.comp })),
     tarjetas: TARJETAS.map((t) => t[0]), acciones: ['gasto', 'ingreso', 'ahorrar', 'presupuesto'], metales: false, email: true, emailDia: '',
@@ -2293,21 +2572,91 @@ function mostrarBienvenida() {
   if (!W) { W = nuevaBienvenida(); wPaso = 0; }
   pintarPaso();
 }
+const OBJETIVOS = [['gastos', '🔍 Saber en qué se me va el dinero'], ['ahorrar', '🐷 Ahorrar y tener un colchón'], ['invertir', '📈 Invertir'],
+  ['casa', '🏠 Compartir gastos de casa'], ['deudas', '💳 Pagar préstamos o deudas']];
+const INVERSIONES = [['etf', '📈 Fondos indexados y ETF'], ['acciones', '📊 Acciones'], ['pension', '🧓 Plan de pensiones'], ['cripto', '🪙 Criptomonedas'],
+  ['metales', '🥇 Oro y plata'], ['depositos', '🏦 Depósitos y letras'], ['inmuebles', '🏘️ Inmuebles']];
+const tieneObj = (k) => W.objetivos.includes(k);
+function asegurarCat(nombre, grupo, extra) {
+  const c = W.categorias.find((x) => x.nombre === nombre);
+  if (c) { c.on = true; return c; }
+  const n = Object.assign({ nombre, grupo, rol: grupo === 'ahorro' ? 'ahorro' : '', on: true, plan: '', compartida: false }, extra || {});
+  const i = W.categorias.map((x) => x.grupo).lastIndexOf(grupo);
+  W.categorias.splice(i >= 0 ? i + 1 : W.categorias.length, 0, n); return n;
+}
+const asegurarCuenta = (nombre, rol) => { if (!W.cuentas.some((c) => c.rol === rol)) W.cuentas.push({ nombre, rol, saldo: '' }); };
+/** Lo que se elige en el primer paso prepara los siguientes (solo añade; nunca borra lo que ya se ha escrito). */
+function aplicarObjetivos() {
+  if (tieneObj('casa') && !W.casaVisto) { W.compartes = true; if (!W.hogar.length) W.hogar.push({ nombre: '', peso: 1, email: '' }); }
+  W.casaVisto = W.casaVisto || tieneObj('casa');
+  if (tieneObj('deudas')) asegurarCat('💳 Préstamos y deudas', 'fijo');
+  if (tieneObj('ahorrar')) { asegurarCat('🛟 Fondo de emergencia', 'ahorro', { rol: 'emergencia' }); asegurarCat('🐷 Ahorro', 'ahorro'); asegurarCuenta('Fondo de emergencia', 'emergencia'); }
+  if (tieneObj('invertir')) asegurarCuenta('Inversión', 'inversion');
+}
+/** Mi parte de lo que pone en una categoría del asistente (en las de casa, el importe es el total del hogar). */
+const pesoHogarW = () => W.miPeso + (W.compartes ? W.hogar.filter((p) => p.nombre).reduce((t, p) => t + (Number(p.peso) || 1), 0) : 0);
+const miParteW = (c) => { const v = num(c.plan) || 0; return c.compartida && W.compartes ? v * W.miPeso / pesoHogarW() : v; };
+function repartoW() {
+  const on = W.categorias.filter((c) => c.on && c.nombre);
+  const suma = (g) => on.filter((c) => c.grupo === g).reduce((t, c) => t + miParteW(c), 0);
+  const inv = Object.values(W.inv || {}).filter((x) => x.on).reduce((t, x) => t + (num(x.plan) || 0), 0);
+  const asignado = suma('fijo') + suma('variable') + suma('ahorro') + inv;
+  return { nomina: num(W.nomina) || 0, fijo: suma('fijo'), variable: suma('variable'), ahorro: suma('ahorro') + inv, asignado };
+}
+/** Propone importes para las categorías en blanco: fijos tal cual, ~20 % a ahorro (mín. 10 %) y el resto al día a día. */
+function proponerReparto() {
+  const r = repartoW(), n = r.nomina;
+  if (!(n > 0)) { toast('Escribe primero cuánto cobras (paso 1)', true); return; }
+  const libre = n - r.fijo;
+  if (libre <= 0) { toast('Tus gastos fijos ya ocupan toda la nómina', true); return; }
+  const metaAho = Math.max(n * 0.1, Math.min(n * 0.2, libre * 0.4));
+  const red5 = (x) => Math.max(0, Math.floor(x / 5) * 5);
+  const repartir = (grupo, total, pesos) => {
+    const vacias = W.categorias.filter((c) => c.on && c.nombre && c.grupo === grupo && !c.plan);
+    if (!vacias.length || total <= 0) return;
+    const peso = (c) => { const k = pesos.find(([re]) => re.test(c.nombre)); return k ? k[1] : 0.1; };
+    const tot = vacias.reduce((t, c) => t + peso(c), 0);
+    vacias.forEach((c) => {
+      const mia = total * peso(c) / tot;
+      const v = c.compartida && W.compartes ? mia * pesoHogarW() / W.miPeso : mia;
+      c.plan = aTexto(red5(v));
+    });
+  };
+  const ahoFalta = metaAho - r.ahorro;
+  repartir('ahorro', ahoFalta, [[/emergencia/i, 0.45], [/ahorro/i, 0.35], [/invers/i, 0.2]]);
+  const varFalta = n - r.fijo - Math.max(metaAho, r.ahorro) - r.variable;
+  repartir('variable', varFalta, [[/comida|super/i, 0.35], [/restaur/i, 0.12], [/transport|gasolina/i, 0.15], [/personal|ropa/i, 0.15], [/salud/i, 0.06], [/viaje/i, 0.07], [/ocio/i, 0.1]]);
+  const nom = W.categorias.find((c) => c.grupo === 'ingreso' && c.on && !c.plan); if (nom) nom.plan = aTexto(n);
+  pintarPaso(); toast('✓ Propuesta lista. Cambia lo que quieras');
+}
 const rolOpts = (sel) => Object.keys(ROL_TXT).map((r) => `<option value="${r}" ${r === sel ? 'selected' : ''}>${ROL_TXT[r]}</option>`).join('');
 const PASOS = [
-  { // 0 · Tú y tu ciclo
+  { // 0 · Tú, tu ciclo y lo que quieres conseguir
     html: () => `<div class="script">bienvenida</div><h1>Vamos a preparar tu app</h1>
-      <div class="sub">Cinco pasos rápidos. Todo se puede cambiar después en Ajustes.</div>
+      <div class="sub">Unos pasos rápidos para que la app se adapte a ti. Todo se puede cambiar después en Ajustes.</div>
       <label>¿Cómo te llamas?</label><input id="wNombre" value="${esc(W.nombre)}" maxlength="30" autocomplete="given-name" placeholder="Tu nombre">
       <label>¿Qué día del mes cobras?</label><input id="wDia" type="number" inputmode="numeric" min="1" max="31" value="${esc(W.cicloDia)}">
-      <div class="hint" id="wDiaInfo"></div>`,
-    tras: () => { const f = () => { const d = Math.max(1, Math.min(31, Number($('wDia').value) || 1)); const c = Logica.ciclo(hoyLocal(), d); $('wDiaInfo').textContent = `Tu mes irá del día ${d} al día anterior del mes siguiente. Ahora mismo: del ${Logica.dmy(c.inicio)} al ${Logica.dmy(c.fin)}.`; }; $('wDia').oninput = f; f(); },
-    leer: () => { W.nombre = $('wNombre').value.trim(); W.cicloDia = Math.max(1, Math.min(31, Math.round(Number($('wDia').value) || 28))); },
-    validar: () => '',
+      <div class="hint" id="wDiaInfo"></div>
+      <label>¿Cuánto cobras al mes, neto? <span style="font-weight:400">(opcional)</span></label><input id="wNomina" inputmode="decimal" value="${esc(W.nomina)}" placeholder="p. ej. 1.600 €">
+      <div class="sub" style="font-size:12px;margin-top:6px">Con esto te propongo cuánto dedicar a cada cosa. Si varía, pon una media.</div>
+      <div class="wz-grupo">¿Qué quieres conseguir?</div>
+      <div class="chips" style="margin-top:8px">${OBJETIVOS.map(([k, t]) => `<button class="cchip ${tieneObj(k) ? 'on' : ''}" data-obj="${k}">${t}</button>`).join('')}</div>`,
+    tras: () => {
+      const f = () => { const d = Math.max(1, Math.min(31, Number($('wDia').value) || 1)); const c = Logica.ciclo(hoyLocal(), d); $('wDiaInfo').textContent = `Tu mes irá del día ${d} al día anterior del mes siguiente. Ahora mismo: del ${Logica.dmy(c.inicio)} al ${Logica.dmy(c.fin)}.`; };
+      $('wDia').oninput = f; f();
+      document.querySelectorAll('#wzCuerpo [data-obj]').forEach((b) => b.onclick = () => {
+        PASOS[0].leer(); const k = b.dataset.obj, i = W.objetivos.indexOf(k);
+        if (i >= 0) W.objetivos.splice(i, 1); else W.objetivos.push(k);
+        pintarPaso();
+      });
+    },
+    leer: () => { W.nombre = $('wNombre').value.trim(); W.cicloDia = Math.max(1, Math.min(31, Math.round(Number($('wDia').value) || 28))); W.nomina = $('wNomina').value.trim(); },
+    validar: () => (W.nomina && !(num(W.nomina) > 0) ? 'La nómina no es un número válido.' : ''),
+    despues: aplicarObjetivos,
   },
   { // 1 · Cuentas
     html: () => `<div class="script">tu dinero</div><h1>Tus cuentas</h1>
-      <div class="sub">Dónde tienes el dinero y para qué es cada cuenta. El saldo de hoy es opcional; luego se mueve solo con lo que anotes.</div>
+      <div class="sub">Dónde tienes el dinero y para qué es cada cuenta. Abre la app de tu banco y escribe el saldo de hoy: a partir de ahí se mueve solo con lo que anotes.</div>
       <div class="card" style="padding:4px 14px;margin-top:14px">${W.cuentas.map((c, i) => `<div class="wz-item cta">
         <input class="wn" data-cn="${i}" value="${esc(c.nombre)}" placeholder="Nombre" aria-label="Nombre de la cuenta">
         <select class="ws" data-cr="${i}" aria-label="Para qué es">${rolOpts(c.rol)}</select>
@@ -2328,6 +2677,23 @@ const PASOS = [
       return '';
     },
   },
+  { // 1b · Inversión (solo si quiere invertir)
+    si: () => tieneObj('invertir'),
+    html: () => `<div class="script">tu dinero trabaja</div><h1>¿En qué inviertes?</h1>
+      <div class="sub">Marca lo que tienes o quieres empezar y cuánto aportas al mes. Las aportaciones cuentan como ahorro, no como gasto, y suman a tu patrimonio.</div>
+      <div class="chips" style="margin-top:14px">${INVERSIONES.map(([k, t]) => `<button class="cchip ${(W.inv[k] || {}).on ? 'on' : ''}" data-inv="${k}">${t}</button>`).join('')}</div>
+      ${INVERSIONES.some(([k]) => (W.inv[k] || {}).on) ? `<div class="card" style="padding:4px 14px;margin-top:14px">${INVERSIONES.filter(([k]) => (W.inv[k] || {}).on).map(([k, t]) => `<div class="wz-item">
+        <span class="wn">${t}</span><input class="wi num" data-iplan="${k}" value="${esc(W.inv[k].plan || '')}" inputmode="decimal" placeholder="€/mes" aria-label="Aportación al mes"></div>`).join('')}</div>` : ''}
+      <div class="hint">${(W.inv.metales || {}).on ? 'Activaré la sección de oro y plata para seguir lo que vale. ' : ''}Lo que tengas invertido hoy, ponlo como saldo de tu cuenta de inversión en el paso anterior. Si usas varios brókers, añade una cuenta por cada uno.</div>`,
+    tras: () => {
+      document.querySelectorAll('#wzCuerpo [data-inv]').forEach((b) => b.onclick = () => {
+        PASOS[wPaso].leer(); const k = b.dataset.inv; W.inv[k] = W.inv[k] || { on: false, plan: '' }; W.inv[k].on = !W.inv[k].on; pintarPaso();
+      });
+    },
+    leer: () => { document.querySelectorAll('#wzCuerpo [data-iplan]').forEach((el) => { W.inv[el.dataset.iplan].plan = el.value.trim(); }); },
+    validar: () => (Object.values(W.inv).some((x) => x.on && x.plan && !(num(x.plan) >= 0)) ? 'Alguna aportación no es un número válido.' : ''),
+    despues: () => { if ((W.inv.metales || {}).on) W.metales = true; },
+  },
   { // 2 · Hogar
     html: () => `<div class="script">en casa</div><h1>¿Compartes gastos?</h1>
       <div class="sub">Si pagas cosas a medias (alquiler, comida…), añade a esas personas. No necesitan tener cuenta en la app.</div>
@@ -2341,12 +2707,12 @@ const PASOS = [
             <button class="xbtn" data-px="${i}" aria-label="Quitar">✕</button></div>`).join('')}
         </div>
         <button class="btn sec" id="wPersona">＋ Añadir persona</button>
-        <div class="hint">La parte decide cómo se reparte: 1 y 1 es a medias; 2 y 1 es dos tercios y un tercio.</div>
+        <div class="hint">La parte decide cómo se reparte: 1 y 1 es a medias; 2 y 1 es dos tercios y un tercio. Al terminar podrás invitarles para que vean los gastos de casa desde su móvil.</div>
       </div>`,
     tras: () => {
-      $('wComp').onchange = () => { PASOS[2].leer(); W.compartes = $('wComp').checked; if (W.compartes && !W.hogar.length) W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
-      if ($('wPersona')) $('wPersona').onclick = () => { PASOS[2].leer(); W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
-      document.querySelectorAll('#wzCuerpo [data-px]').forEach((b) => b.onclick = () => { PASOS[2].leer(); W.hogar.splice(Number(b.dataset.px), 1); if (!W.hogar.length) W.compartes = false; pintarPaso(); });
+      $('wComp').onchange = () => { PASOS[wPaso].leer(); W.compartes = $('wComp').checked; if (W.compartes && !W.hogar.length) W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
+      if ($('wPersona')) $('wPersona').onclick = () => { PASOS[wPaso].leer(); W.hogar.push({ nombre: '', peso: 1, email: '' }); pintarPaso(); };
+      document.querySelectorAll('#wzCuerpo [data-px]').forEach((b) => b.onclick = () => { PASOS[wPaso].leer(); W.hogar.splice(Number(b.dataset.px), 1); if (!W.hogar.length) W.compartes = false; pintarPaso(); });
     },
     leer: () => {
       if (!$('wMiPeso')) return;
@@ -2364,8 +2730,13 @@ const PASOS = [
   { // 3 · Categorías
     html: () => {
       const comp = W.compartes && W.hogar.some((p) => p.nombre);
+      const n = num(W.nomina) || 0;
       return `<div class="script">tu presupuesto</div><h1>Categorías</h1>
-        <div class="sub">Marca las que usas y cuánto quieres dedicar al mes (puedes dejarlo en blanco).${comp ? ' En las compartidas, escribe el total de la casa: tu parte se calcula sola.' : ''}</div>
+        <div class="sub">Marca las que usas y cuánto quieres dedicar al mes (puedes dejarlo en blanco).${comp ? ' En las de casa, escribe el total del hogar: tu parte se calcula sola.' : ''}</div>
+        ${n > 0 ? `<div class="card" style="margin-top:14px"><div id="wRepTxt" class="sub"></div>
+          <button class="btn sec" id="wProponer" style="margin-top:10px">✨ Proponer un reparto</button>
+          <div class="sub" style="font-size:12px;margin-top:6px">Rellena las que estén en blanco: tus fijos tal cual, alrededor de un 20 % para ahorro y el resto para el día a día.</div></div>`
+          : '<div class="hint">Si escribes tu nómina en el primer paso, te propongo un reparto.</div>'}
         ${['ingreso', 'fijo', 'variable', 'ahorro'].map((g) => `<div class="wz-grupo">${GRUPO_WZ[g]}</div>
           <div class="card" style="padding:4px 14px;margin-top:8px">${W.categorias.map((c, i) => c.grupo !== g ? '' : `<div class="wz-item wcat">
             <input type="checkbox" data-con="${i}" ${c.on ? 'checked' : ''} aria-label="Usar ${esc(c.nombre)}">
@@ -2375,8 +2746,15 @@ const PASOS = [
         <div class="sug"><button class="cchip" id="wCatNueva">＋ Otra categoría</button></div>`;
     },
     tras: () => {
+      const rep = () => {
+        if (!$('wRepTxt')) return;
+        PASOS[wPaso].leer(); const r = repartoW(), libre = r.nomina - r.asignado;
+        $('wRepTxt').innerHTML = `Cobras <b>${eur(r.nomina)}</b> · has repartido <b>${eur(r.asignado)}</b> · ${libre >= 0 ? `te quedan <b class="pos">${eur(libre)}</b> sin asignar` : `<b class="neg">te pasas en ${eur(-libre)}</b>`}`;
+      };
+      $('wzCuerpo').addEventListener('input', rep); $('wzCuerpo').addEventListener('change', rep); rep();
+      if ($('wProponer')) $('wProponer').onclick = () => { PASOS[wPaso].leer(); proponerReparto(); };
       $('wCatNueva').onclick = () => {
-        PASOS[3].leer();
+        PASOS[wPaso].leer();
         const nombre = prompt('Nombre de la categoría (puedes empezar con un emoji):'); if (!nombre || !nombre.trim()) return;
         const g = (prompt('¿Qué es? Escribe: fijo, variable, ahorro o ingreso', 'variable') || 'variable').trim().toLowerCase();
         W.categorias.push({ nombre: nombre.trim(), grupo: GRUPO_WZ[g] ? g : 'variable', rol: g === 'ahorro' ? 'ahorro' : '', on: true, plan: '', compartida: false }); pintarPaso();
@@ -2413,7 +2791,7 @@ const PASOS = [
       document.querySelectorAll('#wzCuerpo [data-ac]').forEach((b) => b.onclick = () => {
         const k = b.dataset.ac, i = W.acciones.indexOf(k);
         if (i >= 0) W.acciones.splice(i, 1); else if (W.acciones.length < 4) W.acciones.push(k); else { toast('Como mucho 4 botones', true); return; }
-        PASOS[4].leer(); pintarPaso();
+        PASOS[wPaso].leer(); pintarPaso();
       });
       const em = () => { $('wEmailDiaWrap').style.display = $('wEmail').checked ? 'block' : 'none'; };
       $('wEmail').onchange = em; em();
@@ -2426,8 +2804,10 @@ const PASOS = [
     validar: () => '',
   },
 ];
+const pasoVisible = (i) => !PASOS[i].si || PASOS[i].si();
+const pasoSig = (i, d) => { let j = i + d; while (j >= 0 && j < PASOS.length && !pasoVisible(j)) j += d; return j; };
 function pintarPaso() {
-  $('wzProg').innerHTML = PASOS.map((_, i) => `<i class="${i <= wPaso ? 'on' : ''}"></i>`).join('');
+  $('wzProg').innerHTML = PASOS.map((_, i) => pasoVisible(i) ? `<i class="${i <= wPaso ? 'on' : ''}"></i>` : '').join('');
   $('wzCuerpo').innerHTML = PASOS[wPaso].html();
   PASOS[wPaso].tras();
   $('wzAtras').style.visibility = wPaso ? 'visible' : 'hidden';
@@ -2435,23 +2815,37 @@ function pintarPaso() {
   $('wzMsg').textContent = '';
   window.scrollTo(0, 0);
 }
-$('wzAtras').onclick = () => { PASOS[wPaso].leer(); if (wPaso > 0) { wPaso--; pintarPaso(); } };
+$('wzAtras').onclick = () => { PASOS[wPaso].leer(); const j = pasoSig(wPaso, -1); if (j >= 0) { wPaso = j; pintarPaso(); } };
 $('wzSig').onclick = async () => {
   PASOS[wPaso].leer();
   const e = PASOS[wPaso].validar(); if (e) { $('wzMsg').textContent = e; return; }
-  if (wPaso < PASOS.length - 1) { wPaso++; pintarPaso(); return; }
+  if (PASOS[wPaso].despues) PASOS[wPaso].despues();
+  const sig = pasoSig(wPaso, 1);
+  if (sig < PASOS.length) { wPaso = sig; pintarPaso(); return; }
   await conBoton($('wzSig'), 'Preparando…', async () => {
+    const nomina = num(W.nomina) > 0 ? num(W.nomina) : null;
+    // Inversión: una categoría de ahorro por cada tipo elegido (sustituye a la genérica)
+    const invs = tieneObj('invertir') ? INVERSIONES.filter(([k]) => (W.inv[k] || {}).on) : [];
+    const cats = W.categorias.map((c) => (invs.length && c.nombre === '📈 Inversión' ? Object.assign({}, c, { on: false }) : c))
+      .concat(invs.map(([k, t]) => ({ nombre: t, grupo: 'ahorro', rol: 'inversion', on: true, plan: W.inv[k].plan, compartida: false })));
+    const ajustesIni = nomina || tieneObj('ahorrar') ? Object.assign(copia(AJ_DEF), { base: nomina, t: Date.now() }) : null;
+    if (ajustesIni && tieneObj('ahorrar')) {
+      const r = repartoW(), gasto = r.fijo + r.variable || (nomina ? nomina * 0.7 : 0);
+      const cta = (W.cuentas.find((c) => c.rol === 'emergencia' && c.nombre) || {}).nombre || '';
+      if (gasto > 0) ajustesIni.metas.push({ id: Date.now(), nombre: '🛟 Fondo de emergencia', objetivo: Math.round(gasto * 3 / 50) * 50, fecha: '', cuenta: cta, actual: 0 });
+    }
     const datos = {
+      nomina, ajustes: ajustesIni,
       cicloDia: W.cicloDia, nombre: W.nombre, metales: W.metales, email: W.email, emailDia: W.email ? W.emailDia : null,
       tarjetas: W.tarjetas, acciones: W.acciones, miPeso: W.miPeso,
       cuentas: W.cuentas.filter((c) => c.nombre).map((c) => ({ nombre: c.nombre, rol: c.rol, saldo: c.saldo ? num(c.saldo) : 0 })),
       hogar: W.compartes ? W.hogar.filter((p) => p.nombre) : [],
-      categorias: W.categorias.map((c) => ({ on: c.on, nombre: c.nombre, grupo: c.grupo, rol: c.rol, compartida: c.compartida, plan: c.plan ? num(c.plan) : 0 })),
+      categorias: cats.map((c) => ({ on: c.on, nombre: c.nombre, grupo: c.grupo, rol: c.rol, compartida: c.compartida, plan: c.plan ? num(c.plan) : 0 })),
     };
     S = await Dt.completarBienvenida(datos);
     ls.set(cacheKey(), JSON.stringify(S));
     W = null; wPaso = 0;
-    arrancar(); toast('✓ ¡Lista! Ya puedes anotar tu primer movimiento');
+    A = null; arrancar(); toast('✓ ¡Lista! Mira «Primeros pasos» en Inicio');
   });
 };
 
@@ -2507,9 +2901,12 @@ function pintarAjustes() {
   });
   // Hogar
   $('ajHogar').innerHTML = S.miembros.map((m, i) => `<div class="wz-item"><div class="wn">${esc(m.nombre)}${m.esYo ? ' <span class="tag">tú</span>' : ''}
-      <div class="sub">Parte ${aTexto(m.peso)}${m.email ? ' · ' + esc(m.email) : ''}</div></div>
+      <div class="sub">Parte ${aTexto(m.peso)}${m.email ? ' · ' + esc(m.email) : ''}</div>
+      ${m.esYo ? '' : m.conectado ? `<div class="sub pos">✓ Tiene la app · <button class="linkbtn" data-mdes="${i}" style="padding:0">Desconectar</button></div>` : `<button class="linkbtn" data-minv="${i}">Invitar a la app ›</button>`}</div>
       <button class="xbtn" data-mren="${i}" aria-label="Editar">✎</button>${m.esYo ? '' : `<button class="xbtn" data-mx="${i}" aria-label="Quitar">✕</button>`}</div>`).join('') || '<div class="empty">Solo tú</div>';
   $('ajHogar').querySelectorAll('[data-mren]').forEach((b) => b.onclick = () => editarPersona(S.miembros[b.dataset.mren]));
+  $('ajHogar').querySelectorAll('[data-minv]').forEach((b) => b.onclick = () => invitarPersona(S.miembros[b.dataset.minv]));
+  $('ajHogar').querySelectorAll('[data-mdes]').forEach((b) => b.onclick = () => desconectarPersona(S.miembros[b.dataset.mdes]));
   $('ajHogar').querySelectorAll('[data-mx]').forEach((b) => b.onclick = async () => {
     const m = S.miembros[b.dataset.mx];
     if (!confirm(`¿Quitar a ${m.nombre} del hogar? Los gastos compartidos dejarán de repartirse con esta persona.`)) return;

@@ -744,6 +744,7 @@
   <h1>Ayuda</h1>
   <div class="card faq" style="margin-top:16px;padding:4px 16px">
     <details><summary>¿Cómo funciona el «mes»?</summary><p>Tu mes va del día que cobras al día anterior del mes siguiente (lo eliges en Ajustes). Todo se cuenta por ese ciclo: ingresos, gastos y presupuesto. Al terminar, se cierra solo y lo ves en Histórico.</p></details>
+    <details><summary>¿Dónde veo el resumen de cada mes?</summary><p>En Menú › Histórico. Cuando termina tu mes, la app lo cierra sola y guarda cuánto entró, cuánto gastaste por categoría y cuánto ahorraste. Toca cualquier mes para ver el detalle. Los avisos (si te pasas en una categoría o falta por confirmar la nómina) aparecen en Inicio.</p></details>
     <details><summary>¿Cómo se calculan los saldos de mis cuentas?</summary><p>Escribes el saldo que ves en tu banco un día y, desde ahí, la app suma y resta lo que anotas como confirmado. Si alguna vez no cuadra, ve a Cuentas, toca la cuenta y escribe el saldo real: se vuelve a contar desde ese momento.</p></details>
     <details><summary>¿Qué diferencia hay entre previsto y confirmado?</summary><p>Lo previsto (recibos, nómina, suscripciones) aparece solo cada mes para que sepas lo que viene. Cuando lo ves en el banco, lo confirmas en Pendientes y entonces mueve el saldo.</p></details>
     <details><summary>Gastos compartidos y «mi parte»</summary><p>Si compartes casa, marca qué categorías son de todos y la parte de cada persona. De cada gasto compartido solo cuenta tu parte en tu presupuesto, y la app lleva quién debe a quién. Si la otra persona te pasa su parte a principio de mes, márcalo en Cuentas compartidas.</p></details>
@@ -790,14 +791,14 @@
   </div>
   <h2>Extras</h2>
   <div class="card"><label class="chk" style="margin-top:0 !important"><input type="checkbox" id="ajMetales"> Inversiones en metales (oro, plata…)</label></div>
-  <h2>Resumen por email</h2>
+  <div id="ajEmailWrap"><h2>Resumen por email</h2>
   <div class="card">
     <label class="chk" style="margin-top:0 !important"><input type="checkbox" id="ajEmail"> Enviarme un resumen del mes</label>
     <div id="ajEmailDiaWrap"><label>Día de envío</label><input id="ajEmailDia" type="number" inputmode="numeric" min="1" max="31"></div>
     <label class="chk"><input type="checkbox" id="ajAvisos"> Avisarme si me paso en una categoría o no llega la nómina</label>
     <div class="sub" style="margin-top:10px">El resumen trae lo que cerró el mes anterior: ingresos, gastos por categoría, lo que te debe cada persona y tus cuentas. Los avisos llegan por la mañana, una vez por cada cosa.</div>
     <button class="btn sec" id="ajEmailPrueba" style="margin-top:10px">Mandarme un resumen de prueba</button>
-  </div>
+  </div></div>
   <h2>Mis datos</h2>
   <div class="card">
     <div class="sub" id="ajInfo">–</div>
@@ -2562,7 +2563,7 @@ function nuevaBienvenida() {
     nombre: '', cicloDia: 28, nomina: '', objetivos: ['gastos'], inv: {}, miPeso: 1, compartes: false, hogar: [],
     cuentas: [{ nombre: 'Banco', rol: 'dia_a_dia', saldo: '' }, { nombre: 'Efectivo', rol: 'dia_a_dia', saldo: '' }],
     categorias: WZ_CATS.map((c) => ({ nombre: c.nombre, grupo: c.grupo, rol: c.rol || '', on: c.on !== false, plan: '', compartida: !!c.comp })),
-    tarjetas: TARJETAS.map((t) => t[0]), acciones: ['gasto', 'ingreso', 'ahorrar', 'presupuesto'], metales: false, email: true, emailDia: '',
+    tarjetas: TARJETAS.map((t) => t[0]), acciones: ['gasto', 'ingreso', 'ahorrar', 'presupuesto'], metales: false, email: false, emailDia: '',
   };
 }
 function mostrarBienvenida() {
@@ -2650,7 +2651,7 @@ const PASOS = [
         pintarPaso();
       });
     },
-    leer: () => { W.nombre = $('wNombre').value.trim(); W.cicloDia = Math.max(1, Math.min(31, Math.round(Number($('wDia').value) || 28))); W.nomina = $('wNomina').value.trim(); },
+    leer: () => { if (!$('wNombre')) return; W.nombre = $('wNombre').value.trim(); W.cicloDia = Math.max(1, Math.min(31, Math.round(Number($('wDia').value) || 28))); W.nomina = $('wNomina').value.trim(); },
     validar: () => (W.nomina && !(num(W.nomina) > 0) ? 'La nómina no es un número válido.' : ''),
     despues: aplicarObjetivos,
   },
@@ -2784,8 +2785,7 @@ const PASOS = [
       <div class="wz-grupo">Extras</div>
       <div class="card" style="margin-top:8px">
         <label class="chk" style="margin-top:0 !important"><input type="checkbox" id="wMetales" ${W.metales ? 'checked' : ''}> Tengo inversiones en metales (oro, plata…)</label>
-        <label class="chk"><input type="checkbox" id="wEmail" ${W.email ? 'checked' : ''}> Quiero un resumen del mes por email</label>
-        <div id="wEmailDiaWrap"><label>Día de envío</label><input id="wEmailDia" type="number" inputmode="numeric" min="1" max="31" value="${esc(W.emailDia || W.cicloDia)}"></div>
+        <div class="sub" style="font-size:12px;margin-top:10px">Cada mes se cierra solo: el resumen queda guardado en <b>Histórico</b> y los avisos te salen en Inicio.</div>
       </div>`,
     tras: () => {
       document.querySelectorAll('#wzCuerpo [data-ac]').forEach((b) => b.onclick = () => {
@@ -2793,13 +2793,11 @@ const PASOS = [
         if (i >= 0) W.acciones.splice(i, 1); else if (W.acciones.length < 4) W.acciones.push(k); else { toast('Como mucho 4 botones', true); return; }
         PASOS[wPaso].leer(); pintarPaso();
       });
-      const em = () => { $('wEmailDiaWrap').style.display = $('wEmail').checked ? 'block' : 'none'; };
-      $('wEmail').onchange = em; em();
+
     },
     leer: () => {
       W.tarjetas = TARJETAS.map((t) => t[0]).filter((k) => $('wzCuerpo').querySelector(`[data-tj="${k}"]`).checked);
-      W.metales = $('wMetales').checked; W.email = $('wEmail').checked;
-      W.emailDia = Math.max(1, Math.min(31, Math.round(Number($('wEmailDia').value) || W.cicloDia)));
+      W.metales = $('wMetales').checked;
     },
     validar: () => '',
   },
@@ -2817,6 +2815,7 @@ function pintarPaso() {
 }
 $('wzAtras').onclick = () => { PASOS[wPaso].leer(); const j = pasoSig(wPaso, -1); if (j >= 0) { wPaso = j; pintarPaso(); } };
 $('wzSig').onclick = async () => {
+  if (!W) return;
   PASOS[wPaso].leer();
   const e = PASOS[wPaso].validar(); if (e) { $('wzMsg').textContent = e; return; }
   if (PASOS[wPaso].despues) PASOS[wPaso].despues();
@@ -2924,6 +2923,7 @@ function pintarAjustes() {
   });
   // Extras y email
   $('ajMetales').checked = !!c.metales;
+  $('ajEmailWrap').style.display = c.email_permitido ? '' : 'none';
   $('ajEmail').checked = !!c.email_resumen; $('ajAvisos').checked = !!c.email_avisos;
   $('ajEmailDiaWrap').style.display = c.email_resumen ? 'block' : 'none';
   if (document.activeElement !== $('ajEmailDia')) $('ajEmailDia').value = c.email_dia || c.ciclo_dia;

@@ -451,7 +451,15 @@
       await A.agregarMovimiento({ fecha: hoy(), tipo, cat, conc: g.conc, imp: g.imp, cuenta, estado: 'Confirmado', notas: 'Anotado con gasto rápido.' });
       return '✓ ' + g.imp.toFixed(2).replace('.', ',') + ' € · ' + g.conc + ' → ' + (cat || 'sin categoría');
     },
-    async enviarResumenPrueba() { throw new Error('El resumen por email se activará en la siguiente fase.'); },
+    async enviarResumenPrueba() { // manda ya el resumen del último mes cerrado a mi email (máx. 3 por hora)
+      const r = await sb.functions.invoke('resumen-mensual', { body: { prueba: true } });
+      if (r.error) {
+        let m = '';
+        try { m = (await r.error.context.json()).error; } catch (e) { /* sin detalle */ }
+        throw new Error(m || 'No se pudo mandar el email. Inténtalo más tarde.');
+      }
+      return (r.data && r.data.mensaje) || 'Email enviado';
+    },
   };
 
   /** Si cambia qué categorías son compartidas o el hogar, "mi parte" de los gastos del ciclo actual se recalcula. */
@@ -515,6 +523,14 @@
   return {
     sb, L,
     async cargar() { await leer(); if (await preparar()) await leer(); return construir(); },
+    /** Solo lectura (para el email): resumen de un ciclo sin generar ni cerrar nada. anterior = el último ciclo terminado. */
+    async foto(anterior) {
+      await leer();
+      const c = anterior ? L.cicloAnterior(X.ciclo, D.settings.ciclo_dia) : X.ciclo;
+      return { ciclo: c, settings: D.settings, email: D.email, resumen: L.resumen(catsLogica(), X.movs, c), compartidos: compartidosDe(c),
+        cuentas: X.cuentas.map((a) => ({ nombre: a.nombre, rol: a.rol, saldo: X.saldos[a.nombre] || 0 })), patrimonio: patrimonio(), banco: banco(),
+        pendientes: X.movs.filter((m) => m.fecha >= c.inicio && m.fecha <= c.fin && L.PENDIENTES.indexOf(m.estado) !== -1).length };
+    },
     async accion(nombre, ...args) {
       if (!A[nombre]) throw new Error('Acción desconocida: ' + nombre);
       if (!X) await leer();

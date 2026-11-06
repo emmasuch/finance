@@ -702,7 +702,8 @@
     <label class="chk" style="margin-top:0 !important"><input type="checkbox" id="ajEmail"> Enviarme un resumen del mes</label>
     <div id="ajEmailDiaWrap"><label>Día de envío</label><input id="ajEmailDia" type="number" inputmode="numeric" min="1" max="31"></div>
     <label class="chk"><input type="checkbox" id="ajAvisos"> Avisarme si me paso en una categoría o no llega la nómina</label>
-    <div class="sub" style="margin-top:10px">Los emails se activarán en la siguiente fase. Tu elección ya queda guardada.</div>
+    <div class="sub" style="margin-top:10px">El resumen trae lo que cerró el mes anterior: ingresos, gastos por categoría, lo que te debe cada persona y tus cuentas. Los avisos llegan por la mañana, una vez por cada cosa.</div>
+    <button class="btn sec" id="ajEmailPrueba" style="margin-top:10px">Mandarme un resumen de prueba</button>
   </div>
   <h2>Mis datos</h2>
   <div class="card">
@@ -2494,6 +2495,9 @@ $('ajDia').onchange = async () => {
 };
 $('ajMetales').onchange = () => guardarConfig({ metales: $('ajMetales').checked });
 $('ajEmail').onchange = () => guardarConfig({ email_resumen: $('ajEmail').checked, email_dia: $('ajEmail').checked ? (Number($('ajEmailDia').value) || S.config.ciclo_dia) : S.config.email_dia });
+$('ajEmailPrueba').onclick = () => conBoton($('ajEmailPrueba'), 'Enviando…', async () => {
+  toast('✓ ' + await apiPost('enviarResumenPrueba'));
+});
 $('ajAvisos').onchange = () => guardarConfig({ email_avisos: $('ajAvisos').checked });
 $('ajEmailDia').onchange = () => { const d = Math.round(Number($('ajEmailDia').value)); if (d >= 1 && d <= 31) guardarConfig({ email_dia: d }, `El resumen llegará el día ${d}`); else { toast('Elige un día entre 1 y 31', true); pintarAjustes(); } };
 $('ajCuentaNueva').onclick = () => {

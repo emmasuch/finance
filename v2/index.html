@@ -948,7 +948,7 @@ function cargar() {
       if (S) { $('offline').style.display = 'block'; toast('Sin conexión: datos guardados', true); }
       else toast(e.message || 'No se pudo cargar', true);
     }
-  })().finally(() => { $('loading').style.display = 'none'; actualizando(false); cargando = null; });
+  })().finally(() => { $('loading').style.display = 'none'; actualizando(false); cargando = null; setTimeout(ofrecerInstalar, 600); });
   return cargando;
 }
 let arrancada = false;
@@ -2050,7 +2050,7 @@ $('srProbar').onclick = async () => {
 
 /* ───────── INSTALAR · PRIMEROS PASOS ───────── */
 let avisoInstalar = null;
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); avisoInstalar = e; if (vistaActual === 'instalar') pintarInstalar(); });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); avisoInstalar = e; if (vistaActual === 'instalar') pintarInstalar(); if ($('insHoja')) pintarInstalar($('insHoja')); });
 window.addEventListener('appinstalled', () => { ls.set('mp2-instalada', '1'); avisoInstalar = null; if (S) pintarPrimeros(); });
 function plataforma() {
   const ua = navigator.userAgent || '';
@@ -2058,21 +2058,36 @@ function plataforma() {
   return { ios, safari: ios && !/CriOS|FxiOS|EdgiOS|GSA\//.test(ua), android: /Android/.test(ua) };
 }
 const ICO_COMPARTIR = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v9h12v-9"/></svg>';
-function pintarInstalar() {
-  const p = plataforma(), el = $('insCuerpo');
+function pintarInstalar(destino) {
+  const p = plataforma(), el = destino || $('insCuerpo'), q = (id) => el.querySelector('#' + id);
   if (esApp()) { el.innerHTML = '<div class="card"><b class="pos">✓ Ya la tienes instalada.</b><div class="sub" style="margin-top:6px">La estás usando desde la pantalla de inicio.</div></div>'; return; }
   const pasos = (l) => `<div class="card"><ol style="margin:0;padding-left:20px;line-height:1.7;font-size:15px">${l.map((x) => `<li>${x}</li>`).join('')}</ol></div>`;
-  if (p.ios && !p.safari) { el.innerHTML = '<div class="card"><b>Ábrela en Safari.</b><div class="sub" style="margin-top:6px">En iPhone solo Safari puede añadir apps a la pantalla de inicio. Copia la dirección y pégala en Safari.</div><button class="btn sec" id="insCopiar">Copiar dirección</button></div>'; $('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada'); return; }
+  if (p.ios && !p.safari) { el.innerHTML = '<div class="card"><b>Ábrela en Safari.</b><div class="sub" style="margin-top:6px">En iPhone solo Safari puede añadir apps a la pantalla de inicio. Copia la dirección y pégala en Safari.</div><button class="btn sec" id="insCopiar">Copiar dirección</button></div>'; q('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada'); return; }
   if (p.ios) { el.innerHTML = pasos([`Pulsa el botón <b>Compartir</b> ${ICO_COMPARTIR} (abajo en Safari, o arriba en iPad).`, 'Baja y elige <b>Añadir a pantalla de inicio</b>.', 'Pulsa <b>Añadir</b>. Ya puedes abrirla desde su icono.']) + '<div class="hint">Si no ves la opción, pulsa «Editar acciones» al final de la lista y actívala.</div>'; return; }
   if (avisoInstalar) {
     el.innerHTML = '<div class="card"><div class="sub">Tu navegador puede instalarla directamente.</div><button class="btn" id="insYa">Instalar ahora</button></div>';
-    $('insYa').onclick = async () => { avisoInstalar.prompt(); const r = await avisoInstalar.userChoice; if (r && r.outcome === 'accepted') { ls.set('mp2-instalada', '1'); toast('✓ Instalada'); } avisoInstalar = null; pintarInstalar(); };
+    q('insYa').onclick = async () => { avisoInstalar.prompt(); const r = await avisoInstalar.userChoice; avisoInstalar = null; if (r && r.outcome === 'accepted') { ls.set('mp2-instalada', '1'); toast('✓ Instalada'); if (destino) { cerrarHoja(); return; } } pintarInstalar(destino); };
     return;
   }
   if (p.android) { el.innerHTML = pasos(['Abre el menú del navegador <b>⋮</b> (arriba a la derecha en Chrome).', 'Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.', 'Confirma. Ya puedes abrirla desde su icono.']); return; }
   el.innerHTML = pasos(['En el ordenador, busca el icono de instalar en la barra de direcciones (Chrome o Edge) y púlsalo.', 'Para tenerla en el móvil, abre esta misma dirección en el móvil y sigue los pasos de esta página.']) +
     '<button class="btn sec" id="insCopiar">Copiar dirección</button>';
-  $('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada');
+  q('insCopiar').onclick = () => copiar(URL_APP, 'Dirección copiada');
+}
+/** La primera vez que se abre en el navegador del móvil, se ofrece instalarla (una sola vez por dispositivo). */
+function ofrecerInstalar() {
+  const p = plataforma();
+  if (esApp() || (!p.ios && !p.android) || ls.get('mp2-instalar-ofrecido') || ls.get('mp2-instalada')) return;
+  if (ls.get('mp2-unirse') || $('sheet').classList.contains('on')) return; // primero, unirse al hogar
+  ls.set('mp2-instalar-ofrecido', '1');
+  abrirHoja('antes de empezar', 'Ponla en tu pantalla de inicio', `
+    <div class="sub">Así se abre como una app más: con su icono, a pantalla completa y sin el navegador. Solo hay que hacerlo una vez.</div>
+    <div id="insHoja" style="margin-top:12px"></div>
+    ${p.ios && p.safari ? '<div class="hint">Después ábrela siempre desde el icono. La primera vez te pedirá entrar con tu email.</div>' : ''}
+    <button class="btn sec" id="insLuego">Ahora no</button>
+    <div class="sub" style="font-size:12px;margin-top:8px;text-align:center">La tienes siempre en Menú › Instalar la app.</div>`);
+  pintarInstalar($('insHoja'));
+  $('insLuego').onclick = cerrarHoja;
 }
 const psKey = (k) => 'mp2-ps-' + k + '-' + ((Dt && Dt.uid()) || '');
 function marcarPaso(k) { if (!ls.get(psKey(k))) { ls.set(psKey(k), '1'); } }
@@ -2126,7 +2141,7 @@ function revisarInvitacion() {
         <button class="btn" id="invSi">Unirme al hogar</button><button class="btn sec" id="invNo">Ahora no</button>`);
       $('invSi').onclick = () => conBoton($('invSi'), 'Uniendo…', async () => {
         const r = await Dt.hogar.aceptar(cod);
-        ls.del('mp2-unirse'); cerrarHoja(); toast('✓ Ya estás en el hogar de ' + r.de);
+        ls.del('mp2-unirse'); cerrarHoja(); toast('✓ Ya estás en el hogar de ' + r.de); setTimeout(ofrecerInstalar, 2500);
         HOGARES = await Dt.hogar.mios().catch(() => HOGARES);
         fin(r.owner);
       });

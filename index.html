@@ -63,6 +63,8 @@
   .hero .lbl { font-size:12px; letter-spacing:.12em; text-transform:uppercase; opacity:.7; }
   .hero .big { font-size:42px; font-weight:800; letter-spacing:-.035em; margin:6px 0 14px; }
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .grid3 .mini { padding:10px 10px; min-width:0; } .grid3 .mini .v { font-size:15px; } .grid3 .mini .sub { font-size:11px; line-height:1.2; }
   .mini { background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.75); border-radius:14px; padding:10px 12px; }
   .hero .sub { color:#2D120D; opacity:.65; }
   .card:not(.hero) .mini { background:var(--glass); border-color:var(--glass-b); }
@@ -408,8 +410,9 @@
   <div class="card hero" style="margin-top:16px">
     <div class="lbl">Patrimonio</div>
     <div class="big num" id="patrimonio">–</div>
-    <div class="grid2">
+    <div class="grid3">
       <div class="mini"><div class="sub">Cuentas</div><div class="v num" id="totCuentas">–</div></div>
+      <div class="mini"><div class="sub">Ahorro e inversión</div><div class="v num" id="totAhorroInv">–</div></div>
       <div class="mini"><div class="sub">Metales</div><div class="v num" id="totMetales">–</div></div>
     </div>
   </div>
@@ -540,12 +543,12 @@
   <h1>Cuentas compartidas</h1>
   <div class="sub" id="cpSub">Lo que pagáis entre todos este ciclo y quién debe a quién.</div>
   <div id="cpGente" style="margin-top:16px"></div>
-  <h2>Gastos del hogar este ciclo</h2>
+  <h2>Qué te han pasado este ciclo</h2>
   <div class="card" style="padding:4px 16px" id="cpCats"></div>
   <h2>Movimientos compartidos</h2>
   <div class="card" style="padding:4px 16px" id="cpMovs"></div>
   <button class="btn sec" onclick="ir('hogar')">Configurar personas e importes del hogar</button>
-  <div class="hint">Si un gasto del hogar lo paga otra persona, al añadirlo elige <b>«¿Quién lo ha pagado?»</b>. Su parte y la tuya se calculan solas.</div>
+  <div class="hint">Si a principio de mes te pasan su parte de una categoría, márcalo y esos gastos salen del fondo común sin dividirse otra vez. Si un gasto lo paga otra persona, al añadirlo elige <b>«¿Quién lo ha pagado?»</b>.</div>
 </div></div>
 
 <!-- SUSCRIPCIONES -->
@@ -1131,6 +1134,7 @@ $('guardar').onclick = async () => {
 function pintarCuentas() {
   const v = S.inversiones;
   $('patrimonio').textContent = eur(v.patrimonio); $('totCuentas').textContent = eur(v.totalCuentas); $('totMetales').textContent = eur(v.totalMetales);
+  $('totAhorroInv').textContent = eur(v.cuentas.filter((c) => !DIARIO.includes(c.nombre)).reduce((t, c) => t + c.saldo, 0));
   $('totInvertido').textContent = eur(v.totalInvertido);
   $('totGanancia').textContent = signoEur(v.totalGanancia); $('totGanancia').className = 'num ' + clsSigno(v.totalGanancia);
   const filaC = (c) => { const i = v.cuentas.indexOf(c); return `<div class="line-wrap"><div class="line" data-c="${i}"><div><div>${esc(c.nombre)}${USO_CUENTAS[c.nombre] && !DIARIO.includes(c.nombre) ? ` <span class="tag">${esc(USO_CUENTAS[c.nombre])}</span>` : ''}</div><div class="sub">${c.calculado ? 'Al día con tus movimientos · revisado el ' : 'Revisado el '}${esc(c.fecha)}</div></div><div class="v num">${eur(c.saldo)} <span class="arrow">›</span></div></div></div>`; };
@@ -1622,14 +1626,18 @@ function pintarQuien() {
 function pintarComp() {
   const c = S.compartidos;
   if (!c) { $('cpGente').innerHTML = '<div class="card empty">Actualiza la hoja para ver las cuentas compartidas.</div>'; return; }
-  $('cpSub').textContent = `Hogar entre ${c.personas}. Lo que pagáis entre todos en ${S.resumen.ciclo} y quién debe a quién.`;
+  $('cpSub').textContent = `Hogar entre ${c.personas}. Marca cada mes qué te han pasado ya; lo que no, se divide al gastar.`;
   const mini = (t, v) => `<div class="mini"><div class="sub">${t}</div><div class="v num">${v}</div></div>`;
+  const estado = (s, n) => Math.abs(s) < 0.01 ? 'Estáis en paz' : s > 0 ? `${n} te debe ${eur(s)}` : `Le debes ${eur(-s)} a ${n}`;
   $('cpGente').innerHTML = c.gente.map((p, i) => {
     const paz = Math.abs(p.saldo) < 0.01, teDebe = p.saldo > 0;
+    const cierre = !c.cierre && Math.abs(p.siAcabaHoy - p.saldo) >= 0.01
+      ? `<div class="hint" style="margin-top:10px">Aún queda dinero del fondo común sin gastar. Si el ciclo acabara hoy: <b>${estado(p.siAcabaHoy, esc(p.nombre)).replace(/^./, (x) => x.toLowerCase())}</b> (se cuadra el ${fechaCorta(c.fin)}).</div>` : '';
     return `<div class="card hero" style="margin-bottom:10px">
       <div class="lbl">${esc(p.nombre)}</div>
       <div class="big num ${paz ? 'pos' : teDebe ? '' : 'neg'}" style="font-size:32px">${paz ? 'Estáis en paz' : (teDebe ? 'Te debe ' : 'Le debes ') + eur(Math.abs(p.saldo))}</div>
-      <div class="grid2">${mini('Su parte de los gastos', eur(p.suParte))}${mini('Te ha devuelto', eur(p.devuelto))}${mini('Previsto que te dé', eur(p.previsto))}${mini('Pagado por ' + esc(p.nombre), eur(p.pagoEl))}</div>
+      <div class="grid2">${mini('Su parte de lo gastado', eur(p.suParte))}${mini('Ya te ha pasado', eur(p.aportado))}${mini('Pagado por ' + esc(p.nombre), eur(p.pagoEl))}${mini('Previsto que te pase', eur(p.previsto))}</div>
+      ${cierre}
       <div class="acc-actions" style="margin-top:4px">
         ${paz ? '' : `<button class="btn" style="margin-top:12px" data-saldar="${i}">${teDebe ? 'Ya me ha pagado' : 'Ya le he pagado'}</button>`}
         <button class="btn sec" style="margin-top:12px" data-pago="${i}">Gasto que pagó ${esc(p.nombre)}</button>
@@ -1642,16 +1650,28 @@ function pintarComp() {
     await conBoton(b, 'Guardando…', async () => toast('✓ ' + await apiPost('saldarCompartidos', p.nombre)));
   });
   $('cpGente').querySelectorAll('[data-pago]').forEach((b) => b.onclick = () => { quienPago = c.gente[b.dataset.pago].nombre; nuevoCon({ tipo: 'Gasto', cat: '🛒 Comida', quien: quienPago }); });
-  $('cpCats').innerHTML = c.cats.map((x) => {
+  const p0 = c.gente[0], otro = p0 ? p0.nombre : 'la otra persona';
+  $('cpCats').innerHTML = c.cats.map((x, k) => {
     const f = x.plan > 0 ? Math.min(100, x.total / x.plan * 100) : (x.total > 0 ? 100 : 0), over = x.plan > 0 && x.total > x.plan + 0.005;
+    const pagado = x.aportado > 0.005;
+    const linea = pagado
+      ? `<span class="pos">✓ ${esc(otro)} ya te pasó ${eur(x.aportado)}</span> · ${x.fondoRestante >= 0 ? `quedan ${eur(x.fondoRestante)} del fondo común` : `<span class="neg">${eur(-x.fondoRestante)} por encima del fondo</span>`}`
+      : `<span class="neg">${esc(otro)} aún no te ha pasado su parte</span>${x.previstoAport > 0.005 ? ` · previsto ${eur(x.previstoAport)}` : ''} · cada gasto se divide`;
     return `<div class="cat"><div class="top"><span>${esc(x.cat)}</span><span class="amt num"><b>${eur(x.total)}</b> / ${eur(x.plan)}</span></div>
       <div class="bar"><i style="width:${f}%" class="${over ? 'over' : f >= 85 ? 'warn' : ''}"></i></div>
-      <div class="left">Tu parte ${eur(x.tuParte)}${x.pagadoOtros ? ` · pagado por otros ${eur(x.pagadoOtros)}` : ''}${over ? ` · <span class="neg">${eur(x.total - x.plan)} por encima del plan del hogar</span>` : ''}</div></div>`;
+      <div class="left">${linea}</div>
+      <div class="left">Tu parte ${eur(x.tuParte)}${x.pagadoOtros ? ` · pagado por otros ${eur(x.pagadoOtros)}` : ''}</div>
+      ${pagado || !p0 ? '' : `<button class="linkbtn" data-aporte="${k}" style="margin-top:4px">${esc(otro)} ya me ha pasado su parte ›</button>`}</div>`;
   }).join('');
+  $('cpCats').querySelectorAll('[data-aporte]').forEach((b) => b.onclick = () => {
+    const x = c.cats[b.dataset.aporte];
+    nuevoCon({ tipo: 'Reintegro', cat: x.cat, cuenta: 'Banco', imp: Math.round(x.plan / c.personas * 100) / 100,
+      conc: `${otro} · ${sinEmoji(x.cat).toLowerCase()} · ${S.resumen.ciclo}` });
+    toast(`Ajusta el importe si te pasó otra cantidad`);
+  });
   const movs = (S.movimientos || []).filter((m) => c.filas.includes(m.fila)).sort((a, b) => a.fecha < b.fecha ? 1 : -1);
   $('cpMovs').innerHTML = movs.length ? movs.map(movHtml).join('') : '<div class="empty">Aún no hay gastos del hogar este ciclo</div>';
   enlazarMovs($('cpMovs'));
-  const p0 = c.gente[0];
   if (p0) $('menuComp').textContent = Math.abs(p0.saldo) < 0.01 ? `En paz con ${p0.nombre}` : p0.saldo > 0 ? `${p0.nombre} te debe ${eur(p0.saldo)}` : `Le debes ${eur(-p0.saldo)} a ${p0.nombre}`;
 }
 

@@ -1,7 +1,6 @@
 // Guarda la app en el móvil para que abra al instante, incluso sin conexión.
 // Al cambiar cualquier archivo de la app, sube el número de VERSION.
-const VERSION = 'mi-presupuesto-v10';
-// Publicado de nuevo el 04/11/2026.
+const VERSION = 'mi-presupuesto-v11';
 const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {

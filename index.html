@@ -362,7 +362,7 @@
     </div>
     <div class="flujo-row"><span class="fl">Entra</span><div class="flujo" id="fEntra"></div></div>
     <div class="flujo-row"><span class="fl">Sale</span><div class="flujo" id="fSale"></div></div>
-    <div class="ftip" id="fTip">Toca una barra para ver el detalle. Lo rayado es lo previsto.</div>
+    <div class="ftip" id="fTip">Toca una barra para ver el detalle. Lo rayado es lo que aún falta de tu plan.</div>
     <div class="dist" id="fDist"></div>
   </div></div>
 
@@ -1499,6 +1499,38 @@ function agregados() {
   });
   g.ingTot = g.ing.c + g.ing.p;
   g.saleTot = ['fijo', 'var', 'aho'].reduce((t, k) => t + g[k].c + g[k].p, 0);
+  // Comprometido: lo que de verdad va a salir este ciclo según tu plan de Categorías y presupuesto.
+  // Cada categoría resta su plan completo (o lo gastado + previsto si ya lo supera).
+  // Solo resta lo real cuando ya está cerrado: al terminar el ciclo, o en recibos fijos ya cobrados
+  // (todo lo de esa categoría viene de recurrentes/suscripciones y no queda nada pendiente).
+  const cierre = hoyLocal() >= s.fin, mc = {};
+  const conCat = new Set(r.categorias.map((c) => c.tipo + '|' + c.cat));
+  let prevSueltos = 0;
+  (S.movimientos || []).forEach((m) => {
+    if (!m.fecha || m.fecha < s.inicio || m.fecha > s.fin || m.estado === 'Anulado') return;
+    if (m.tipo !== 'Gasto' && m.tipo !== 'Ahorro / inversión') return;
+    const k = m.tipo + '|' + (m.cat || '');
+    if (!conCat.has(k)) { if (m.tipo === 'Gasto' && ESTADOS_PREV.includes(m.estado)) prevSueltos += m.parte; return; }
+    const x = mc[k] || (mc[k] = { n: 0, prev: 0, manual: false });
+    x.n++; if (!m.recurrente) x.manual = true;
+    if (ESTADOS_PREV.includes(m.estado)) x.prev += m.tipo === 'Gasto' ? m.parte : m.imp;
+  });
+  ['fijo', 'var', 'aho'].forEach((k) => { g[k].comp = 0; g[k].pend = 0; g[k].planC = 0; });
+  let realCats = 0, realAho = 0;
+  r.categorias.filter((c) => c.tipo === 'Gasto' || c.tipo === 'Ahorro / inversión').forEach((c) => {
+    const k = c.tipo === 'Gasto' ? (c.fijo ? 'fijo' : 'var') : 'aho';
+    const x = mc[c.tipo + '|' + c.cat] || { n: 0, prev: 0, manual: true };
+    const hecho = cierre || (x.n > 0 && !x.manual && x.prev < 0.005);
+    const real = c.real + x.prev;
+    const comp = hecho ? real : Math.max(c.plan, real);
+    g[k].comp += comp; g[k].planC += c.plan;
+    if (c.tipo === 'Gasto') realCats += c.real; else realAho += c.real;
+  });
+  g.aho.comp += Math.max(0, g.aho.c - realAho); // ahorro sin categoría
+  // Gastos sin categoría (o de una categoría ya quitada): cuentan tal cual, como variables
+  g.var.comp += Math.max(0, r.gastos - realCats) + prevSueltos;
+  ['fijo', 'var', 'aho'].forEach((k) => { g[k].comp = Math.round(g[k].comp * 100) / 100; g[k].pend = Math.max(0, Math.round((g[k].comp - g[k].c) * 100) / 100); });
+  g.compTot = g.fijo.comp + g.var.comp + g.aho.comp;
   return g;
 }
 const baseNomina = (g) => { const a = ajustes(); return a.base > 0 ? a.base : g.ingTot; };
@@ -1507,23 +1539,23 @@ const pctTxt = (v, base) => base > 0 ? Math.round(v / base * 100) + '%' : '–';
 /* Gráfica de Inicio: lo que entra frente a lo que sale (fijos, variables, ahorro) */
 function pintarFlujo() {
   const g = agregados(), a = ajustes();
-  const max = Math.max(g.ingTot, g.saleTot, 1);
+  const max = Math.max(g.ingTot, g.compTot, 1);
   const seg = (v, col, tip, prev) => v > 0.004 ? `<i class="${prev ? 'prev' : ''}" style="flex:${v} 1 0;background-color:${col}" data-tip="${esc(tip)}"></i>` : '';
   const fila = (segs, tot) => `<div style="display:flex;gap:2px;height:100%;width:${(tot / max * 100).toFixed(2)}%">${segs}</div>`;
   $('fEntra').innerHTML = fila(seg(g.ing.c, 'var(--pos)', `Ingresos confirmados: ${eur(g.ing.c)}`) + seg(g.ing.p, 'var(--pos)', `Ingresos previstos: ${eur(g.ing.p)}`, true), g.ingTot);
   let sale = '';
-  GRUPOS.forEach((x) => { sale += seg(g[x.k].c, x.col, `${x.n}: ${eur(g[x.k].c)} confirmado`); });
-  GRUPOS.forEach((x) => { sale += seg(g[x.k].p, x.col, `${x.n}: ${eur(g[x.k].p)} previsto`, true); });
-  $('fSale').innerHTML = fila(sale, g.saleTot);
+  GRUPOS.forEach((x) => { sale += seg(g[x.k].c, x.col, `${x.n}: ${eur(g[x.k].c)} ya hecho`); });
+  GRUPOS.forEach((x) => { sale += seg(g[x.k].pend, x.col, `${x.n}: faltan ${eur(g[x.k].pend)} de lo que tienes planificado`, true); });
+  $('fSale').innerHTML = fila(sale, g.compTot);
   document.querySelectorAll('#fEntra i, #fSale i').forEach((el) => el.onclick = () => { $('fTip').textContent = el.dataset.tip; });
-  const libre = g.ingTot - g.saleTot;
-  $('fLibreLbl').textContent = libre >= 0 ? 'Te queda libre (con lo previsto)' : 'Te falta para cubrir lo previsto';
+  const libre = Math.round((g.ingTot - g.compTot) * 100) / 100;
+  $('fLibreLbl').textContent = libre >= 0 ? 'Te queda libre (tras todo tu plan)' : 'Te falta para cubrir tu plan';
   $('fLibre').textContent = eur(Math.abs(libre)); $('fLibre').className = 'num ' + (libre >= 0 ? 'pos' : 'neg');
-  const ahoT = g.aho.c + g.aho.p, tasa = g.ingTot > 0 ? Math.round(ahoT / g.ingTot * 100) : 0;
+  const ahoT = g.aho.comp, tasa = g.ingTot > 0 ? Math.round(ahoT / g.ingTot * 100) : 0;
   $('fTasa').innerHTML = `${tasa}%<div class="sub" style="font-weight:400;font-size:12px">meta ${a.pct.ahorro}%</div>`;
   $('fTasa').className = 'num ' + (tasa >= a.pct.ahorro ? 'pos' : '');
-  const dr = (col, n, c, p, prevCls) => `<div class="dr"><span class="dot" style="background:${col}"></span><span class="dn">${n}${p > 0.004 ? `<div class="sub" style="font-size:12px">${eur(c)} hecho · ${eur(p)} previsto</div>` : ''}</span><b class="num">${eur(c + p)}</b><span class="dp num">${pctTxt(c + p, g.ingTot)}</span></div>`;
-  $('fDist').innerHTML = dr('var(--pos)', 'Ingresos', g.ing.c, g.ing.p) + GRUPOS.map((x) => dr(x.col, x.n, g[x.k].c, g[x.k].p)).join('') +
+  const dr = (col, n, c, p, falta) => `<div class="dr"><span class="dot" style="background:${col}"></span><span class="dn">${n}${p > 0.004 ? `<div class="sub" style="font-size:12px">${eur(c)} hecho · ${eur(p)} ${falta || 'previsto'}</div>` : ''}</span><b class="num">${eur(c + p)}</b><span class="dp num">${pctTxt(c + p, g.ingTot)}</span></div>`;
+  $('fDist').innerHTML = dr('var(--pos)', 'Ingresos', g.ing.c, g.ing.p) + GRUPOS.map((x) => dr(x.col, x.n, g[x.k].c, g[x.k].pend, 'por llegar según tu plan')).join('') +
     `<div class="dr"><span class="dot" style="background:var(--c-libre);border:1px solid var(--line)"></span><span class="dn">${libre >= 0 ? 'Libre' : 'Déficit'}</span><b class="num ${libre >= 0 ? 'pos' : 'neg'}">${signoEur(libre)}</b><span class="dp num">${pctTxt(Math.abs(libre), g.ingTot)}</span></div>`;
 
   // Cuánto puedes gastar al día y cómo acabarás el ciclo
@@ -1535,7 +1567,7 @@ function pintarFlujo() {
   // Mezcla el ritmo real con el plan: al principio del ciclo pesa más el plan, al final el ritmo
   const w = pasados / total, ritmo = g.var.c / pasados * total;
   const varProy = Math.max(g.var.c + g.var.p, w * ritmo + (1 - w) * Math.max(g.var.plan, g.var.c));
-  const netoProy = g.ingTot - (g.fijo.c + g.fijo.p) - varProy - ahoT;
+  const netoProy = g.ingTot - g.fijo.comp - Math.max(varProy, g.var.comp) - ahoT;
   $('pProy').textContent = signoEur(netoProy); $('pProy').className = 'num ' + clsSigno(netoProy);
   $('pProySub').textContent = 'según tu ritmo y tu plan';
   pintarAvisos(g, restVar);
@@ -1550,7 +1582,7 @@ function pintarAvisos(g, restVar) {
   });
   const venc = S.pendientes.filter((p) => p.fecha && p.fecha < hoy).length;
   if (venc) av.push({ n: 0, cls: 'neg', t: `${venc} ${venc === 1 ? 'movimiento vencido' : 'movimientos vencidos'} sin confirmar`, s: 'Confírmalos para que el saldo sea real', b: 'Revisar', f: "ir('pend')" });
-  const objAho = baseNomina(g) * a.pct.ahorro / 100, falta = objAho - g.aho.c - g.aho.p;
+  const objAho = baseNomina(g) * a.pct.ahorro / 100, falta = objAho - g.aho.c - g.aho.p;  // aquí sí: lo que de verdad has apartado
   if (objAho > 0 && falta > 1) av.push({ n: 2, cls: 'warn', t: `Te faltan ${eur(falta)} para tu ${a.pct.ahorro}% de ahorro`, s: 'Págate primero: aparta el ahorro al cobrar', b: 'Ahorrar', f: 'ahorrarAhora()' });
   else if (objAho > 0) av.push({ n: 3, cls: 'pos', t: `Objetivo de ahorro cubierto`, s: `${eur(g.aho.c + g.aho.p)} de ${eur(objAho)} este ciclo` });
   ((S.compartidos && S.compartidos.gente) || []).forEach((p) => {

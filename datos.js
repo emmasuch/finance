@@ -22,6 +22,12 @@
 
   /* ───── Lectura ───── */
   const ok = (r) => { if (r.error) throw traducirError(r.error); return r.data; };
+  /** Como ok, pero exige que se haya guardado al menos una fila (si no, el cambio se perdería sin avisar). */
+  const ok1 = (r) => {
+    const d = ok(r);
+    if (!Array.isArray(d) || !d.length) throw new Error('No se ha podido guardar: no encuentro ese dato. Pulsa ↻ para actualizar y vuelve a intentarlo.');
+    return d;
+  };
   function traducirError(e) {
     const m = String((e && e.message) || e);
     if (/duplicate key|23505/.test(m + (e && e.code))) return new Error('Ya existe uno con ese nombre.');
@@ -76,7 +82,7 @@
     x.saldos = L.saldos(D.accounts.map((a) => ({ nombre: a.nombre, saldoBase: Number(a.saldo_base), fechaBase: a.fecha_base, baseEn: a.base_en })), x.movs);
     x.movs.forEach((m) => {
       const a = x.acc.nombre[m.cuenta];
-      m.enSaldo = m.estado === 'Confirmado' && !!a && (m.fecha > a.fecha_base || (m.fecha === a.fecha_base && m.confirmadoEn > a.base_en));
+      m.enSaldo = m.estado === 'Confirmado' && !!a && L.enSaldoTras(m, a.fecha_base, a.base_en);
       if (m.pagadoPor && !m.cuenta) m.cuenta = 'Pagó ' + m.pagadoPor;
     });
     x.reglas = {};
@@ -261,24 +267,24 @@
       const antes = movPorId(id);
       // Quién pagó / de quién es el reintegro no se ven en el formulario: se conservan
       const f = aFila(Object.assign({ pagadoPor: antes.pagadoPor, de: antes.de, pagoA: antes.pagoA, ajuste: antes.ajuste }, m));
-      ok(await sb.from('movements').update(f).eq('id', id).select('id'));
+      ok1(await sb.from('movements').update(f).eq('id', id).select('id'));
       await aprender([m]);
       return 'Guardado: ' + f.concepto;
     },
     async eliminarMovimiento(id) {
       const m = movPorId(id);
-      ok(await sb.from('movements').delete().eq('id', id).select('id'));
+      ok1(await sb.from('movements').delete().eq('id', id).select('id'));
       return 'Eliminado: ' + m.conc;
     },
     async confirmarMovimiento(id, conc, fecha, imp) {
       const m = movPorId(id);
       const f = aFila(Object.assign({}, m, { fecha, imp, estado: 'Confirmado' }));
-      ok(await sb.from('movements').update({ fecha: f.fecha, importe: f.importe, mi_parte: f.mi_parte, estado: 'Confirmado' }).eq('id', id).select('id'));
+      ok1(await sb.from('movements').update({ fecha: f.fecha, importe: f.importe, mi_parte: f.mi_parte, estado: 'Confirmado' }).eq('id', id).select('id'));
       return 'Confirmado: ' + m.conc;
     },
     async anularMovimiento(id) {
       const m = movPorId(id);
-      ok(await sb.from('movements').update({ estado: 'Anulado' }).eq('id', id).select('id'));
+      ok1(await sb.from('movements').update({ estado: 'Anulado' }).eq('id', id).select('id'));
       return 'Anulado: ' + m.conc;
     },
     async agregarCuenta(c) {
@@ -289,18 +295,18 @@
       return 'Cuenta añadida: ' + nombre;
     },
     async actualizarSaldo(id, saldo) {
-      ok(await sb.from('accounts').update({ saldo_base: red(Number(saldo)), fecha_base: hoy(), base_en: ahora() }).eq('id', id).select('id'));
+      ok1(await sb.from('accounts').update({ saldo_base: red(Number(saldo)), fecha_base: hoy(), base_en: ahora() }).eq('id', id).select('id'));
       return 'Saldo actualizado';
     },
     async guardarCuenta(d) { // Ajustes: nombre, papel, orden, archivada
       const cambios = {};
       if (d.nombre != null) { cambios.nombre = String(d.nombre).trim(); if (!cambios.nombre) throw new Error('Escribe el nombre.'); }
       ['rol', 'orden', 'archivada'].forEach((k) => { if (d[k] != null) cambios[k] = d[k]; });
-      ok(await sb.from('accounts').update(cambios).eq('id', d.id).select('id'));
+      ok1(await sb.from('accounts').update(cambios).eq('id', d.id).select('id'));
       return 'Cuenta guardada';
     },
     async actualizarPrecio(id, precio) {
-      ok(await sb.from('metals').update({ precio: red(precio), fecha_precio: hoy() }).eq('id', id).select('id'));
+      ok1(await sb.from('metals').update({ precio: red(precio), fecha_precio: hoy() }).eq('id', id).select('id'));
       return 'Precio actualizado';
     },
     async comprarMetal(d) {
@@ -310,7 +316,7 @@
       if (d.fila) {
         const a = D.metals.find((x) => x.id === d.fila); if (!a) throw new Error('Metal no encontrado.');
         const u0 = Number(a.unidades), u1 = u0 + uds;
-        ok(await sb.from('metals').update({ unidades: u1, coste: red((u0 * Number(a.coste) + uds * precio) / u1) }).eq('id', a.id).select('id'));
+        ok1(await sb.from('metals').update({ unidades: u1, coste: red((u0 * Number(a.coste) + uds * precio) / u1) }).eq('id', a.id).select('id'));
         nombre = a.nombre;
       } else {
         nombre = String(d.nombre || '').trim(); if (!nombre) throw new Error('Escribe el nombre del metal.');
@@ -322,29 +328,62 @@
       }
       return 'Compra guardada: ' + nombre;
     },
+    async editarMetal(d) { // corregir lo que tienes: nombre, unidades, coste medio y precio actual
+      const a = D.metals.find((x) => x.id === d.id); if (!a) throw new Error('Metal no encontrado. Pulsa ↻ y vuelve a intentarlo.');
+      const nombre = String(d.nombre || '').trim(); if (!nombre) throw new Error('Escribe el nombre del metal.');
+      const uds = Number(d.unidades), coste = red(Number(d.coste)), precio = red(Number(d.precio));
+      if (!(uds > 0)) throw new Error('Las unidades tienen que ser mayores que 0. Para quitarlo del todo, usa «Eliminar» o «Vender».');
+      if (!(coste >= 0) || !(precio >= 0)) throw new Error('Revisa el coste y el precio.');
+      const cambios = { nombre, unidades: uds, coste };
+      if (Math.abs(precio - Number(a.precio)) > 0.004) { cambios.precio = precio; cambios.fecha_precio = hoy(); }
+      ok1(await sb.from('metals').update(cambios).eq('id', a.id).select('id'));
+      return 'Guardado: ' + nombre;
+    },
+    async venderMetal(d) {
+      const a = D.metals.find((x) => x.id === d.id); if (!a) throw new Error('Metal no encontrado. Pulsa ↻ y vuelve a intentarlo.');
+      const tiene = Number(a.unidades), uds = Number(d.unidades), precio = red(Number(d.precio));
+      if (!(uds > 0) || uds > tiene + 1e-9) throw new Error('Puedes vender entre 0 y ' + String(tiene).replace('.', ',') + ' uds.');
+      if (!(precio > 0)) throw new Error('Indica el precio de venta por unidad.');
+      const quedan = Math.round((tiene - uds) * 10000) / 10000;
+      if (quedan <= 0) ok1(await sb.from('metals').delete().eq('id', a.id).select('id'));
+      else ok1(await sb.from('metals').update({ unidades: quedan, precio, fecha_precio: d.fecha || hoy() }).eq('id', a.id).select('id'));
+      const total = red(uds * precio), ganancia = red((precio - Number(a.coste)) * uds);
+      const fmt = (n) => n.toFixed(2).replace('.', ',') + ' €';
+      if (d.registrar && d.cuenta) {
+        // Entra en la cuenta sin contar como ingreso del mes (es tu dinero que vuelve de la inversión)
+        await A.agregarMovimiento({ fecha: d.fecha || hoy(), tipo: 'Reintegro', cat: '', conc: 'Venta ' + a.nombre, imp: total, cuenta: d.cuenta, estado: 'Confirmado',
+          notas: 'Venta de metal: ' + String(uds).replace('.', ',') + ' uds a ' + fmt(precio) + '. ' + (ganancia >= 0 ? 'Ganancia ' : 'Pérdida ') + fmt(Math.abs(ganancia)) + '.' });
+      }
+      return 'Venta guardada: ' + fmt(total) + (ganancia >= 0 ? ' · ganas ' : ' · pierdes ') + fmt(Math.abs(ganancia));
+    },
+    async eliminarMetal(id) {
+      const a = D.metals.find((x) => x.id === id); if (!a) throw new Error('Metal no encontrado.');
+      ok1(await sb.from('metals').delete().eq('id', a.id).select('id'));
+      return 'Eliminado: ' + a.nombre;
+    },
     async guardarHogar(h) {
       for (const c of h.conceptos || []) {
         const k = X.cat.id[c.fila]; if (!k) continue;
         const total = red(Number(c.total) || 0);
-        ok(await sb.from('categories').update({ total_hogar: total, plan: red(total * X.h.miPeso / X.h.pesoTotal) }).eq('id', k.id).select('id'));
+        ok1(await sb.from('categories').update({ total_hogar: total, plan: red(total * X.h.miPeso / X.h.pesoTotal) }).eq('id', k.id).select('id'));
       }
       return 'Gastos del hogar guardados.';
     },
     async guardarAjustesApp(a) {
-      ok(await sb.from('settings').update({ ajustes: a }).eq('user_id', uid).select('user_id'));
+      ok1(await sb.from('settings').update({ ajustes: a }).eq('user_id', uid).select('user_id'));
       return 'Ajustes guardados';
     },
     async guardarConfig(c) { // Ajustes de v2: día de cobro, metales, email, Inicio…
       const permitidos = ['ciclo_dia', 'metales', 'email_resumen', 'email_dia', 'email_avisos', 'inicio_tarjetas', 'acciones_rapidas', 'nombre', 'nomina', 'onboarding_hecho'];
       const cambios = {};
       permitidos.forEach((k) => { if (k in c) cambios[k] = c[k]; });
-      ok(await sb.from('settings').update(cambios).eq('user_id', uid).select('user_id'));
+      ok1(await sb.from('settings').update(cambios).eq('user_id', uid).select('user_id'));
       return 'Ajustes guardados';
     },
     async guardarMiembro(m) {
       const nombre = String(m.nombre || '').trim(); if (!nombre) throw new Error('Escribe el nombre.');
       const fila = { nombre, peso: Number(m.peso) > 0 ? Number(m.peso) : 1, email: String(m.email || '').trim() || null };
-      if (m.id) ok(await sb.from('household_members').update(fila).eq('id', m.id).select('id'));
+      if (m.id) ok1(await sb.from('household_members').update(fila).eq('id', m.id).select('id'));
       else ok(await sb.from('household_members').insert(Object.assign(fila, { es_yo: !!m.esYo, orden: D.household_members.length })).select('id'));
       await rehacerPartes();
       return 'Guardado: ' + nombre;
@@ -352,7 +391,7 @@
     async quitarMiembro(id) {
       const m = X.mem.id[id]; if (!m) throw new Error('No encontrado.');
       if (m.es_yo) throw new Error('No puedes quitarte a ti.');
-      ok(await sb.from('household_members').delete().eq('id', id).select('id'));
+      ok1(await sb.from('household_members').delete().eq('id', id).select('id'));
       await rehacerPartes();
       return 'Quitado: ' + m.nombre;
     },
@@ -369,7 +408,7 @@
       const imp = red(Number(d.imp)); if (!(imp >= 0)) throw new Error('Precio no válido.');
       const catSub = X.cats.find((k) => /suscrip/i.test(k.nombre));
       const fila = { nombre, importe: imp, dia: Math.max(1, Math.min(31, Math.round(Number(d.dia) || 1))), activa: !!d.activa, notas: d.notas || 'Mensual' };
-      if (d.fila) ok(await sb.from('subscriptions').update(fila).eq('id', d.fila).select('id'));
+      if (d.fila) ok1(await sb.from('subscriptions').update(fila).eq('id', d.fila).select('id'));
       else ok(await sb.from('subscriptions').insert(Object.assign(fila, { category_id: catSub ? catSub.id : null, account_id: (X.acc.nombre[cuentaPrincipal()] || {}).id || null })).select('id'));
       return (d.fila ? 'Guardada: ' : 'Añadida: ') + nombre;
     },
@@ -382,11 +421,11 @@
       };
       if (!f.concepto) throw new Error('Escribe el concepto.');
       if (!L.TIPOS.includes(f.tipo)) throw new Error('Tipo no válido.');
-      if (d.fila) ok(await sb.from('recurring').update(f).eq('id', d.fila).select('id'));
+      if (d.fila) ok1(await sb.from('recurring').update(f).eq('id', d.fila).select('id'));
       else ok(await sb.from('recurring').insert(f).select('id'));
       return 'Guardado: ' + f.concepto;
     },
-    async eliminarRecurrente(id) { ok(await sb.from('recurring').delete().eq('id', id).select('id')); return 'Eliminado'; },
+    async eliminarRecurrente(id) { ok1(await sb.from('recurring').delete().eq('id', id).select('id')); return 'Eliminado'; },
     async importarMovimientos(d) {
       const cuenta = d.cuenta || cuentaPrincipal();
       const nuevos = (d.nuevos || []).slice(0, 400).map((m) => Object.assign({}, m, { cuenta: m.cuenta || cuenta, estado: 'Confirmado', notas: m.notas || 'Importado del extracto.' }));
@@ -395,7 +434,7 @@
         try {
           const m = movPorId(c.fila); if (m.estado === 'Confirmado') continue;
           const f = aFila(Object.assign({}, m, { fecha: c.fecha, imp: c.imp, estado: 'Confirmado' }));
-          ok(await sb.from('movements').update({ fecha: f.fecha, importe: f.importe, mi_parte: f.mi_parte, estado: 'Confirmado', notas: (m.notas ? m.notas + ' ' : '') + 'Confirmado con el extracto.' }).eq('id', m.id).select('id'));
+          ok1(await sb.from('movements').update({ fecha: f.fecha, importe: f.importe, mi_parte: f.mi_parte, estado: 'Confirmado', notas: (m.notas ? m.notas + ' ' : '') + 'Confirmado con el extracto.' }).eq('id', m.id).select('id'));
           nConf++;
         } catch (e) { /* sigue con el resto */ }
       }
@@ -425,7 +464,7 @@
         const comp = !!c.compartida && grupo !== 'ahorro';
         if (comp !== X.compartidas.includes(k.nombre)) cambioComp = true;
         const tipo = grupo === 'ahorro' ? 'Ahorro / inversión' : (k.tipo === 'Ahorro / inversión' ? 'Gasto' : k.tipo);
-        ok(await sb.from('categories').update({ grupo, tipo, compartida: comp, plan: red(Number(c.plan) || 0), total_hogar: comp ? red(c.total != null ? Number(c.total) : Number(c.plan) * n) : null }).eq('id', k.id).select('id'));
+        ok1(await sb.from('categories').update({ grupo, tipo, compartida: comp, plan: red(Number(c.plan) || 0), total_hogar: comp ? red(c.total != null ? Number(c.total) : Number(c.plan) * n) : null }).eq('id', k.id).select('id'));
       }
       if (d.ajustes) await A.guardarAjustesApp(d.ajustes);
       if (cambioComp) await rehacerPartes();
@@ -437,7 +476,7 @@
       if (d.nombre != null) { cambios.nombre = String(d.nombre).trim(); if (!cambios.nombre) throw new Error('Escribe el nombre.'); }
       if (d.archivada != null) cambios.archivada = !!d.archivada;
       if (d.account_id !== undefined) cambios.account_id = d.account_id;
-      ok(await sb.from('categories').update(cambios).eq('id', d.id).select('id'));
+      ok1(await sb.from('categories').update(cambios).eq('id', d.id).select('id'));
       return 'Categoría guardada';
     },
     async gastoRapido(p) {
@@ -563,7 +602,7 @@
     /** Hogar compartido: invitar a alguien del hogar y, si me han invitado a mí, ver y anotar en ese hogar. */
     hogar: {
       async invitar(memberId) { return ok(await sb.rpc('crear_invitacion', { p_member: memberId })); },
-      async desconectar(memberId) { ok(await sb.from('household_members').update({ cuenta_user_id: null }).eq('id', memberId).select('id')); },
+      async desconectar(memberId) { ok1(await sb.from('household_members').update({ cuenta_user_id: null }).eq('id', memberId).select('id')); },
       async verInvitacion(codigo) { return ok(await sb.rpc('ver_invitacion', { p_codigo: codigo })); },
       async aceptar(codigo) { return ok(await sb.rpc('aceptar_invitacion', { p_codigo: codigo })); },
       async mios() { return ok(await sb.rpc('mis_hogares')) || []; },

@@ -476,6 +476,7 @@
     <div class="card" style="padding:12px 14px"><div class="sub">Beneficio total</div><div class="num" style="font-weight:800;font-size:17px;margin-top:2px" id="totGanancia">–</div></div>
   </div>
   <div class="card" id="listaActivos"></div>
+  <div class="sub" style="font-size:12px;margin-top:6px">Toca un metal para poner su precio de hoy, corregir lo que tienes o anotar una venta.</div>
   <button class="btn sec" id="abrirCompra">＋ Compra de metal</button></div>
 </div></div>
 
@@ -1299,21 +1300,81 @@ function editarCuenta(c) {
     await conBoton($('sGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('actualizarSaldo', c.fila, n)); cerrarHoja(); });
   };
 }
-function editarActivo(a) {
-  abrirHoja('precio actual', a.nombre, `
-    <div class="sub">${aTexto(a.unidades)} uds · coste medio ${eur(a.coste)} · precio del ${esc(a.fecha)}</div>
+function editarActivo(a, modo) {
+  modo = modo || 'precio';
+  const seg = `<div class="seg" id="mModo" style="margin-top:4px">${[['precio', 'Precio'], ['corregir', 'Corregir'], ['vender', 'Vender']].map(([k, t]) => `<button class="${k === modo ? 'on' : ''}" data-m="${k}">${t}</button>`).join('')}</div>`;
+  const cab = `<div class="sub">${aTexto(a.unidades)} uds · coste medio ${eur(a.coste)} · invertido ${eur(a.invertido)} · precio del ${esc(a.fecha)}</div>${seg}`;
+  let cuerpo = '';
+  if (modo === 'precio') cuerpo = `
     <label>Precio actual por unidad</label>
     <div class="card" style="text-align:center"><input class="big-input num" id="aPrecio" type="text" inputmode="decimal" value="${aTexto(a.precio)}"></div>
     <div class="hint" id="aRes"></div>
-    <button class="btn" id="aGuardar">Guardar precio</button>`);
-  const inp = $('aPrecio');
-  const res = () => { const p = num(inp.value) || 0, val = p * a.unidades, g = val - a.invertido; $('aRes').innerHTML = `Valor ${eur(val)} · beneficio <b class="${clsSigno(g)}">${signoEur(g)}</b>`; };
-  inp.addEventListener('input', res); res();
-  setTimeout(() => { inp.focus(); inp.select(); }, 250);
-  $('aGuardar').onclick = async () => {
-    const p = num(inp.value); if (!(p > 0)) { toast('Precio no válido', true); return; }
-    await conBoton($('aGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('actualizarPrecio', a.fila, p)); cerrarHoja(); });
-  };
+    <button class="btn" id="aGuardar">Guardar precio</button>`;
+  else if (modo === 'corregir') cuerpo = `
+    <div class="sub" style="margin-top:10px">Para corregir lo que tienes, por ejemplo si anotaste mal una compra. No crea movimientos.</div>
+    <label>Nombre</label><input id="eNombre" value="${esc(a.nombre)}" maxlength="60" autocomplete="off">
+    <div class="row"><div><label>Unidades</label><input id="eUds" type="text" inputmode="decimal" value="${aTexto(a.unidades)}"></div>
+      <div><label>Coste medio / ud.</label><input id="eCoste" type="text" inputmode="decimal" value="${aTexto(a.coste)}"></div></div>
+    <label>Precio actual / ud.</label><input id="ePrecio" type="text" inputmode="decimal" value="${aTexto(a.precio)}">
+    <div class="hint" id="eRes"></div>
+    <button class="btn" id="eGuardar">Guardar cambios</button>
+    <button class="btn sec danger" id="eBorrarMetal" style="margin-top:8px">Eliminar este metal</button>`;
+  else cuerpo = `
+    <div class="row"><div><label>Unidades que vendes</label><input id="vUds" type="text" inputmode="decimal" placeholder="máx. ${aTexto(a.unidades)}"></div>
+      <div><label>Precio de venta / ud.</label><input id="vPrecio" type="text" inputmode="decimal" value="${aTexto(a.precio)}"></div></div>
+    <label>Fecha</label><input type="date" id="vFecha" value="${hoyLocal()}">
+    <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:var(--tx);font-size:14px"><input type="checkbox" id="vRegistrar" checked> Anotar el dinero en una cuenta</label>
+    <div id="vCuentaWrap"><label>Lo recibes en</label><select id="vCuenta">${opciones(S.datos.cuentas, cuentaDeRol('inversion') || cuentaPrincipal())}</select>
+      <div class="sub" style="font-size:12px;margin-top:6px">Entra en esa cuenta sin contar como ingreso del mes: es tu dinero que vuelve de la inversión.</div></div>
+    <div class="hint" id="vRes" style="display:none"></div>
+    <button class="btn" id="vGuardar">Guardar venta</button>`;
+  abrirHoja('metales', a.nombre, cab + cuerpo);
+  $('mModo').querySelectorAll('button').forEach((b) => b.onclick = () => editarActivo(a, b.dataset.m));
+  if (modo === 'precio') {
+    const inp = $('aPrecio');
+    const res = () => { const p = num(inp.value) || 0, val = p * a.unidades, g = val - a.invertido; $('aRes').innerHTML = `Valor ${eur(val)} · beneficio <b class="${clsSigno(g)}">${signoEur(g)}</b>`; };
+    inp.addEventListener('input', res); res();
+    setTimeout(() => { inp.focus(); inp.select(); }, 250);
+    $('aGuardar').onclick = async () => {
+      const p = num(inp.value); if (!(p > 0)) { toast('Precio no válido', true); return; }
+      await conBoton($('aGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('actualizarPrecio', a.fila, p)); cerrarHoja(); });
+    };
+  } else if (modo === 'corregir') {
+    const res = () => {
+      const u = num($('eUds').value) || 0, c = num($('eCoste').value) || 0, p = num($('ePrecio').value) || 0, g = u * p - u * c;
+      $('eRes').innerHTML = `Invertido ${eur(u * c)} · vale ${eur(u * p)} · beneficio <b class="${clsSigno(g)}">${signoEur(g)}</b>`;
+    };
+    ['eUds', 'eCoste', 'ePrecio'].forEach((i) => $(i).addEventListener('input', res)); res();
+    $('eGuardar').onclick = async () => {
+      const d = { id: a.fila, nombre: $('eNombre').value.trim(), unidades: num($('eUds').value), coste: num($('eCoste').value), precio: num($('ePrecio').value) };
+      if (!d.nombre) { toast('Escribe el nombre', true); return; }
+      if (!(d.unidades > 0)) { toast('Unidades no válidas. Para quitarlo, usa Vender o Eliminar.', true); return; }
+      if (!(d.coste >= 0) || !(d.precio >= 0)) { toast('Revisa el coste y el precio', true); return; }
+      await conBoton($('eGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('editarMetal', d)); cerrarHoja(); });
+    };
+    $('eBorrarMetal').onclick = async () => {
+      if (!confirm(`¿Eliminar «${a.nombre}»? Se borra de tus inversiones (los movimientos que ya anotaste no se tocan). No se puede deshacer.`)) return;
+      await conBoton($('eBorrarMetal'), 'Eliminando…', async () => { toast('✓ ' + await apiPost('eliminarMetal', a.fila)); cerrarHoja(); });
+    };
+  } else {
+    const res = () => {
+      const u = num($('vUds').value) || 0, p = num($('vPrecio').value) || 0, el = $('vRes');
+      if (!(u > 0 && p > 0)) { el.style.display = 'none'; return; }
+      const g = (p - a.coste) * u, quedan = a.unidades - u;
+      el.style.display = 'block';
+      el.innerHTML = u > a.unidades + 1e-9 ? `<b class="neg">Solo tienes ${aTexto(a.unidades)} uds.</b>`
+        : `Recibes ${eur(u * p)} · ${g >= 0 ? 'ganas' : 'pierdes'} <b class="${clsSigno(g)}">${eur(Math.abs(g))}</b> frente a lo que te costó. ${quedan > 1e-9 ? `Te quedan ${aTexto(quedan)} uds.` : 'Vendes todo: desaparece de tus inversiones.'}`;
+    };
+    ['vUds', 'vPrecio'].forEach((i) => $(i).addEventListener('input', res));
+    $('vRegistrar').onchange = () => { $('vCuentaWrap').style.display = $('vRegistrar').checked ? 'block' : 'none'; };
+    setTimeout(() => $('vUds').focus(), 250);
+    $('vGuardar').onclick = async () => {
+      const d = { id: a.fila, unidades: num($('vUds').value), precio: num($('vPrecio').value), fecha: $('vFecha').value || hoyLocal(), registrar: $('vRegistrar').checked, cuenta: $('vCuenta').value };
+      if (!(d.unidades > 0) || d.unidades > a.unidades + 1e-9) { toast(`Indica entre 0 y ${aTexto(a.unidades)} uds`, true); return; }
+      if (!(d.precio > 0)) { toast('Indica el precio de venta', true); return; }
+      await conBoton($('vGuardar'), 'Guardando…', async () => { toast('✓ ' + await apiPost('venderMetal', d)); cerrarHoja(); });
+    };
+  }
 }
 $('abrirCuenta').onclick = () => {
   abrirHoja('nueva cuenta', 'Añadir cuenta', `

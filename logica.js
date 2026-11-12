@@ -102,8 +102,16 @@
 
   /**
    * cuentas: [{nombre, saldoBase, fechaBase, baseEn}] · movs con confirmadoEn (ISO).
-   * Saldo = revisado + confirmados posteriores a la revisión (misma regla que la vista SQL `saldos`).
+   * Saldo = revisado + lo confirmado DESPUÉS de revisarlo, con fecha de ese día o posterior
+   * (misma regla que la vista SQL `saldos`). Lo confirmado antes ya está en el saldo que escribiste.
    */
+  /** ¿Este movimiento confirmado mueve el saldo que se revisó en fechaBase / baseEn? */
+  function enSaldoTras(m, fechaBase, baseEn) {
+    if (!m.fecha || m.fecha < fechaBase) return false;
+    const conf = Date.parse(m.confirmadoEn || ''), base = Date.parse(baseEn || '');
+    if (!isFinite(base)) return true;
+    return isFinite(conf) && conf > base;
+  }
   function saldos(cuentas, movs) {
     const out = {};
     cuentas.forEach((c) => { out[c.nombre] = Number(c.saldoBase) || 0; });
@@ -114,7 +122,7 @@
       efectosSaldo(m).forEach(([cuenta, delta]) => {
         const c = porNombre[cuenta];
         if (!c) return;
-        const cuenta_ = m.fecha > c.fechaBase || (m.fecha === c.fechaBase && (m.confirmadoEn || '') > (c.baseEn || ''));
+        const cuenta_ = enSaldoTras(m, c.fechaBase, c.baseEn);
         if (cuenta_) out[cuenta] += delta;
       });
     });
@@ -371,7 +379,7 @@
 
   return {
     MESES, PENDIENTES, TIPOS, ROLES, PALABRAS_CAT, VACIAS, red, ymd, aFecha, sumarDias, dmy, mayus,
-    ciclo, cicloDesde, cicloAnterior, fechaEnCiclo, hogar, miParte, efectosSaldo, saldos, resumen, pendientes, serie,
+    ciclo, cicloDesde, cicloAnterior, fechaEnCiclo, hogar, miParte, efectosSaldo, enSaldoTras, saldos, resumen, pendientes, serie,
     recurrentesDelCiclo, compartidos, movimientoSaldar, palabras, aprender, categorizar, leerGastoRapido, hashClave,
     ciclosPorCerrar, filaHistorico,
   };

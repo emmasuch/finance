@@ -3179,11 +3179,23 @@ function abrirHoja(etiqueta, titulo, html) {
   $('hojaEtiqueta').textContent = etiqueta; $('hojaTitulo').textContent = titulo; $('hojaCuerpo').innerHTML = html;
   $('sheet').classList.add('on'); document.body.style.overflow = 'hidden';
 }
-function cerrarHoja() { $('sheet').classList.remove('on'); document.body.style.overflow = ''; }
+function cerrarHoja() { $('sheet').classList.remove('on'); document.body.style.overflow = ''; if (typeof recargaPendiente !== 'undefined' && recargaPendiente) location.reload(); }
 
 /* ───────── Arranque ───────── */
-if ('serviceWorker' in navigator && !DEMO) navigator.serviceWorker.register('sw.js').catch(() => {});
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S && sb) cargar(); });
+// Actualización automática: al volver a la app se busca versión nueva y, si la hay, se recarga sola
+let regSW = null, recargaPendiente = false;
+const recargarSiSePuede = () => { if (!$('sheet').classList.contains('on')) location.reload(); else recargaPendiente = true; };
+if ('serviceWorker' in navigator && !DEMO) {
+  const habiaVersion = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((r) => { regSW = r; r.update().catch(() => {}); }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (habiaVersion) recargarSiSePuede(); });
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (recargaPendiente && !$('sheet').classList.contains('on')) { location.reload(); return; }
+  if (regSW) regSW.update().catch(() => {});
+  if (S && sb) cargar();
+});
 iniciarConexion().then(() => cargar()).catch((e) => { $('loading').style.display = 'none'; mostrarAuth(e.message); });
 </script>
 </body>

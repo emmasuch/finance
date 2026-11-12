@@ -1,10 +1,13 @@
-// Guarda la app en el móvil para que abra al instante, incluso sin conexión.
+// Guarda la app en el móvil para que abra sin conexión, pero con conexión siempre carga la última versión.
 // Al cambiar cualquier archivo de la app, sube el número de VERSION.
-const VERSION = 'mi-presupuesto-v2-9';
+const VERSION = 'mi-presupuesto-v2-10';
 const ARCHIVOS = ['./', 'index.html', 'config.js', 'logica.js', 'datos.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'privacidad.html', 'aviso-legal.html'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  // cache: 'reload' = pedirlos al servidor, no a la caché del navegador (si no, se guardaba la versión vieja)
+  e.waitUntil(caches.open(VERSION)
+    .then((c) => c.addAll(ARCHIVOS.map((u) => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -22,12 +25,18 @@ self.addEventListener('fetch', (e) => {
   const propio = url.origin === self.location.origin;
   const externo = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com' || url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'cdnjs.cloudflare.com';
   if (!propio && !externo) return;
-  // Muestra lo guardado al momento y lo renueva por detrás
-  e.respondWith(caches.open(VERSION).then((cache) => cache.match(req, { ignoreSearch: propio }).then((guardado) => {
-    const red = fetch(req).then((resp) => {
-      if (resp && (resp.ok || resp.type === 'opaque')) cache.put(req, resp.clone());
+  if (propio) {
+    // Archivos de la app: primero la red (siempre la versión nueva); sin conexión, lo guardado
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then((resp) => {
+      if (resp && resp.ok) { const copia = resp.clone(); caches.open(VERSION).then((c) => c.put(req, copia)); }
       return resp;
-    }).catch(() => guardado);
-    return guardado || red;
-  })));
+    }).catch(() => caches.open(VERSION).then((c) => c.match(req, { ignoreSearch: true })
+      .then((g) => g || (req.mode === 'navigate' ? c.match('index.html') : undefined)))));
+    return;
+  }
+  // Fuentes y librerías (no cambian): lo guardado al momento
+  e.respondWith(caches.open(VERSION).then((cache) => cache.match(req).then((guardado) => guardado || fetch(req).then((resp) => {
+    if (resp && (resp.ok || resp.type === 'opaque')) cache.put(req, resp.clone());
+    return resp;
+  }))));
 });
